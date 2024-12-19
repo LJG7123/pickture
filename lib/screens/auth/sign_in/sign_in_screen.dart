@@ -55,7 +55,22 @@ class SignInScreen extends ConsumerWidget {
     var user = ref.read(authProvider);
     if (user == null && authNotifier.authService.userCredential != null) {
       // 유저 정보가 등록되어 있지 않은 경우
-      context.go('/signup_with_google');
+      if (context.mounted) {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text("사용자 정보 미등록"),
+                content: const Text("확인 버튼 클릭 시 사용자 정보 등록 화면으로 이동합니다."),
+                actions: [
+                  TextButton(
+                    onPressed: () => context.go('/signup_with_google'),
+                    child: const Text("확인"),
+                  )
+                ],
+              );
+            });
+      }
     } else if (user != null) {
       // 로그인에 성공한 경우
     }
