@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pickture/error_handler.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/widgets/auth_text_field.dart';
@@ -46,6 +47,20 @@ class SignInScreen extends ConsumerWidget {
     }
   }
 
+  void _onLoginWithGoogleButtonClicked(
+      BuildContext context, WidgetRef ref) async {
+    var authNotifier = ref.read(authProvider.notifier);
+    await authNotifier.signInWithGoogle();
+
+    var user = ref.read(authProvider);
+    if (user == null && authNotifier.authService.userCredential != null) {
+      // 유저 정보가 등록되어 있지 않은 경우
+      context.go('/signup_with_google');
+    } else if (user != null) {
+      // 로그인에 성공한 경우
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final obscurePassword = ref.watch(_obscurePasswordProvider);
@@ -74,7 +89,7 @@ class SignInScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             ExpandedElevatedIconButton(
-              onPressed: () {},
+              onPressed: () => _onLoginWithGoogleButtonClicked(context, ref),
               text: 'Google 로 로그인',
               iconAsset: 'assets/images/android_light_rd_na.svg',
             ),

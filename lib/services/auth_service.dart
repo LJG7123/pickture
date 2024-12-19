@@ -1,13 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pickture/models/user_model.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth;
   final FirebaseFirestore _firestore;
+  final GoogleSignIn _googleSignIn;
   UserCredential? userCredential;
 
-  AuthService(this._firebaseAuth, this._firestore);
+  AuthService(this._firebaseAuth, this._firestore, this._googleSignIn);
 
   Future<UserModel> signIn(String email, String password) async {
     userCredential = await _firebaseAuth.signInWithEmailAndPassword(
@@ -18,6 +20,27 @@ class AuthService {
         .get();
     if (snapshot.data() == null) {
       throw Exception('login_failed_exception');
+    }
+    return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
+  }
+
+  Future<UserModel?> signInWithGoogle() async {
+    final googleAccount = await _googleSignIn.signIn();
+    if (googleAccount == null) {
+      throw Exception('login_failed_exception');
+    }
+    final googleAuth = await googleAccount.authentication;
+    final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken, accessToken: googleAuth.accessToken);
+
+    userCredential = await _firebaseAuth.signInWithCredential(credential);
+
+    var snapshot = await _firestore
+        .collection('users')
+        .doc(userCredential?.user?.uid)
+        .get();
+    if (snapshot.data() == null) {
+      return null;
     }
     return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
   }
