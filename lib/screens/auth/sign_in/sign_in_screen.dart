@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/widgets/auth_text_field.dart';
 import 'package:pickture/widgets/expanded_elevated_button.dart';
 import 'package:pickture/widgets/expanded_outlined_button.dart';
 
-class SignInScreen extends StatefulWidget {
+class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() => _SignInScreenState();
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
@@ -39,7 +41,13 @@ class _SignInScreenState extends State<SignInScreen> {
               onSuffixIconPressed: _togglePasswordVisibility,
             ),
             const SizedBox(height: 20),
-            ExpandedElevatedButton(onPressed: () {}, text: '로그인'),
+            ExpandedElevatedButton(
+                onPressed: () {
+                  ref
+                      .read(authProvider.notifier)
+                      .signIn(_emailController.text, _passwordController.text);
+                },
+                text: '로그인'),
             const SizedBox(height: 20),
             ExpandedElevatedButton(
               onPressed: () {},
