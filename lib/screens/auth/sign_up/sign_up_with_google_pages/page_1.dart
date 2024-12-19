@@ -14,6 +14,7 @@ class Page1 extends StatelessWidget {
           "생년월일 입력",
           style: TextStyle(fontSize: 22),
         ),
+        const SizedBox(height: 12),
         const Text(
           "회원님의 실제 생년월일을 입력해 주세요.",
           style: TextStyle(fontSize: 14),
