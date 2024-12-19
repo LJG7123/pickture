@@ -4,8 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pickture/models/user_model.dart';
 import 'package:pickture/services/auth_service.dart';
 
-final authProvider = StateNotifierProvider((ref) => AuthNotifier(
-    AuthService(FirebaseAuth.instance, FirebaseFirestore.instance)));
+final authProvider = StateNotifierProvider<AuthNotifier, UserModel?>((ref) =>
+    AuthNotifier(
+        AuthService(FirebaseAuth.instance, FirebaseFirestore.instance)));
 
 class AuthNotifier extends StateNotifier<UserModel?> {
   final AuthService authService;

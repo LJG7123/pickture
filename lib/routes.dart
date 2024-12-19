@@ -4,7 +4,7 @@ import 'package:pickture/screens/auth/sign_up/sign_up_screen.dart';
 import 'screens/chat_list_screen.dart';
 
 final router = GoRouter(
-  initialLocation: '/chats',
+  initialLocation: '/',
   routes: [
     GoRoute(
       path: '/',
