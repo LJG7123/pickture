@@ -7,7 +7,7 @@ final router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const SignInScreen(),
+      builder: (context, state) => SignInScreen(),
     ),
     GoRoute(
       path: '/signup',

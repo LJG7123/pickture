@@ -1,30 +1,56 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pickture/error_handler.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/widgets/auth_text_field.dart';
-import 'package:pickture/widgets/expanded_elevated_button.dart';
+import 'package:pickture/widgets/expanded_elevated_icon_button.dart';
+import 'package:pickture/widgets/expanded_elevated_progress_button.dart';
 import 'package:pickture/widgets/expanded_outlined_button.dart';
 
-class SignInScreen extends ConsumerStatefulWidget {
-  const SignInScreen({super.key});
-
-  @override
-  ConsumerState<SignInScreen> createState() => _SignInScreenState();
-}
-
-class _SignInScreenState extends ConsumerState<SignInScreen> {
+class SignInScreen extends ConsumerWidget {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
+  final _obscurePasswordProvider = StateProvider<bool>((ref) => true);
+  final _signInLoadingProvider = StateProvider<bool>((ref) => false);
 
-  void _togglePasswordVisibility() {
-    setState(() {
-      _obscurePassword = !_obscurePassword;
-    });
+  SignInScreen({super.key});
+
+  void _togglePasswordVisibility(WidgetRef ref) {
+    ref.read(_obscurePasswordProvider.notifier).state =
+        !ref.read(_obscurePasswordProvider);
+  }
+
+  void _onLoginButtonClicked(BuildContext context, WidgetRef ref) async {
+    ref.read(_signInLoadingProvider.notifier).state = true;
+    try {
+      await ref
+          .read(authProvider.notifier)
+          .signIn(_emailController.text, _passwordController.text);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          duration: const Duration(seconds: 1),
+          content: Text(_getErrorMessage(e)),
+        ));
+      }
+    }
+    ref.read(_signInLoadingProvider.notifier).state = false;
+  }
+
+  String _getErrorMessage(Object error) {
+    if (error is FirebaseAuthException) {
+      return FirebaseErrorHandler.handleAuthError(error);
+    } else {
+      return '알 수 없는 오류가 발생했습니다.';
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final obscurePassword = ref.watch(_obscurePasswordProvider);
+    final isLoading = ref.watch(_signInLoadingProvider);
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -37,19 +63,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             AuthTextField(
               controller: _passwordController,
               hintText: 'Password',
-              obscureText: _obscurePassword,
-              onSuffixIconPressed: _togglePasswordVisibility,
+              obscureText: obscurePassword,
+              onSuffixIconPressed: () => _togglePasswordVisibility(ref),
             ),
             const SizedBox(height: 20),
-            ExpandedElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(authProvider.notifier)
-                      .signIn(_emailController.text, _passwordController.text);
-                },
-                text: '로그인'),
+            ExpandedElevatedProgressButton(
+              onPressed: () => _onLoginButtonClicked(context, ref),
+              text: '로그인',
+              isLoading: isLoading,
+            ),
             const SizedBox(height: 20),
-            ExpandedElevatedButton(
+            ExpandedElevatedIconButton(
               onPressed: () {},
               text: 'Google 로 로그인',
               iconAsset: 'assets/images/android_light_rd_na.svg',
