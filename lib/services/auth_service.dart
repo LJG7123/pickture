@@ -44,4 +44,23 @@ class AuthService {
     }
     return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
   }
+
+  Future<UserModel?> signUpWithGoogle(String dob, String name) async {
+    if (userCredential == null) return null;
+
+    await _firestore.collection('users').doc(userCredential!.user!.uid).set({
+      'dob': dob,
+      'email': userCredential!.user!.email,
+      'name': name,
+    });
+
+    var snapshot = await _firestore
+        .collection('users')
+        .doc(userCredential!.user!.uid)
+        .get();
+    if (snapshot.data() == null) {
+      return null;
+    }
+    return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
+  }
 }

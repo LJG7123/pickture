@@ -24,4 +24,10 @@ class AuthNotifier extends StateNotifier<UserModel?> {
       state = user;
     });
   }
+
+  Future<void> signUpWithGoogle(String dob, String name) async {
+    await authService.signUpWithGoogle(dob, name).then((user) {
+      state = user;
+    });
+  }
 }

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pickture/providers/auth_provider.dart';
 
 class PageNotifier extends ChangeNotifier {
-  final AuthNotifier authNotifier;
   final pageController = PageController();
   final nameController = TextEditingController();
   final dobController = TextEditingController();
@@ -10,7 +8,7 @@ class PageNotifier extends ChangeNotifier {
   int currentPage = 0;
   bool isLoading = false;
 
-  PageNotifier({required this.authNotifier, required this.pageCount});
+  PageNotifier({required this.pageCount});
 
   void setCurrentPage(int page) {
     currentPage = page;
@@ -22,8 +20,6 @@ class PageNotifier extends ChangeNotifier {
       pageController.nextPage(
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
       setCurrentPage(currentPage + 1);
-    } else if (currentPage == pageCount - 1) {
-      // authNotifier.signUpWithGoogle();
     }
   }
 

@@ -10,10 +10,8 @@ import 'package:pickture/widgets/expanded_elevated_progress_button.dart';
 class SignUpWithGoogleScreen extends ConsumerWidget {
   SignUpWithGoogleScreen({super.key});
 
-  final _pageNotifierProvider = ChangeNotifierProvider((ref) {
-    var authNotifier = ref.read(authProvider.notifier);
-    return PageNotifier(authNotifier: authNotifier, pageCount: 2);
-  });
+  final _pageNotifierProvider =
+      ChangeNotifierProvider((ref) => PageNotifier(pageCount: 2));
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,7 +41,22 @@ class SignUpWithGoogleScreen extends ConsumerWidget {
               ),
             ),
             ExpandedElevatedProgressButton(
-              onPressed: pageProvider.toNextPage,
+              onPressed: pageProvider.currentPage < pageProvider.pageCount - 1
+                  ? pageProvider.toNextPage
+                  : () {
+                      ref
+                          .read(authProvider.notifier)
+                          .signUpWithGoogle(
+                            pageProvider.dobController.text,
+                            pageProvider.nameController.text,
+                          )
+                          .then((value) {
+                        if (ref.read(authProvider) != null) {
+                          // TODO: 피드 화면으로 이동
+                          context.go('/feed_page');
+                        }
+                      });
+                    },
               text: "다음",
               isLoading: pageProvider.isLoading,
             ),
