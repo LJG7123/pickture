@@ -64,7 +64,10 @@ class SignInScreen extends ConsumerWidget {
                 content: const Text("확인 버튼 클릭 시 사용자 정보 등록 화면으로 이동합니다."),
                 actions: [
                   TextButton(
-                    onPressed: () => context.go('/signup_with_google'),
+                    onPressed: () {
+                      context.pop();
+                      context.push('/signup_with_google');
+                    },
                     child: const Text("확인"),
                   )
                 ],
