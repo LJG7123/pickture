@@ -41,7 +41,11 @@ class _SignInScreenState extends State<SignInScreen> {
             const SizedBox(height: 20),
             ExpandedElevatedButton(onPressed: () {}, text: '로그인'),
             const SizedBox(height: 20),
-            ExpandedElevatedButton(onPressed: () {}, text: 'Google 로 로그인'),
+            ExpandedElevatedButton(
+              onPressed: () {},
+              text: 'Google 로 로그인',
+              iconAsset: 'assets/images/android_light_rd_na.svg',
+            ),
             const Spacer(),
             ExpandedOutlinedButton(onPressed: () {}, text: '새 계정 만들기')
           ],
