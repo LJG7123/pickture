@@ -12,8 +12,8 @@ class AuthNotifier extends StateNotifier<UserModel?> {
 
   AuthNotifier(this.authService) : super(null);
 
-  void signIn(String email, String password) async {
-    authService.signIn(email, password).then((user) {
+  Future<void> signIn(String email, String password) async {
+    await authService.signIn(email, password).then((user) {
       state = user;
     });
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class ExpandedElevatedButton extends StatelessWidget {
-  const ExpandedElevatedButton(
+class ExpandedElevatedIconButton extends StatelessWidget {
+  const ExpandedElevatedIconButton(
       {super.key, required this.onPressed, required this.text, this.iconAsset});
 
   final VoidCallback onPressed;
