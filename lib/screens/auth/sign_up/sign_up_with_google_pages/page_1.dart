@@ -3,6 +3,7 @@ import 'package:pickture/utils/date_util.dart';
 
 class Page1 extends StatelessWidget {
   final TextEditingController controller;
+
   const Page1({required this.controller, super.key});
 
   @override

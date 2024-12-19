@@ -38,7 +38,7 @@ class SignUpWithGoogleScreen extends ConsumerWidget {
                 onPageChanged: pageProvider.setCurrentPage,
                 children: [
                   Page1(controller: pageProvider.dobController),
-                  Page2(),
+                  Page2(controller: pageProvider.nameController),
                 ],
               ),
             ),
