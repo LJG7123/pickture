@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pickture/core/error/app_exception.dart';
+import 'package:pickture/core/error/auth_exception.dart';
 import 'package:pickture/models/user_model.dart';
 
 class AuthService {
@@ -13,8 +14,12 @@ class AuthService {
   AuthService(this._firebaseAuth, this._firestore, this._googleSignIn);
 
   Future<UserModel> signIn(String email, String password) async {
-    userCredential = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email, password: password);
+    try {
+      userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+          email: email, password: password);
+    } catch (e) {
+      _handleError(e);
+    }
     var snapshot = await _firestore
         .collection('users')
         .doc(userCredential?.user?.uid)
@@ -69,5 +74,13 @@ class AuthService {
       return null;
     }
     return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
+  }
+
+  void _handleError(Object error) {
+    if (error is FirebaseAuthException) {
+      throw handleAuthException(error);
+    } else {
+      throw AppException("알 수 없는 오류가 발생했습니다.");
+    }
   }
 }

@@ -1,10 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickture/core/error/app_exception.dart';
-import 'package:pickture/core/error/auth_exception.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/screens/auth/widgets/auth_text_field.dart';
 import 'package:pickture/screens/auth/widgets/expanded_elevated_icon_button.dart';
@@ -32,26 +29,13 @@ class _SignInScreenState extends ConsumerState {
 
   void _onLoginButtonClicked(BuildContext context) async {
     ref.read(_signInLoadingProvider.notifier).state = true;
-    try {
-      await ref
-          .read(authProvider.notifier)
-          .signIn(_emailController.text, _passwordController.text);
-    } catch (e) {
-      _handleError(e);
-    } finally {
-      ref.read(_signInLoadingProvider.notifier).state = false;
-    }
+    await ref
+        .read(authProvider.notifier)
+        .signIn(_emailController.text, _passwordController.text);
+    ref.read(_signInLoadingProvider.notifier).state = false;
 
-    if (ref.read(authProvider) != null) {
+    if (ref.read(authProvider).value != null) {
       // 로그인에 성공한 경우
-    }
-  }
-
-  void _handleError(Object error) {
-    if (error is FirebaseAuthException) {
-      throw handleAuthException(error);
-    } else {
-      throw AppException("알 수 없는 오류가 발생했습니다.");
     }
   }
 
@@ -59,7 +43,7 @@ class _SignInScreenState extends ConsumerState {
     var authNotifier = ref.read(authProvider.notifier);
     await authNotifier.signInWithGoogle();
 
-    var user = ref.read(authProvider);
+    var user = ref.read(authProvider).value;
     if (user == null && authNotifier.authService.userCredential != null) {
       // 유저 정보가 등록되어 있지 않은 경우
       if (context.mounted) {

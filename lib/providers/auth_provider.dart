@@ -5,30 +5,29 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pickture/models/user_model.dart';
 import 'package:pickture/services/auth_service.dart';
 
-final authProvider = StateNotifierProvider<AuthNotifier, UserModel?>((ref) =>
-    AuthNotifier(AuthService(
-        FirebaseAuth.instance, FirebaseFirestore.instance, GoogleSignIn())));
+final authProvider =
+    StateNotifierProvider<AuthNotifier, AsyncValue<UserModel?>>((ref) =>
+        AuthNotifier(AuthService(FirebaseAuth.instance,
+            FirebaseFirestore.instance, GoogleSignIn())));
 
-class AuthNotifier extends StateNotifier<UserModel?> {
+class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
   final AuthService authService;
 
-  AuthNotifier(this.authService) : super(null);
+  AuthNotifier(this.authService) : super(const AsyncValue.data(null));
 
   Future<void> signIn(String email, String password) async {
-    await authService.signIn(email, password).then((user) {
-      state = user;
-    });
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => authService.signIn(email, password));
   }
 
   Future<void> signInWithGoogle() async {
-    await authService.signInWithGoogle().then((user) {
-      state = user;
-    });
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => authService.signInWithGoogle());
   }
 
   Future<void> signUpWithGoogle(String dob, String name) async {
-    await authService.signUpWithGoogle(dob, name).then((user) {
-      state = user;
-    });
+    state = const AsyncValue.loading();
+    state =
+        await AsyncValue.guard(() => authService.signUpWithGoogle(dob, name));
   }
 }
