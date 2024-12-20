@@ -5,7 +5,7 @@ import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/page_provider.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_with_google_pages/page_1.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_with_google_pages/page_2.dart';
-import 'package:pickture/widgets/expanded_elevated_progress_button.dart';
+import 'package:pickture/screens/auth/widgets/expanded_elevated_progress_button.dart';
 
 class SignUpWithGoogleScreen extends ConsumerStatefulWidget {
   const SignUpWithGoogleScreen({super.key});

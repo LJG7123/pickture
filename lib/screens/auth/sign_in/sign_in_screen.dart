@@ -5,10 +5,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickture/error_handler.dart';
 import 'package:pickture/providers/auth_provider.dart';
-import 'package:pickture/widgets/auth_text_field.dart';
-import 'package:pickture/widgets/expanded_elevated_icon_button.dart';
-import 'package:pickture/widgets/expanded_elevated_progress_button.dart';
-import 'package:pickture/widgets/expanded_outlined_button.dart';
+import 'package:pickture/screens/auth/widgets/auth_text_field.dart';
+import 'package:pickture/screens/auth/widgets/expanded_elevated_icon_button.dart';
+import 'package:pickture/screens/auth/widgets/expanded_elevated_progress_button.dart';
+import 'package:pickture/screens/auth/widgets/expanded_outlined_button.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
