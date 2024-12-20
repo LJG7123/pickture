@@ -7,14 +7,22 @@ import 'package:pickture/screens/auth/sign_up/sign_up_with_google_pages/page_1.d
 import 'package:pickture/screens/auth/sign_up/sign_up_with_google_pages/page_2.dart';
 import 'package:pickture/widgets/expanded_elevated_progress_button.dart';
 
-class SignUpWithGoogleScreen extends ConsumerWidget {
-  SignUpWithGoogleScreen({super.key});
-
-  final _pageNotifierProvider =
-      ChangeNotifierProvider((ref) => PageNotifier(pageCount: 2));
+class SignUpWithGoogleScreen extends ConsumerStatefulWidget {
+  const SignUpWithGoogleScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _SignUpWithGoogleScreenState();
+}
+
+class _SignUpWithGoogleScreenState extends ConsumerState {
+  final _pageNotifierProvider =
+      ChangeNotifierProvider((ref) => PageNotifier(pageCount: 2));
+  final _dobController = TextEditingController();
+  final _nameController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
     var pageProvider = ref.watch(_pageNotifierProvider);
 
     return Scaffold(
@@ -35,8 +43,8 @@ class SignUpWithGoogleScreen extends ConsumerWidget {
                 controller: pageProvider.pageController,
                 onPageChanged: pageProvider.setCurrentPage,
                 children: [
-                  Page1(controller: pageProvider.dobController),
-                  Page2(controller: pageProvider.nameController),
+                  Page1(controller: _dobController),
+                  Page2(controller: _nameController),
                 ],
               ),
             ),
@@ -47,8 +55,8 @@ class SignUpWithGoogleScreen extends ConsumerWidget {
                       ref
                           .read(authProvider.notifier)
                           .signUpWithGoogle(
-                            pageProvider.dobController.text,
-                            pageProvider.nameController.text,
+                            _dobController.text,
+                            _nameController.text,
                           )
                           .then((value) {
                         if (ref.read(authProvider) != null) {
@@ -64,5 +72,12 @@ class SignUpWithGoogleScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _dobController.dispose();
+    _nameController.dispose();
+    super.dispose();
   }
 }

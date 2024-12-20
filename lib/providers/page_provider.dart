@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 class PageNotifier extends ChangeNotifier {
   final pageController = PageController();
-  final nameController = TextEditingController();
-  final dobController = TextEditingController();
   final int pageCount;
   int currentPage = 0;
   bool isLoading = false;

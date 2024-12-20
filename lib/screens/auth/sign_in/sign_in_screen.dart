@@ -10,21 +10,26 @@ import 'package:pickture/widgets/expanded_elevated_icon_button.dart';
 import 'package:pickture/widgets/expanded_elevated_progress_button.dart';
 import 'package:pickture/widgets/expanded_outlined_button.dart';
 
-class SignInScreen extends ConsumerWidget {
+class SignInScreen extends ConsumerStatefulWidget {
+  const SignInScreen({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends ConsumerState {
   final _googleIcon = SvgPicture.asset('assets/images/android_light_rd_na.svg');
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _obscurePasswordProvider = StateProvider<bool>((ref) => true);
   final _signInLoadingProvider = StateProvider<bool>((ref) => false);
 
-  SignInScreen({super.key});
-
-  void _togglePasswordVisibility(WidgetRef ref) {
+  void _togglePasswordVisibility() {
     ref.read(_obscurePasswordProvider.notifier).state =
         !ref.read(_obscurePasswordProvider);
   }
 
-  void _onLoginButtonClicked(BuildContext context, WidgetRef ref) async {
+  void _onLoginButtonClicked(BuildContext context) async {
     ref.read(_signInLoadingProvider.notifier).state = true;
     try {
       await ref
@@ -53,8 +58,7 @@ class SignInScreen extends ConsumerWidget {
     }
   }
 
-  void _onLoginWithGoogleButtonClicked(
-      BuildContext context, WidgetRef ref) async {
+  void _onLoginWithGoogleButtonClicked(BuildContext context) async {
     var authNotifier = ref.read(authProvider.notifier);
     await authNotifier.signInWithGoogle();
 
@@ -86,7 +90,7 @@ class SignInScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final obscurePassword = ref.watch(_obscurePasswordProvider);
     final isLoading = ref.watch(_signInLoadingProvider);
 
@@ -103,17 +107,17 @@ class SignInScreen extends ConsumerWidget {
               controller: _passwordController,
               hintText: 'Password',
               obscureText: obscurePassword,
-              onSuffixIconPressed: () => _togglePasswordVisibility(ref),
+              onSuffixIconPressed: () => _togglePasswordVisibility(),
             ),
             const SizedBox(height: 20),
             ExpandedElevatedProgressButton(
-              onPressed: () => _onLoginButtonClicked(context, ref),
+              onPressed: () => _onLoginButtonClicked(context),
               text: '로그인',
               isLoading: isLoading,
             ),
             const SizedBox(height: 20),
             ExpandedElevatedIconButton(
-              onPressed: () => _onLoginWithGoogleButtonClicked(context, ref),
+              onPressed: () => _onLoginWithGoogleButtonClicked(context),
               text: 'Google 로 로그인',
               iconAsset: _googleIcon,
             ),
@@ -123,5 +127,12 @@ class SignInScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }
