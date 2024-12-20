@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickture/error_handler.dart';
 import 'package:pickture/providers/auth_provider.dart';
@@ -10,6 +11,7 @@ import 'package:pickture/widgets/expanded_elevated_progress_button.dart';
 import 'package:pickture/widgets/expanded_outlined_button.dart';
 
 class SignInScreen extends ConsumerWidget {
+  final _googleIcon = SvgPicture.asset('assets/images/android_light_rd_na.svg');
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _obscurePasswordProvider = StateProvider<bool>((ref) => true);
@@ -37,6 +39,10 @@ class SignInScreen extends ConsumerWidget {
       }
     }
     ref.read(_signInLoadingProvider.notifier).state = false;
+
+    if (ref.read(authProvider) != null) {
+      // 로그인에 성공한 경우
+    }
   }
 
   String _getErrorMessage(Object error) {
@@ -109,7 +115,7 @@ class SignInScreen extends ConsumerWidget {
             ExpandedElevatedIconButton(
               onPressed: () => _onLoginWithGoogleButtonClicked(context, ref),
               text: 'Google 로 로그인',
-              iconAsset: 'assets/images/android_light_rd_na.svg',
+              iconAsset: _googleIcon,
             ),
             const Spacer(),
             ExpandedOutlinedButton(onPressed: () {}, text: '새 계정 만들기')

@@ -7,7 +7,7 @@ class ExpandedElevatedIconButton extends StatelessWidget {
 
   final VoidCallback onPressed;
   final String text;
-  final String? iconAsset;
+  final SvgPicture? iconAsset;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class ExpandedElevatedIconButton extends StatelessWidget {
       height: 52,
       child: ElevatedButton.icon(
         onPressed: onPressed,
-        icon: iconAsset == null ? null : SvgPicture.asset(iconAsset!),
+        icon: iconAsset,
         label: Text(text),
       ),
     );
