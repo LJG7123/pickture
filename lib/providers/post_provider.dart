@@ -18,8 +18,8 @@ class PostNotifier extends StateNotifier<List<Post>> {
     state = posts;
   }
 
-  Future<void> addPost(Post post, WidgetRef ref) async {
-    await postService.addPost(post, ref);
+  Future<void> addPost(Post post) async {
+    await postService.addPost(post);
     state = [...state, post];
   }
 

@@ -159,7 +159,7 @@ void _saveDialog(BuildContext context, WidgetRef ref, [Post? post]) {
               final savePost = createPost(
                   post, titleController.text, contentController.text, ref);
               if (post == null) {
-                ref.read(postProvider.notifier).addPost(savePost, ref);
+                ref.read(postProvider.notifier).addPost(savePost);
               } else {
                 ref.read(postProvider.notifier).updatePost(savePost);
               }

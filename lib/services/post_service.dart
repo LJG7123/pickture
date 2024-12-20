@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pickture/models/post.dart';
 import 'package:pickture/models/user_model.dart';
-import 'package:pickture/providers/auth_provider.dart';
 
 class PostService {
   final FirebaseFirestore _firestore;
@@ -42,14 +40,14 @@ class PostService {
     return posts;
   }
 
-  Future<void> addPost(Post post, WidgetRef ref) async {
-    final userId = ref.watch(authProvider)?.uid;
-
-    await _firestore.collection("posts").doc(userId).set({
+  Future<void> addPost(Post post) async {
+    await _firestore.collection("posts").doc(post.createUserModel.uid).set({
       "createdAt": FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
 
-    await _firestore.collection("posts/$userId/post").add(post.toJson());
+    await _firestore
+        .collection("posts/${post.createUserModel.uid}/post")
+        .add(post.toJson());
   }
 
   Future<void> updatePost(Post post) async {
