@@ -6,8 +6,8 @@ import 'package:pickture/models/user_model.dart';
 import 'package:pickture/services/auth_service.dart';
 
 final authProvider = StateNotifierProvider<AuthNotifier, UserModel?>((ref) =>
-    AuthNotifier(
-        AuthService(FirebaseAuth.instance, FirebaseFirestore.instance)));
+    AuthNotifier(AuthService(
+        FirebaseAuth.instance, FirebaseFirestore.instance, GoogleSignIn())));
 
 class AuthNotifier extends StateNotifier<UserModel?> {
   final AuthService authService;
