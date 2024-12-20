@@ -36,6 +36,7 @@ class _SignInScreenState extends ConsumerState {
 
     if (ref.read(authProvider).value != null) {
       // 로그인에 성공한 경우
+      if (context.mounted) context.go("/post");
     }
   }
 
