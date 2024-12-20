@@ -5,7 +5,7 @@ import '../services/chat_service.dart';
 import '../repositories/chat_repository.dart';
 import 'auth_provider.dart';
 
-part 'chat_provider.g.dart';
+part 'gen/chat_provider.g.dart';
 
 @riverpod
 ChatService chatService(Ref ref) {
