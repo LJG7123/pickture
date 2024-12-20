@@ -9,7 +9,7 @@ final router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => SignInScreen(),
+      builder: (context, state) => const SignInScreen(),
     ),
     GoRoute(
       path: '/signup',
@@ -17,7 +17,7 @@ final router = GoRouter(
     ),
     GoRoute(
       path: '/signup_with_google',
-      builder: (context, state) => SignUpWithGoogleScreen(),
+      builder: (context, state) => const SignUpWithGoogleScreen(),
     ),
     GoRoute(
       path: '/chats',
