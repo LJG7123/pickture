@@ -104,7 +104,9 @@ class _SignInScreenState extends ConsumerState {
               iconAsset: _googleIcon,
             ),
             const Spacer(),
-            ExpandedOutlinedButton(onPressed: () {}, text: '새 계정 만들기')
+            ExpandedOutlinedButton(onPressed: () {
+              context.push('/signup');
+            }, text: '새 계정 만들기')
           ],
         ),
       ),
