@@ -15,7 +15,7 @@ ChatService chatService(Ref ref) {
 @riverpod
 Stream<List<ChatRoom>> chatRooms(Ref ref) {
   final service = ref.watch(chatServiceProvider);
-  final user = ref.watch(authProvider);
+  final user = ref.watch(authProvider).value;
 
   if (user == null) {
     return Stream.value([]);

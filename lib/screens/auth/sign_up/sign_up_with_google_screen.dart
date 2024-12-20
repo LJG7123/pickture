@@ -59,7 +59,7 @@ class _SignUpWithGoogleScreenState extends ConsumerState {
                             _nameController.text,
                           )
                           .then((value) {
-                        if (ref.read(authProvider) != null) {
+                        if (ref.read(authProvider).value != null) {
                           // TODO: 피드 화면으로 이동
                           context.go('/feed_page');
                         }

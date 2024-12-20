@@ -41,7 +41,7 @@ class PostScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(post.createUserModel.email.split('@')[0]),
-                            if (ref.watch(authProvider)!.uid ==
+                            if (ref.watch(authProvider).value!.uid ==
                                 post.createUserModel.uid)
                               Row(
                                 children: [
@@ -184,7 +184,7 @@ Post createPost(Post? post, String title, String content, WidgetRef ref) {
     content: content,
     likes: post?.likes ?? [],
     comments: post?.comments ?? [],
-    createUserModel: post?.createUserModel ?? ref.watch(authProvider)!,
+    createUserModel: post?.createUserModel ?? ref.watch(authProvider).value!,
     createdAt: post?.createdAt ?? DateTime.now(),
     updatedAt: post == null ? null : DateTime.now(),
   );
