@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickture/error_handler.dart';
+import 'package:pickture/core/error/app_exception.dart';
+import 'package:pickture/core/error/auth_exception.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/screens/auth/widgets/auth_text_field.dart';
 import 'package:pickture/screens/auth/widgets/expanded_elevated_icon_button.dart';
@@ -36,25 +37,21 @@ class _SignInScreenState extends ConsumerState {
           .read(authProvider.notifier)
           .signIn(_emailController.text, _passwordController.text);
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: const Duration(seconds: 1),
-          content: Text(_getErrorMessage(e)),
-        ));
-      }
+      _handleError(e);
+    } finally {
+      ref.read(_signInLoadingProvider.notifier).state = false;
     }
-    ref.read(_signInLoadingProvider.notifier).state = false;
 
     if (ref.read(authProvider) != null) {
       // 로그인에 성공한 경우
     }
   }
 
-  String _getErrorMessage(Object error) {
+  void _handleError(Object error) {
     if (error is FirebaseAuthException) {
-      return FirebaseErrorHandler.handleAuthError(error);
+      throw handleAuthException(error);
     } else {
-      return '알 수 없는 오류가 발생했습니다.';
+      throw AppException("알 수 없는 오류가 발생했습니다.");
     }
   }
 

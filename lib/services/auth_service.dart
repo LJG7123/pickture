@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pickture/core/error/app_exception.dart';
 import 'package:pickture/models/user_model.dart';
 
 class AuthService {
@@ -19,7 +20,10 @@ class AuthService {
         .doc(userCredential?.user?.uid)
         .get();
     if (snapshot.data() == null) {
-      throw Exception('login_failed_exception');
+      throw AppException(
+        '로그인에 실패했습니다.',
+        code: 'login_failed',
+      );
     }
     return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
   }
@@ -27,7 +31,10 @@ class AuthService {
   Future<UserModel?> signInWithGoogle() async {
     final googleAccount = await _googleSignIn.signIn();
     if (googleAccount == null) {
-      throw Exception('login_failed_exception');
+      throw AppException(
+        '로그인에 실패했습니다.',
+        code: 'login_failed',
+      );
     }
     final googleAuth = await googleAccount.authentication;
     final credential = GoogleAuthProvider.credential(
