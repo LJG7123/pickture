@@ -20,6 +20,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _pageNotifierProvider =
       ChangeNotifierProvider((ref) => PageNotifier(pageCount: 4));
   final _emailController = TextEditingController();
+  final _emailErrorProvider = StateProvider<String?>((ref) => null);
   final _passwordController = TextEditingController();
   final _dobController = TextEditingController();
   final _nameController = TextEditingController();
@@ -27,6 +28,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     var pageProvider = ref.watch(_pageNotifierProvider);
+    var emailError = ref.watch(_emailErrorProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -46,7 +48,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 controller: pageProvider.pageController,
                 onPageChanged: pageProvider.setCurrentPage,
                 children: [
-                  Page1(controller: _emailController),
+                  Page1(controller: _emailController, errorMessage: emailError),
                   Page2(controller: _passwordController),
                   Page3(controller: _dobController),
                   Page4(controller: _nameController),
@@ -65,6 +67,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(() {
+      ref.read(_emailErrorProvider.notifier).state = null;
+    });
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
@@ -73,10 +83,26 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     super.dispose();
   }
 
-  void _onNextButtonClicked(PageNotifier pageNotifier) {
+  void _onNextButtonClicked(PageNotifier pageNotifier) async {
+    bool isAvailable = false;
+    pageNotifier.setLoading(true);
+
     switch (pageNotifier.currentPage) {
+      case 0:
+        isAvailable = await ref
+            .read(authProvider.notifier)
+            .isEmailAvailable(_emailController.text);
+        if (!isAvailable) {
+          ref.read(_emailErrorProvider.notifier).state =
+              '이미 사용중이거나 사용할 수 없는 이메일입니다.';
+        }
       default:
-        pageNotifier.toNextPage();
+        isAvailable = true;
     }
+
+    if (isAvailable) {
+      pageNotifier.toNextPage();
+    }
+    pageNotifier.setLoading(false);
   }
 }

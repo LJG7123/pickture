@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pickture/models/user_model.dart';
 import 'package:pickture/services/auth_service.dart';
+import 'package:pickture/utils/validator.dart';
 
 final authProvider =
     StateNotifierProvider<AuthNotifier, AsyncValue<UserModel?>>((ref) =>
@@ -29,5 +30,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     state = const AsyncValue.loading();
     state =
         await AsyncValue.guard(() => authService.signUpWithGoogle(dob, name));
+  }
+
+  Future<bool> isEmailAvailable(String email) async {
+    if (!Validator.isEmailValid(email)) return false;
+    return authService.isEmailAvailable(email);
   }
 }

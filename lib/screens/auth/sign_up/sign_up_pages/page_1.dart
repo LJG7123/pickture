@@ -3,8 +3,9 @@ import 'package:pickture/screens/auth/widgets/auth_text_field.dart';
 
 class Page1 extends StatelessWidget {
   final TextEditingController controller;
+  final String? errorMessage;
 
-  const Page1({required this.controller, super.key});
+  const Page1({required this.controller, this.errorMessage, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,11 @@ class Page1 extends StatelessWidget {
           style: TextStyle(fontSize: 14),
         ),
         const SizedBox(height: 36),
-        AuthTextField(controller: controller, hintText: 'Email'),
+        AuthTextField(
+          controller: controller,
+          hintText: 'Email',
+          errorMessage: errorMessage,
+        ),
       ],
     );
   }

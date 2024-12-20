@@ -28,4 +28,9 @@ class PageNotifier extends ChangeNotifier {
       setCurrentPage(currentPage - 1);
     }
   }
+
+  void setLoading(bool isLoading) {
+    this.isLoading = isLoading;
+    notifyListeners();
+  }
 }

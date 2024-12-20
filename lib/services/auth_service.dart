@@ -76,6 +76,11 @@ class AuthService {
     return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
   }
 
+  Future<bool> isEmailAvailable(String email) async {
+    var accounts = await _firestore.collection('users').where('email', isEqualTo: email).count().get();
+    return accounts.count == 0;
+  }
+
   void _handleError(Object error) {
     if (error is FirebaseAuthException) {
       throw handleAuthException(error);
