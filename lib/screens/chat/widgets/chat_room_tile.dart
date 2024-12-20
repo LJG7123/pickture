@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../models/chat_room.dart';
+import '../../../models/chat_room.dart';
 
 class ChatRoomTile extends StatelessWidget {
   final ChatRoom chatRoom;
@@ -19,9 +19,9 @@ class ChatRoomTile extends StatelessWidget {
         radius: 20,
         child: Icon(Icons.person, color: Colors.white),
       ),
-      title: Text(
+      title: const Text(
         'another_person', // TODO: 상대방 이름
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
           fontSize: 16,
           fontWeight: FontWeight.normal,

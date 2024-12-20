@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'chat_provider.dart';
+part of '../chat_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$chatServiceHash() => r'd3fe6eeb20af36ee7ad75eee49447d8cee49baf7';
+String _$chatServiceHash() => r'065f56d4c78e1b62f862485c25853747ac7c63dd';
 
 /// See also [chatService].
 @ProviderFor(chatService)
@@ -19,8 +19,10 @@ final chatServiceProvider = AutoDisposeProvider<ChatService>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef ChatServiceRef = AutoDisposeProviderRef<ChatService>;
-String _$chatRoomsHash() => r'b38a1a3d67e9b550f6527d3968752343f6ebb51f';
+String _$chatRoomsHash() => r'b49ae29bb2b318b75b805b8540fa9393b0a2ae9b';
 
 /// See also [chatRooms].
 @ProviderFor(chatRooms)
@@ -33,8 +35,10 @@ final chatRoomsProvider = AutoDisposeStreamProvider<List<ChatRoom>>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef ChatRoomsRef = AutoDisposeStreamProviderRef<List<ChatRoom>>;
-String _$chatRoomHash() => r'508bb90bfdded87ab0c376e8f84743fb3ea6b85c';
+String _$chatRoomHash() => r'8b59c49bd7ce2e2e05b5e7f9965175e301d2a92d';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -169,6 +173,8 @@ class ChatRoomProvider extends AutoDisposeFutureProvider<ChatRoom> {
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin ChatRoomRef on AutoDisposeFutureProviderRef<ChatRoom> {
   /// The parameter `chatId` of this provider.
   String get chatId;
@@ -182,4 +188,4 @@ class _ChatRoomProviderElement
   String get chatId => (origin as ChatRoomProvider).chatId;
 }
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
