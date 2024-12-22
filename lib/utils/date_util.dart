@@ -22,4 +22,20 @@ extension DateExtensions on DateTime {
       return '$month월 $day일';
     }
   }
+
+  String formatMessageDateOnly() {
+    final now = DateTime.now();
+    final difference = now.difference(this);
+
+    if (difference.inDays == 0) {
+      return '오늘';
+    } else if (difference.inDays == 1) {
+      return '어제';
+    } else if (difference.inDays < 7) {
+      const weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+      return weekdays[weekday - 1];
+    } else {
+      return '$month월 $day일';
+    }
+  }
 }

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../models/chat_room.dart';
+import 'package:pickture/core/error/app_exception.dart';
+import 'package:pickture/core/error/error_provider.dart';
 import '../../models/user_model.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/dm_contact_provider.dart';
-import 'widgets/chat_room_tile.dart';
+import '../../providers/auth_provider.dart';
+import 'widgets/search_results.dart';
+import 'widgets/chat_rooms_list.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
   const ChatListScreen({super.key});
@@ -31,6 +34,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     final contactsAsync = _isSearching && searchQuery.isNotEmpty
         ? ref.watch(dmContactSearchProvider(searchQuery))
         : const AsyncValue<List<UserModel>>.data([]);
+    final userAsync = ref.watch(authProvider);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -40,15 +44,81 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.go('/'),
         ),
-        title: const Text(
-          'displayName',
-          style: TextStyle(color: Colors.white),
+        title: userAsync.when(
+          data: (user) => Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: Colors.grey[800],
+                backgroundImage:
+                    user?.profileImage != null && user!.profileImage!.isNotEmpty
+                        ? NetworkImage(user.profileImage!)
+                        : null,
+                child: user?.profileImage == null || user!.profileImage!.isEmpty
+                    ? const Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 20,
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                user?.name ?? '채팅',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+          loading: () => const Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: Colors.grey,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(width: 12),
+              Text(
+                '로딩 중...',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+          error: (error, stack) {
+            ref.read(errorNotifierProvider.notifier).setError(
+                  error is AppException
+                      ? error
+                      : AppException('사용자 정보를 불러올 수 없습니다',
+                          details: error.toString()),
+                );
+            return Row(
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: Colors.grey[800],
+                  child:
+                      const Icon(Icons.person, color: Colors.white, size: 20),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  '채팅',
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  onPressed: () => ref.refresh(authProvider),
+                ),
+              ],
+            );
+          },
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit, color: Colors.white),
             onPressed: () {
-              // TODO: 새 메시지 작성
+              context.push('/chats/new', extra: ref.read(authProvider).value);
             },
           ),
         ],
@@ -96,169 +166,39 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
               Expanded(
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (Widget child, Animation<double> animation) {
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
                     return FadeTransition(
                       opacity: animation,
                       child: child,
                     );
                   },
                   child: _isSearching
-                      ? _buildSearchResults(context, contactsAsync)
-                      : _buildChatRooms(context, chatRoomsAsync),
+                      ? SearchResults(
+                          contactsAsync: contactsAsync,
+                          isSearching: _isSearching,
+                          onUserTap: (contact) async {
+                            await ref
+                                .read(chatRoomControllerProvider(contact.uid)
+                                    .notifier)
+                                .startChatWithUser(contact)
+                                .then((chatId) {
+                              if (context.mounted) {
+                                context.go('/chats/$chatId');
+                              }
+                            }).catchError((e) {
+                              ref
+                                  .read(errorNotifierProvider.notifier)
+                                  .setError(e);
+                            });
+                          },
+                        )
+                      : ChatRoomsList(chatRoomsAsync: chatRoomsAsync),
                 ),
               ),
             ],
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildSearchResults(
-      BuildContext context, AsyncValue<List<UserModel>> contactsAsync) {
-    return contactsAsync.when(
-      data: (contacts) {
-        if (contacts.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(
-                    Icons.search_off,
-                    color: Colors.white,
-                    size: 40,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  '검색 결과가 없습니다.',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-        return ListView.builder(
-          itemCount: contacts.length,
-          itemBuilder: (context, index) {
-            final contact = contacts[index];
-            return ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              leading: const CircleAvatar(
-                backgroundColor: Colors.grey,
-                radius: 20,
-                child: Icon(Icons.person, color: Colors.white),
-              ),
-              title: Text(
-                contact.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-              trailing: const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.grey,
-                size: 16,
-              ),
-              onTap: () {
-                // TODO: 채팅방 생성 또는 이동
-              },
-            );
-          },
-        );
-      },
-      loading: () => const Center(
-        child: CircularProgressIndicator(color: Colors.white),
-      ),
-      error: (error, stack) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.red, width: 2),
-              ),
-              child: const Icon(
-                Icons.error_outline,
-                color: Colors.red,
-                size: 40,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              '검색 중 오류가 발생했습니다.',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildChatRooms(
-      BuildContext context, AsyncValue<List<ChatRoom>> chatRoomsAsync) {
-    return chatRoomsAsync.when(
-      data: (chatRooms) {
-        if (chatRooms.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(
-                    Icons.mail_outline,
-                    color: Colors.white,
-                    size: 40,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  '아직 메시지가 없습니다.',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-        return ListView.builder(
-          itemCount: chatRooms.length,
-          itemBuilder: (context, index) {
-            return ChatRoomTile(chatRoom: chatRooms[index]);
-          },
-        );
-      },
-      loading: () => const Center(
-        child: CircularProgressIndicator(color: Colors.white),
-      ),
-      error: (error, stack) => const Center(
-        child: Text(
-          '채팅방 목록을 불러오는 중 오류가 발생했습니다.',
-          style: TextStyle(color: Colors.white),
-        ),
       ),
     );
   }

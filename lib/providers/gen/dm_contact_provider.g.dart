@@ -23,7 +23,7 @@ final dmContactServiceProvider = AutoDisposeProvider<DMContactService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef DmContactServiceRef = AutoDisposeProviderRef<DMContactService>;
-String _$dmContactSearchHash() => r'f0a5dd7b9e95d2501b857a28b9588d7883218bc6';
+String _$dmContactSearchHash() => r'7468275984b450b97e162e2feed2a3c79298a66c';
 
 /// Copied from Dart SDK
 class _SystemHash {
