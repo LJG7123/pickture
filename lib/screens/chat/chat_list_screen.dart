@@ -87,14 +87,12 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
             ],
           ),
           error: (error, stack) {
-            if (error is AppException) {
-              ref.read(errorNotifierProvider.notifier).setError(error);
-            } else {
-              ref.read(errorNotifierProvider.notifier).setError(
-                    AppException('사용자 정보를 불러올 수 없습니다',
-                        details: error.toString()),
-                  );
-            }
+            ref.read(errorNotifierProvider.notifier).setError(
+                  error is AppException
+                      ? error
+                      : AppException('사용자 정보를 불러올 수 없습니다',
+                          details: error.toString()),
+                );
             return Row(
               children: [
                 CircleAvatar(
@@ -120,7 +118,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
           IconButton(
             icon: const Icon(Icons.edit, color: Colors.white),
             onPressed: () {
-              context.push('/chats/new');
+              context.push('/chats/new', extra: ref.read(authProvider).value);
             },
           ),
         ],
@@ -179,6 +177,21 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                       ? SearchResults(
                           contactsAsync: contactsAsync,
                           isSearching: _isSearching,
+                          onUserTap: (contact) async {
+                            await ref
+                                .read(chatRoomControllerProvider(contact.uid)
+                                    .notifier)
+                                .startChatWithUser(contact)
+                                .then((chatId) {
+                              if (context.mounted) {
+                                context.go('/chats/$chatId');
+                              }
+                            }).catchError((e) {
+                              ref
+                                  .read(errorNotifierProvider.notifier)
+                                  .setError(e);
+                            });
+                          },
                         )
                       : ChatRoomsList(chatRoomsAsync: chatRoomsAsync),
                 ),
