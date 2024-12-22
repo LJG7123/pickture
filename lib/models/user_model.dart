@@ -5,6 +5,8 @@ class UserModel {
   final String dob;
   final String? profileImage;
 
+  String get userId => email.split('@')[0];
+
   UserModel(
       {required this.uid,
       required this.name,
