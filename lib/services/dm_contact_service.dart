@@ -7,10 +7,11 @@ class DMContactService {
   DMContactService({DMContactRepository? repository})
       : _repository = repository ?? DMContactRepository();
 
-  Future<List<UserModel>> searchContacts(String query) async {
+  Future<List<UserModel>> searchContacts(
+      String query, String currentUserId) async {
     if (query.isEmpty) {
       return [];
     }
-    return _repository.searchContacts(query);
+    return _repository.searchContacts(query, currentUserId);
   }
 }
