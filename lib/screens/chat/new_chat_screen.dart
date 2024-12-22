@@ -108,8 +108,11 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                     await ref
                         .read(chatRoomControllerProvider(contact.uid).notifier)
                         .startChatWithUser(contact)
-                        .then((chatId) => context.go('/chats/$chatId'))
-                        .catchError((e) {
+                        .then((chatId) {
+                      if (context.mounted) {
+                        context.go('/chats/$chatId');
+                      }
+                    }).catchError((e) {
                       ref.read(errorNotifierProvider.notifier).setError(e);
                     });
                   },
