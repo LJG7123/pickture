@@ -12,10 +12,12 @@ DMContactService dmContactService(Ref ref) {
 }
 
 @riverpod
-Future<List<UserModel>> dmContactSearch(Ref ref, String query) async {
+Future<List<UserModel>> dmContactSearch(
+  Ref ref,
+  String query,
+) async {
   final service = ref.watch(dmContactServiceProvider);
   final currentUser = ref.watch(authProvider).value;
-  if (currentUser == null) return [];
 
-  return service.searchContacts(query, currentUser.uid);
+  return service.searchContacts(query, currentUser?.uid ?? '');
 }
