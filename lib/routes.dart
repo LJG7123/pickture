@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:pickture/screens/auth/sign_in/sign_in_screen.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_screen.dart';
+import 'package:pickture/screens/post/post_screen.dart';
 import 'screens/chat/chat_list_screen.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_with_google_screen.dart';
 
@@ -9,7 +10,7 @@ final router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => SignInScreen(),
+      builder: (context, state) => const SignInScreen(),
     ),
     GoRoute(
       path: '/signup',
@@ -17,11 +18,15 @@ final router = GoRouter(
     ),
     GoRoute(
       path: '/signup_with_google',
-      builder: (context, state) => SignUpWithGoogleScreen(),
+      builder: (context, state) => const SignUpWithGoogleScreen(),
     ),
     GoRoute(
       path: '/chats',
       builder: (context, state) => const ChatListScreen(),
+    ),
+    GoRoute(
+      path: "/post",
+      builder: (context, state) => const PostScreen(),
     ),
   ],
 );
