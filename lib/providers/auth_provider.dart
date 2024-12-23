@@ -36,4 +36,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     if (!Validator.isEmailValid(email)) return false;
     return authService.isEmailAvailable(email);
   }
+
+  bool isPasswordAvailable(String password) {
+    return Validator.isPasswordValid(password);
+  }
 }

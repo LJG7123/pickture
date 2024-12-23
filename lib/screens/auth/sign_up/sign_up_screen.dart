@@ -22,6 +22,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _emailController = TextEditingController();
   final _emailErrorProvider = StateProvider<String?>((ref) => null);
   final _passwordController = TextEditingController();
+  final _passwordErrorProvider = StateProvider<String?>((ref) => null);
   final _dobController = TextEditingController();
   final _nameController = TextEditingController();
 
@@ -29,6 +30,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   Widget build(BuildContext context) {
     var pageProvider = ref.watch(_pageNotifierProvider);
     var emailError = ref.watch(_emailErrorProvider);
+    var passwordError = ref.watch(_passwordErrorProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -50,7 +52,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 onPageChanged: pageProvider.setCurrentPage,
                 children: [
                   Page1(controller: _emailController, errorMessage: emailError),
-                  Page2(controller: _passwordController),
+                  Page2(controller: _passwordController, errorMessage: passwordError),
                   Page3(controller: _dobController),
                   Page4(controller: _nameController),
                 ],
@@ -73,6 +75,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     _emailController.addListener(() {
       ref.read(_emailErrorProvider.notifier).state = null;
     });
+    _passwordController.addListener(() {
+      ref.read(_passwordErrorProvider.notifier).state = null;
+    });
   }
 
   @override
@@ -87,15 +92,20 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   void _onNextButtonClicked(PageNotifier pageNotifier) async {
     bool isAvailable = false;
     pageNotifier.setLoading(true);
+    var authNotifier = ref.read(authProvider.notifier);
 
     switch (pageNotifier.currentPage) {
       case 0:
-        isAvailable = await ref
-            .read(authProvider.notifier)
-            .isEmailAvailable(_emailController.text);
+        isAvailable = await authNotifier.isEmailAvailable(_emailController.text);
         if (!isAvailable) {
           ref.read(_emailErrorProvider.notifier).state =
               '이미 사용중이거나 사용할 수 없는 이메일입니다.';
+        }
+      case 1:
+        isAvailable = authNotifier.isPasswordAvailable(_passwordController.text);
+        if (!isAvailable) {
+          ref.read(_passwordErrorProvider.notifier).state =
+              '사용할 수 없는 비밀번호입니다.';
         }
       default:
         isAvailable = true;
