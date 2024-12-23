@@ -6,7 +6,7 @@ import 'screens/chat/chat_list_screen.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_with_google_screen.dart';
 import 'screens/chat/new_chat_screen.dart';
 import 'screens/chat/chat_room_screen.dart';
-import 'screens/chat/create_group_screen.dart';
+import 'screens/chat/new_group_chat_screen.dart';
 
 final router = GoRouter(
   initialLocation: '/',
@@ -33,7 +33,7 @@ final router = GoRouter(
           routes: [
             GoRoute(
               path: 'group',
-              builder: (context, state) => const CreateGroupScreen(),
+              builder: (context, state) => const NewGroupChatScreen(),
             ),
           ],
         ),
