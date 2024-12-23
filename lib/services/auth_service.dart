@@ -9,21 +9,20 @@ class AuthService {
   final FirebaseAuth _firebaseAuth;
   final FirebaseFirestore _firestore;
   final GoogleSignIn _googleSignIn;
-  UserCredential? userCredential;
   User? get currentUser => _firebaseAuth.currentUser;
 
   AuthService(this._firebaseAuth, this._firestore, this._googleSignIn);
 
   Future<UserModel> signIn(String email, String password) async {
     try {
-      userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+      await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
     } catch (e) {
       _handleError(e);
     }
     var snapshot = await _firestore
         .collection('users')
-        .doc(userCredential?.user?.uid)
+        .doc(currentUser?.uid)
         .get();
     if (snapshot.data() == null) {
       throw AppException(
@@ -31,7 +30,7 @@ class AuthService {
         code: 'login_failed',
       );
     }
-    return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
+    return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
   Future<UserModel?> signInWithGoogle() async {
@@ -46,28 +45,29 @@ class AuthService {
     final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken, accessToken: googleAuth.accessToken);
 
-    userCredential = await _firebaseAuth.signInWithCredential(credential);
+    await _firebaseAuth.signInWithCredential(credential);
 
     var snapshot = await _firestore
         .collection('users')
-        .doc(userCredential?.user?.uid)
+        .doc(currentUser?.uid)
         .get();
     if (snapshot.data() == null) {
       return null;
     }
-    return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
+    return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
   Future<UserModel?> signUp(
       String email, String password, String dob, String name) async {
     try {
-      userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+      await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
+      await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
     } catch (e) {
       _handleError(e);
     }
 
-    var userUid = userCredential?.user?.uid;
+    var userUid = currentUser?.uid;
     if (userUid == null) {
       throw AppException('회원가입에 실패했습니다.', code: 'signup_failed');
     }
@@ -85,22 +85,22 @@ class AuthService {
   }
 
   Future<UserModel?> signUpWithGoogle(String dob, String name) async {
-    if (userCredential == null) return null;
+    if (currentUser == null) return null;
 
-    await _firestore.collection('users').doc(userCredential!.user!.uid).set({
+    await _firestore.collection('users').doc(currentUser!.uid).set({
       'dob': dob,
-      'email': userCredential!.user!.email,
+      'email': currentUser!.email,
       'name': name,
     });
 
     var snapshot = await _firestore
         .collection('users')
-        .doc(userCredential!.user!.uid)
+        .doc(currentUser!.uid)
         .get();
     if (snapshot.data() == null) {
       return null;
     }
-    return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
+    return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
   Future<UserModel?> getCurrentUserData() async {

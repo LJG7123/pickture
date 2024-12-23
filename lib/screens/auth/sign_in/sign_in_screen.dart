@@ -45,7 +45,7 @@ class _SignInScreenState extends ConsumerState {
     await authNotifier.signInWithGoogle();
 
     var user = ref.read(authProvider).value;
-    if (user == null && authNotifier.authService.userCredential != null) {
+    if (user == null && authNotifier.authService.currentUser != null) {
       // 유저 정보가 등록되어 있지 않은 경우
       if (context.mounted) {
         showDialog(
