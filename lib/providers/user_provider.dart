@@ -1,18 +1,55 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pickture/models/user_model.dart';
-import 'package:pickture/services/user_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../models/user_model.dart';
+import '../services/user_service.dart';
 
-final userProvider = StateNotifierProvider<UserNotifier, List<UserModel>>(
-    (ref) => UserNotifier(UserService(FirebaseFirestore.instance)));
+part 'gen/user_provider.g.dart';
 
-class UserNotifier extends StateNotifier<List<UserModel>> {
-  final UserService userService;
+@riverpod
+UserService userService(Ref ref) {
+  return UserService();
+}
 
-  UserNotifier(this.userService) : super([]);
+@riverpod
+Future<UserModel?> user(Ref ref, String userId) async {
+  if (userId.isEmpty) return null;
+  return ref.read(userServiceProvider).getUser(userId);
+}
 
-  Future<void> getUserModel(List<String> userIds) async {
-    final userModels = await userService.getUserModels(userIds);
-    state = userModels;
+@riverpod
+Stream<List<UserModel>> userSearch(Ref ref, String query) {
+  if (query.isEmpty) return Stream.value([]);
+  return ref.read(userServiceProvider).searchUsers(query);
+}
+
+@riverpod
+Future<List<UserModel>> allUsers(Ref ref) async {
+  return ref.read(userServiceProvider).getAllUsers();
+}
+
+@riverpod
+class SelectedUsers extends _$SelectedUsers {
+  @override
+  Set<UserModel> build() {
+    ref.onDispose(() {
+      state = {};
+    });
+    return {};
+  }
+
+  void toggleUser(UserModel user) {
+    if (state.contains(user)) {
+      state = {...state}..remove(user);
+    } else {
+      state = {...state, user};
+    }
+  }
+
+  void clearSelection() {
+    state = {};
+  }
+
+  bool isSelected(UserModel user) {
+    return state.contains(user);
   }
 }
