@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/chat_room.dart';
-import '../models/user_model.dart';
 import '../models/message.dart';
 
 class ChatRepository {
@@ -49,12 +48,6 @@ class ChatRepository {
       },
     );
     return matchingDoc.isEmpty ? null : matchingDoc.first;
-  }
-
-  Future<UserModel?> getUser(String userId) async {
-    final doc = await _firestore.collection('users').doc(userId).get();
-    if (!doc.exists) return null;
-    return UserModel.fromJson(doc.id, doc.data()!);
   }
 
   Future<void> sendMessage(

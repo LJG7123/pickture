@@ -1,17 +1,16 @@
 import '../models/chat_room.dart';
 import '../repositories/chat_repository.dart';
 import '../core/error/app_exception.dart';
-import '../models/user_model.dart';
 import '../models/message.dart';
+import '../services/user_service.dart';
 
 class ChatService {
   final ChatRepository _repository;
 
   // 메모리 캐시
   final Map<String, ChatRoom> _cache = {};
-  final Map<String, UserModel> _userCache = {};
 
-  ChatService({ChatRepository? repository})
+  ChatService({ChatRepository? repository, UserService? userService})
       : _repository = repository ?? ChatRepository();
 
   Stream<List<ChatRoom>> getChatRooms(String userId) {
@@ -92,33 +91,6 @@ class ChatService {
 
     final chatRoom = await createChatRoomWithUser(currentUserId, otherUserId);
     return chatRoom.id;
-  }
-
-  Future<ChatRoom?> findExistingChatRoom(
-      String otherUserId, String currentUserId) async {
-    // 테스트를 위해 항상 null 반환 (새 채팅방 생성 시나리오 테스트)
-    return null;
-  }
-
-  Future<UserModel?> getUser(String userId) async {
-    try {
-      // 캐시 확인
-      if (_userCache.containsKey(userId)) {
-        return _userCache[userId];
-      }
-
-      final user = await _repository.getUser(userId);
-      if (user != null) {
-        _userCache[userId] = user;
-      }
-      return user;
-    } catch (e) {
-      throw AppException(
-        '사용자 정보를 찾을 수 없습니다.',
-        code: 'user_not_found',
-        details: e.toString(),
-      );
-    }
   }
 
   Future<void> sendMessage(
