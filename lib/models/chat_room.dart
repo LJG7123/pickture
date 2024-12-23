@@ -19,6 +19,8 @@ class ChatRoom {
     this.groupImage,
   });
 
+  bool get isGroupChat => participants.length > 2;
+
   factory ChatRoom.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return ChatRoom(
@@ -29,8 +31,8 @@ class ChatRoom {
           ? (data['lastMessageTime'] as Timestamp).toDate()
           : DateTime.now(),
       unreadCount: data['unreadCount'] ?? 0,
-      groupName: data['name'],
-      groupImage: data['image'],
+      groupName: data['groupName'],
+      groupImage: data['groupImage'],
     );
   }
 }
