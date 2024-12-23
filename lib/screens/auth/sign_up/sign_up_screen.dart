@@ -17,20 +17,21 @@ class SignUpScreen extends ConsumerStatefulWidget {
 }
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
+  static const int _pageCount = 4;
   final _pageNotifierProvider =
-      ChangeNotifierProvider((ref) => PageNotifier(pageCount: 4));
-  final _emailController = TextEditingController();
-  final _emailErrorProvider = StateProvider<String?>((ref) => null);
-  final _passwordController = TextEditingController();
-  final _passwordErrorProvider = StateProvider<String?>((ref) => null);
-  final _dobController = TextEditingController();
-  final _nameController = TextEditingController();
+      ChangeNotifierProvider((ref) => PageNotifier(pageCount: _pageCount));
+  final _textControllers =
+      List.generate(_pageCount, (index) => TextEditingController());
+  final _errorMessageProvider = List.generate(
+      _pageCount, (index) => StateProvider<String?>((ref) => null));
 
   @override
   Widget build(BuildContext context) {
     var pageProvider = ref.watch(_pageNotifierProvider);
-    var emailError = ref.watch(_emailErrorProvider);
-    var passwordError = ref.watch(_passwordErrorProvider);
+    var emailError = ref.watch(_errorMessageProvider[0]);
+    var passwordError = ref.watch(_errorMessageProvider[1]);
+    var dobError = ref.watch(_errorMessageProvider[2]);
+    var nameError = ref.watch(_errorMessageProvider[3]);
 
     return Scaffold(
       appBar: AppBar(
@@ -51,10 +52,22 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 onPageChanged: pageProvider.setCurrentPage,
                 children: [
-                  Page1(controller: _emailController, errorMessage: emailError),
-                  Page2(controller: _passwordController, errorMessage: passwordError),
-                  Page3(controller: _dobController),
-                  Page4(controller: _nameController),
+                  Page1(
+                    controller: _textControllers[0],
+                    errorMessage: emailError,
+                  ),
+                  Page2(
+                    controller: _textControllers[1],
+                    errorMessage: passwordError,
+                  ),
+                  Page3(
+                    controller: _textControllers[2],
+                    errorMessage: dobError,
+                  ),
+                  Page4(
+                    controller: _textControllers[3],
+                    errorMessage: nameError,
+                  ),
                 ],
               ),
             ),
@@ -72,20 +85,18 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   @override
   void initState() {
     super.initState();
-    _emailController.addListener(() {
-      ref.read(_emailErrorProvider.notifier).state = null;
-    });
-    _passwordController.addListener(() {
-      ref.read(_passwordErrorProvider.notifier).state = null;
-    });
+    for (int i = 0; i < _pageCount; i++) {
+      _textControllers[i].addListener(() {
+        ref.read(_errorMessageProvider[i].notifier).state = null;
+      });
+    }
   }
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _dobController.dispose();
-    _nameController.dispose();
+    for (var controller in _textControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -93,26 +104,37 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     bool isAvailable = false;
     pageNotifier.setLoading(true);
     var authNotifier = ref.read(authProvider.notifier);
+    var currentPage = pageNotifier.currentPage;
 
-    switch (pageNotifier.currentPage) {
+    switch (currentPage) {
       case 0:
-        isAvailable = await authNotifier.isEmailAvailable(_emailController.text);
+        isAvailable =
+            await authNotifier.isEmailAvailable(_textControllers[0].text);
         if (!isAvailable) {
-          ref.read(_emailErrorProvider.notifier).state =
+          ref.read(_errorMessageProvider[0].notifier).state =
               '이미 사용중이거나 사용할 수 없는 이메일입니다.';
         }
       case 1:
-        isAvailable = authNotifier.isPasswordAvailable(_passwordController.text);
+        isAvailable =
+            authNotifier.isPasswordAvailable(_textControllers[1].text);
         if (!isAvailable) {
-          ref.read(_passwordErrorProvider.notifier).state =
+          ref.read(_errorMessageProvider[1].notifier).state =
               '사용할 수 없는 비밀번호입니다.';
         }
       default:
-        isAvailable = true;
+        isAvailable = _textControllers[currentPage].text.isNotEmpty;
+        if (!isAvailable) {
+          ref.read(_errorMessageProvider[currentPage].notifier).state =
+              '필수 항목입니다.';
+        }
     }
 
     if (isAvailable) {
-      pageNotifier.toNextPage();
+      if (currentPage < _pageCount - 1) {
+        pageNotifier.toNextPage();
+      } else {
+
+      }
     }
     pageNotifier.setLoading(false);
   }
