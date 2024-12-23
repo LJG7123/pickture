@@ -46,7 +46,8 @@ class ChatService {
     }
   }
 
-  Future<ChatRoom> createChatRoom(List<String> participants) async {
+  Future<ChatRoom> createChatRoom(List<String> participants,
+      {String? groupName}) async {
     try {
       // 이미 존재하는 채팅방 확인
       final existingChatRoom =
@@ -56,7 +57,8 @@ class ChatService {
       }
 
       // 새 채팅방 생성
-      final chatRoom = await _repository.createChatRoom(participants);
+      final chatRoom =
+          await _repository.createChatRoom(participants, groupName: groupName);
       _cache[chatRoom.id] = chatRoom;
       return chatRoom;
     } catch (e) {

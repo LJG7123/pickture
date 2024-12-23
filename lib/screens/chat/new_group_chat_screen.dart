@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../models/user_model.dart';
-import '../../providers/user_provider.dart';
 import '../../core/error/app_exception.dart';
 import '../../core/error/error_provider.dart';
+import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
-import 'widgets/user_search_tile.dart';
-import '../../widgets/user/search_text_field.dart';
+import '../../providers/user_provider.dart';
 import '../../widgets/user/search_results.dart';
+import '../../widgets/user/search_text_field.dart';
+import '../../widgets/user/search_container.dart';
+import 'widgets/user_search_tile.dart';
 
 class NewGroupChatScreen extends ConsumerStatefulWidget {
   const NewGroupChatScreen({super.key});
@@ -21,13 +22,14 @@ class NewGroupChatScreen extends ConsumerStatefulWidget {
 class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   String _searchText = '';
   String _groupName = '';
-
   bool _isSearching = false;
   bool _isLoading = false;
 
   @override
   void dispose() {
-    ref.read(selectedUsersProvider.notifier).clearSelection();
+    if (mounted) {
+      ref.read(selectedUsersProvider.notifier).clearSelection();
+    }
     super.dispose();
   }
 
@@ -36,8 +38,15 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   }
 
   Future<void> _createGroupChat() async {
+    if (!mounted) return;
+
     final selectedUsers = ref.read(selectedUsersProvider);
-    if (selectedUsers.isEmpty) return;
+    if (selectedUsers.length < 2) {
+      ref.read(errorNotifierProvider.notifier).setError(
+            AppException('그룹 채팅은 2명 이상의 참여자가 필요합니다'),
+          );
+      return;
+    }
 
     final currentUser = ref.read(authProvider).value;
     if (currentUser == null) {
@@ -56,26 +65,34 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
         currentUser.uid,
         ...selectedUsers.map((user) => user.uid)
       ];
-      final chatId =
-          await ref.read(createChatRoomProvider(participants).future);
 
-      if (mounted && context.mounted) {
-        context.go('/chats/$chatId');
-      }
+      // 채팅방 생성 전에 선택된 사용자 목록을 초기화
+      ref.read(selectedUsersProvider.notifier).clearSelection();
+
+      final chatId = await ref.read(createChatRoomProvider((
+        participants: participants,
+        groupName: _groupName.trim().isNotEmpty ? _groupName.trim() : null,
+      )).future);
+
+      if (!mounted) return;
+
+      // 로딩 상태를 먼저 해제
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (!mounted || !context.mounted) return;
+
+      // 화면 전환
+      context.go('/chats/$chatId');
     } catch (e) {
-      if (e is AppException) {
-        ref.read(errorNotifierProvider.notifier).setError(e);
-      } else {
-        ref.read(errorNotifierProvider.notifier).setError(
-              AppException('그룹 채팅방 생성에 실패했습니다'),
-            );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      ref.read(errorNotifierProvider.notifier).setError(e as AppException);
     }
   }
 
@@ -103,27 +120,49 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
         children: [
           Column(
             children: [
-              SearchTextField(
-                hintText: '그룹 이름(선택 사항)',
-                autofocus: false,
-                onTextChanged: (text) {
-                  setState(() {
-                    _groupName = text;
-                  });
-                },
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: '그룹 이름(선택 사항)',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.grey[900],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.grey[700]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.grey[700]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                  ),
+                  onChanged: (text) {
+                    setState(() {
+                      _groupName = text;
+                    });
+                  },
+                ),
               ),
-              SearchTextField(
-                hintText: '검색',
-                onSearchingChanged: (isSearching) {
-                  setState(() {
-                    _isSearching = isSearching;
-                  });
-                },
-                onTextChanged: (text) {
-                  setState(() {
-                    _searchText = text;
-                  });
-                },
+              SearchContainer(
+                child: SearchTextField(
+                  hintText: '검색',
+                  onSearchingChanged: (isSearching) {
+                    setState(() {
+                      _isSearching = isSearching;
+                    });
+                  },
+                  onTextChanged: (text) {
+                    setState(() {
+                      _searchText = text;
+                    });
+                  },
+                ),
               ),
               Expanded(
                 child: contactsAsync.when(
@@ -149,11 +188,9 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
                   error: (error, stack) {
-                    ref.read(errorNotifierProvider.notifier).setError(
-                          error is AppException
-                              ? error
-                              : AppException('사용자 검색 중 오류가 발생했습니다'),
-                        );
+                    ref
+                        .read(errorNotifierProvider.notifier)
+                        .setError(error as AppException);
                     return const Center(
                       child: Text(
                         '사용자 검색 중 오류가 발생했습니다',
@@ -174,7 +211,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
             ),
         ],
       ),
-      floatingActionButton: selectedUsers.isNotEmpty && !_isLoading
+      floatingActionButton: selectedUsers.length >= 2 && !_isLoading
           ? FloatingActionButton(
               onPressed: _createGroupChat,
               backgroundColor: Colors.blue,

@@ -10,6 +10,7 @@ import '../../providers/user_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/user/search_results.dart';
 import '../../widgets/user/search_text_field.dart';
+import '../../widgets/user/search_container.dart';
 import 'widgets/user_search_tile.dart';
 import 'widgets/chat_rooms_list.dart';
 
@@ -141,8 +142,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
           return Column(
             children: [
               // 검색바
-              Padding(
-                padding: const EdgeInsets.all(16.0),
+              SearchContainer(
                 child: SearchTextField(
                   hintText: '검색',
                   onSearchingChanged: (isSearching) {

@@ -30,9 +30,11 @@ Stream<List<Message>> messages(Ref ref, String chatId) {
 }
 
 @riverpod
-Future<String> createChatRoom(Ref ref, List<String> participants) async {
-  final chatRoom =
-      await ref.read(chatServiceProvider).createChatRoom(participants);
+Future<String> createChatRoom(
+    Ref ref, ({List<String> participants, String? groupName}) params) async {
+  final chatRoom = await ref
+      .read(chatServiceProvider)
+      .createChatRoom(params.participants, groupName: params.groupName);
   return chatRoom.id;
 }
 

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_model.dart';
 
 class UserRepository {
@@ -13,6 +14,9 @@ class UserRepository {
   Stream<List<UserModel>> searchUsers(String query) {
     if (query.isEmpty) return Stream.value([]);
 
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return Stream.value([]);
+
     return _firestore
         .collection('users')
         .where('name', isGreaterThanOrEqualTo: query)
@@ -20,6 +24,7 @@ class UserRepository {
         .limit(20)
         .snapshots()
         .map((snapshot) => snapshot.docs
+            .where((doc) => doc.id != currentUser.uid)
             .map((doc) => UserModel.fromJson(doc.id, doc.data()))
             .toList());
   }

@@ -15,12 +15,14 @@ class ChatRepository {
             snapshot.docs.map((doc) => ChatRoom.fromFirestore(doc)).toList());
   }
 
-  Future<ChatRoom> createChatRoom(List<String> participants) async {
+  Future<ChatRoom> createChatRoom(List<String> participants,
+      {String? groupName}) async {
     final docRef = await _firestore.collection('chats').add({
       'participants': participants,
       'lastMessage': '',
       'lastMessageTime': FieldValue.serverTimestamp(),
       'unreadCount': 0,
+      if (groupName != null) 'groupName': groupName,
     });
 
     final doc = await docRef.get();
@@ -43,8 +45,12 @@ class ChatRepository {
     final matchingDoc = querySnapshot.docs.where(
       (doc) {
         final docParticipants = List<String>.from(doc['participants']);
-        return docParticipants.length == participants.length &&
-            docParticipants.every((p) => participants.contains(p));
+        // 참여자 수가 2명인 경우에만 기존 채팅방 확인 (1:1 채팅)
+        if (participants.length == 2) {
+          return docParticipants.length == 2 &&
+              docParticipants.every((p) => participants.contains(p));
+        }
+        return false; // 그룹채팅은 항상 새로 생성
       },
     );
     return matchingDoc.isEmpty ? null : matchingDoc.first;

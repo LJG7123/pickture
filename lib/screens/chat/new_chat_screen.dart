@@ -8,6 +8,7 @@ import '../../providers/user_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../widgets/user/search_results.dart';
 import '../../widgets/user/search_text_field.dart';
+import '../../widgets/user/search_container.dart';
 import 'widgets/user_search_tile.dart';
 
 class NewChatScreen extends ConsumerStatefulWidget {
@@ -29,9 +30,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
         context.go('/chats/$chatId');
       }
     } catch (e) {
-      ref.read(errorNotifierProvider.notifier).setError(
-            e is AppException ? e : AppException('채팅방 생성에 실패했습니다'),
-          );
+      ref.read(errorNotifierProvider.notifier).setError(e as AppException);
     }
   }
 
@@ -60,19 +59,21 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
       ),
       body: Column(
         children: [
-          SearchTextField(
-            hintText: '사용자 검색',
-            autofocus: true,
-            onSearchingChanged: (isSearching) {
-              setState(() {
-                _isSearching = isSearching;
-              });
-            },
-            onTextChanged: (text) {
-              setState(() {
-                _searchText = text;
-              });
-            },
+          SearchContainer(
+            child: SearchTextField(
+              hintText: '사용자 검색',
+              autofocus: true,
+              onSearchingChanged: (isSearching) {
+                setState(() {
+                  _isSearching = isSearching;
+                });
+              },
+              onTextChanged: (text) {
+                setState(() {
+                  _searchText = text;
+                });
+              },
+            ),
           ),
           // 그룹 채팅 만들기 버튼
           InkWell(
@@ -118,11 +119,9 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) {
-                ref.read(errorNotifierProvider.notifier).setError(
-                      error is AppException
-                          ? error
-                          : AppException('사용자 검색 중 오류가 발생했습니다'),
-                    );
+                ref
+                    .read(errorNotifierProvider.notifier)
+                    .setError(error as AppException);
                 return const Center(
                   child: Text(
                     '사용자 검색 중 오류가 발생했습니다',
