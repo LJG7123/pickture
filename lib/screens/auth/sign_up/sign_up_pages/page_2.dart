@@ -5,18 +5,18 @@ import 'package:pickture/screens/auth/widgets/auth_text_field.dart';
 class Page2 extends ConsumerWidget {
   final TextEditingController controller;
   final String? errorMessage;
-  final _obscurePasswordProvider = StateProvider<bool>((ref) => true);
+  final StateProvider<bool> obscurePasswordProvider;
 
-  Page2({required this.controller, this.errorMessage, super.key});
+  const Page2({required this.controller, this.errorMessage, required this.obscurePasswordProvider, super.key});
 
   void _togglePasswordVisibility(WidgetRef ref) {
-    ref.read(_obscurePasswordProvider.notifier).state =
-        !ref.read(_obscurePasswordProvider);
+    ref.read(obscurePasswordProvider.notifier).state =
+        !ref.read(obscurePasswordProvider);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final obscurePassword = ref.watch(_obscurePasswordProvider);
+    final obscurePassword = ref.watch(obscurePasswordProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

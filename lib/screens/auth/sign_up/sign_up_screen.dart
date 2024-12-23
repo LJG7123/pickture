@@ -24,6 +24,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       List.generate(_pageCount, (index) => TextEditingController());
   final _errorMessageProvider = List.generate(
       _pageCount, (index) => StateProvider<String?>((ref) => null));
+  final _obscurePasswordProvider = StateProvider<bool>((ref) => true);
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +60,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   Page2(
                     controller: _textControllers[1],
                     errorMessage: passwordError,
+                    obscurePasswordProvider: _obscurePasswordProvider,
                   ),
                   Page3(
                     controller: _textControllers[2],
