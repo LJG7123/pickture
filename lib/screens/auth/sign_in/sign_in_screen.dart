@@ -68,6 +68,7 @@ class _SignInScreenState extends ConsumerState {
       }
     } else if (user != null) {
       // 로그인에 성공한 경우
+      if (context.mounted) context.go('/post');
     }
   }
 
