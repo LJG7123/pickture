@@ -46,6 +46,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             Expanded(
               child: PageView(
                 controller: pageProvider.pageController,
+                physics: const NeverScrollableScrollPhysics(),
                 onPageChanged: pageProvider.setCurrentPage,
                 children: [
                   Page1(controller: _emailController, errorMessage: emailError),
