@@ -21,8 +21,10 @@ class ChatRoom {
       id: doc.id,
       participants: List<String>.from(data['participants'] ?? []),
       lastMessage: data['lastMessage'] ?? '',
-      lastMessageTime: (data['lastMessageTime'] as Timestamp).toDate(),
+      lastMessageTime: data['lastMessageTime'] != null
+          ? (data['lastMessageTime'] as Timestamp).toDate()
+          : DateTime.now(),
       unreadCount: data['unreadCount'] ?? 0,
     );
   }
-} 
+}
