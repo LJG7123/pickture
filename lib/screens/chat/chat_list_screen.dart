@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickture/core/error/app_exception.dart';
-import 'package:pickture/core/error/error_provider.dart';
+import '../../core/error/app_exception.dart';
+import '../../core/error/error_provider.dart';
 import '../../models/user_model.dart';
+import '../../models/chat_room.dart';
 import '../../providers/chat_provider.dart';
-import '../../providers/dm_contact_provider.dart';
+import '../../providers/user_provider.dart';
 import '../../providers/auth_provider.dart';
-import 'widgets/search_results.dart';
+import '../../widgets/user/search_results.dart';
+import '../../widgets/user/search_text_field.dart';
+import 'widgets/user_search_tile.dart';
 import 'widgets/chat_rooms_list.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
@@ -18,35 +21,33 @@ class ChatListScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatListScreenState extends ConsumerState<ChatListScreen> {
-  final _searchController = TextEditingController();
+  String _searchText = '';
   bool _isSearching = false;
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  Future<void> onUserTap(UserModel contact) async {
+    try {
+      final chatId =
+          await ref.read(startChatWithUserProvider(contact.uid).future);
+      if (mounted && context.mounted) {
+        context.go('/chats/$chatId');
+      }
+    } catch (e) {
+      ref.read(errorNotifierProvider.notifier).setError(
+            e is AppException ? e : AppException('채팅방 생성에 실패했습니다'),
+          );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final chatRoomsAsync = ref.watch(chatRoomsProvider);
-    final searchQuery = _searchController.text;
-    final contactsAsync = _isSearching && searchQuery.isNotEmpty
-        ? ref.watch(dmContactSearchProvider(searchQuery))
+    final currentUser = ref.watch(authProvider).value;
+    final chatRoomsAsync = currentUser != null
+        ? ref.watch(chatRoomsProvider(currentUser.uid))
+        : const AsyncValue<List<ChatRoom>>.data([]);
+    final contactsAsync = _isSearching
+        ? ref.watch(userSearchProvider(_searchText))
         : const AsyncValue<List<UserModel>>.data([]);
     final userAsync = ref.watch(authProvider);
-
-    Future<void> onUserTap(UserModel contact) async {
-      await ref
-          .read(chatRoomControllerProvider(contact.uid).notifier)
-          .startChatWithUser(contact)
-          .then((chatId) {
-        if (!mounted) return;
-        context.go('/chats/$chatId');
-      }).catchError((e) {
-        ref.read(errorNotifierProvider.notifier).setError(e);
-      });
-    }
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -142,34 +143,16 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
               // 검색바
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: TextField(
-                  controller: _searchController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: '검색',
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.grey[900],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, color: Colors.grey),
-                            onPressed: () {
-                              setState(() {
-                                _searchController.clear();
-                                _isSearching = false;
-                              });
-                            },
-                          )
-                        : null,
-                  ),
-                  onChanged: (value) {
+                child: SearchTextField(
+                  hintText: '검색',
+                  onSearchingChanged: (isSearching) {
                     setState(() {
-                      _isSearching = value.isNotEmpty;
+                      _isSearching = isSearching;
+                    });
+                  },
+                  onTextChanged: (text) {
+                    setState(() {
+                      _searchText = text;
                     });
                   },
                 ),
@@ -189,7 +172,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                       ? contactsAsync.when(
                           data: (contacts) => SearchResults(
                             contacts: contacts,
-                            onUserTap: onUserTap,
+                            isSearching: _isSearching,
+                            itemBuilder: (context, user) => UserSearchTile(
+                              user: user,
+                              onTap: () => onUserTap(user),
+                            ),
                           ),
                           loading: () => const Center(
                             child: CircularProgressIndicator(),

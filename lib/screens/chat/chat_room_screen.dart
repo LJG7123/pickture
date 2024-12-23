@@ -24,7 +24,12 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final otherUserAsync = ref.watch(chatRoomControllerProvider(widget.chatId));
+    final chatRoomAsync = ref.watch(chatRoomProvider(widget.chatId));
+    final otherUserAsync = chatRoomAsync.when(
+      data: (chatRoom) => ref.watch(chatRoomUserProvider(chatRoom)),
+      loading: () => const AsyncValue.loading(),
+      error: (err, stack) => AsyncValue.error(err, stack),
+    );
     final messagesAsync = ref.watch(messagesProvider(widget.chatId));
 
     return Scaffold(
@@ -238,19 +243,25 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                               hintStyle: TextStyle(color: Colors.grey),
                               border: InputBorder.none,
                             ),
-                            onSubmitted: (_) {
-                              ref
-                                  .read(
-                                      chatRoomControllerProvider(widget.chatId)
-                                          .notifier)
-                                  .sendMessageAndClear(
-                                    widget.chatId,
-                                    _messageController.text,
-                                    _messageController,
-                                  )
-                                  .catchError((e) => ref
-                                      .read(errorNotifierProvider.notifier)
-                                      .setError(e));
+                            onSubmitted: (_) async {
+                              if (!mounted) return;
+                              try {
+                                await ref.read(chatServiceProvider).sendMessage(
+                                      widget.chatId,
+                                      _messageController.text,
+                                      ref.read(authProvider).value!.uid,
+                                    );
+                                _messageController.clear();
+                              } catch (e) {
+                                if (!mounted) return;
+                                ref
+                                    .read(errorNotifierProvider.notifier)
+                                    .setError(
+                                      e is AppException
+                                          ? e
+                                          : AppException('메시지 전송에 실패했습니다'),
+                                    );
+                              }
                             },
                           ),
                         ),
