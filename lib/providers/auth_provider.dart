@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pickture/models/user_model.dart';
@@ -9,7 +10,7 @@ import 'package:pickture/utils/validator.dart';
 final authProvider =
     StateNotifierProvider<AuthNotifier, AsyncValue<UserModel?>>((ref) =>
         AuthNotifier(AuthService(FirebaseAuth.instance,
-            FirebaseFirestore.instance, GoogleSignIn())));
+            FirebaseFirestore.instance, FirebaseMessaging.instance, GoogleSignIn())));
 
 class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
   final AuthService authService;
