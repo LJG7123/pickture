@@ -41,38 +41,35 @@ class SearchTextFieldState extends ConsumerState<SearchTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: TextField(
-        controller: _controller,
-        autofocus: widget.autofocus,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          hintText: widget.hintText,
-          hintStyle: const TextStyle(color: Colors.grey),
-          prefixIcon: const Icon(Icons.search, color: Colors.grey),
-          filled: true,
-          fillColor: Colors.grey[900],
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
-          suffixIcon: _controller.text.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear, color: Colors.grey),
-                  onPressed: () {
-                    _controller.clear();
-                    widget.onSearchingChanged?.call(false);
-                    widget.onTextChanged?.call('');
-                  },
-                )
-              : null,
+    return TextField(
+      controller: _controller,
+      autofocus: widget.autofocus,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        hintText: widget.hintText,
+        hintStyle: const TextStyle(color: Colors.grey),
+        prefixIcon: const Icon(Icons.search, color: Colors.grey),
+        filled: true,
+        fillColor: Colors.grey[900],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
         ),
-        onChanged: (value) {
-          setState(() {});
-          _onSearchChanged(value);
-        },
+        suffixIcon: _controller.text.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear, color: Colors.grey),
+                onPressed: () {
+                  _controller.clear();
+                  widget.onSearchingChanged?.call(false);
+                  widget.onTextChanged?.call('');
+                },
+              )
+            : null,
       ),
+      onChanged: (value) {
+        setState(() {});
+        _onSearchChanged(value);
+      },
     );
   }
 

@@ -26,7 +26,6 @@ class SearchResults extends StatelessWidget {
         ),
       );
     }
-    print('contacts: $contacts');
     if (contacts.isEmpty) {
       return const Center(
         child: Text(
