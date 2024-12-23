@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pickture/providers/chat_provider.dart';
 import '../../../models/chat_room.dart';
-import '../../../providers/chat_provider.dart';
 
 class ChatRoomTile extends ConsumerWidget {
   final ChatRoom chatRoom;
@@ -14,7 +14,12 @@ class ChatRoomTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final otherUserAsync = ref.watch(chatRoomUserProvider(chatRoom));
+    final chatRoomAsync = ref.watch(chatRoomProvider(chatRoom.id));
+    final otherUserAsync = chatRoomAsync.when(
+      data: (chatRoom) => ref.watch(chatRoomUserProvider(chatRoom)),
+      loading: () => const AsyncValue.loading(),
+      error: (err, stack) => AsyncValue.error(err, stack),
+    );
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
