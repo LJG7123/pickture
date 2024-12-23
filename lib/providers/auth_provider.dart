@@ -26,6 +26,13 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     state = await AsyncValue.guard(() => authService.signInWithGoogle());
   }
 
+  Future<void> signUp(
+      String email, String password, String dob, String name) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(
+        () => authService.signUp(email, password, dob, name));
+  }
+
   Future<void> signUpWithGoogle(String dob, String name) async {
     state = const AsyncValue.loading();
     state =

@@ -57,6 +57,30 @@ class AuthService {
     return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
   }
 
+  Future<UserModel?> signUp(String email, String password, String dob, String name) async {
+    try {
+      userCredential = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+    } catch (e) {
+      _handleError(e);
+    }
+
+    var userUid = userCredential?.user?.uid;
+    if (userUid == null) {
+      throw AppException('회원가입에 실패했습니다.', code: 'signup_failed');
+    }
+    _firestore.collection('users').doc(userUid).set({
+      'dob': dob,
+      'email': email,
+      'name': name,
+    });
+
+    var snapshot = await _firestore.collection('users').doc(userUid).get();
+    if (snapshot.data() == null) {
+      throw AppException('회원가입에 실패했습니다.', code: 'signup_failed');
+    }
+    return UserModel.fromJson(userUid, snapshot.data()!);
+  }
+
   Future<UserModel?> signUpWithGoogle(String dob, String name) async {
     if (userCredential == null) return null;
 

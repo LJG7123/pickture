@@ -72,7 +72,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               ),
             ),
             ExpandedElevatedProgressButton(
-              onPressed: () => _onNextButtonClicked(pageProvider),
+              onPressed: () => _onNextButtonClicked(context, pageProvider),
               text: "다음",
               isLoading: pageProvider.isLoading,
             ),
@@ -100,7 +100,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     super.dispose();
   }
 
-  void _onNextButtonClicked(PageNotifier pageNotifier) async {
+  void _onNextButtonClicked(BuildContext context, PageNotifier pageNotifier) async {
     bool isAvailable = false;
     pageNotifier.setLoading(true);
     var authNotifier = ref.read(authProvider.notifier);
@@ -133,7 +133,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       if (currentPage < _pageCount - 1) {
         pageNotifier.toNextPage();
       } else {
-
+        await authNotifier.signUp(_textControllers[0].text, _textControllers[1].text,
+            _textControllers[2].text, _textControllers[3].text);
+        if (ref.read(authProvider).value != null) {
+          if (context.mounted) context.go('/post');
+        }
       }
     }
     pageNotifier.setLoading(false);
