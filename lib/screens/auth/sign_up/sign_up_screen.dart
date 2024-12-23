@@ -33,6 +33,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     var passwordError = ref.watch(_errorMessageProvider[1]);
     var dobError = ref.watch(_errorMessageProvider[2]);
     var nameError = ref.watch(_errorMessageProvider[3]);
+    var obscurePassword = ref.watch(_obscurePasswordProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -59,8 +60,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ),
                   Page2(
                     controller: _textControllers[1],
+                    obscureText: obscurePassword,
+                    onSuffixIconPressed: _togglePasswordVisibility,
                     errorMessage: passwordError,
-                    obscurePasswordProvider: _obscurePasswordProvider,
                   ),
                   Page3(
                     controller: _textControllers[2],
@@ -82,6 +84,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         ),
       ),
     );
+  }
+
+  void _togglePasswordVisibility() {
+    ref.read(_obscurePasswordProvider.notifier).state =
+        !ref.read(_obscurePasswordProvider);
   }
 
   @override
