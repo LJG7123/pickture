@@ -430,7 +430,7 @@ class _MessagesProviderElement
   String get chatId => (origin as MessagesProvider).chatId;
 }
 
-String _$createChatRoomHash() => r'54de8edaf6b99c508674355f6b74e088ffb1890e';
+String _$createChatRoomHash() => r'94d8a842033f12b78a074342cf456da1994b46da';
 
 /// See also [createChatRoom].
 @ProviderFor(createChatRoom)
@@ -443,10 +443,10 @@ class CreateChatRoomFamily extends Family<AsyncValue<String>> {
 
   /// See also [createChatRoom].
   CreateChatRoomProvider call(
-    List<String> participants,
+    ({String? groupName, List<String> participants}) params,
   ) {
     return CreateChatRoomProvider(
-      participants,
+      params,
     );
   }
 
@@ -455,7 +455,7 @@ class CreateChatRoomFamily extends Family<AsyncValue<String>> {
     covariant CreateChatRoomProvider provider,
   ) {
     return call(
-      provider.participants,
+      provider.params,
     );
   }
 
@@ -478,11 +478,11 @@ class CreateChatRoomFamily extends Family<AsyncValue<String>> {
 class CreateChatRoomProvider extends AutoDisposeFutureProvider<String> {
   /// See also [createChatRoom].
   CreateChatRoomProvider(
-    List<String> participants,
+    ({String? groupName, List<String> participants}) params,
   ) : this._internal(
           (ref) => createChatRoom(
             ref as CreateChatRoomRef,
-            participants,
+            params,
           ),
           from: createChatRoomProvider,
           name: r'createChatRoomProvider',
@@ -493,7 +493,7 @@ class CreateChatRoomProvider extends AutoDisposeFutureProvider<String> {
           dependencies: CreateChatRoomFamily._dependencies,
           allTransitiveDependencies:
               CreateChatRoomFamily._allTransitiveDependencies,
-          participants: participants,
+          params: params,
         );
 
   CreateChatRoomProvider._internal(
@@ -503,10 +503,10 @@ class CreateChatRoomProvider extends AutoDisposeFutureProvider<String> {
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.participants,
+    required this.params,
   }) : super.internal();
 
-  final List<String> participants;
+  final ({String? groupName, List<String> participants}) params;
 
   @override
   Override overrideWith(
@@ -521,7 +521,7 @@ class CreateChatRoomProvider extends AutoDisposeFutureProvider<String> {
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        participants: participants,
+        params: params,
       ),
     );
   }
@@ -533,14 +533,13 @@ class CreateChatRoomProvider extends AutoDisposeFutureProvider<String> {
 
   @override
   bool operator ==(Object other) {
-    return other is CreateChatRoomProvider &&
-        other.participants == participants;
+    return other is CreateChatRoomProvider && other.params == params;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, participants.hashCode);
+    hash = _SystemHash.combine(hash, params.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -549,8 +548,8 @@ class CreateChatRoomProvider extends AutoDisposeFutureProvider<String> {
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin CreateChatRoomRef on AutoDisposeFutureProviderRef<String> {
-  /// The parameter `participants` of this provider.
-  List<String> get participants;
+  /// The parameter `params` of this provider.
+  ({String? groupName, List<String> participants}) get params;
 }
 
 class _CreateChatRoomProviderElement
@@ -558,8 +557,8 @@ class _CreateChatRoomProviderElement
   _CreateChatRoomProviderElement(super.provider);
 
   @override
-  List<String> get participants =>
-      (origin as CreateChatRoomProvider).participants;
+  ({String? groupName, List<String> participants}) get params =>
+      (origin as CreateChatRoomProvider).params;
 }
 
 String _$startChatWithUserHash() => r'efaab1b805192f4bf6f5559b1052c91d4e093fe5';

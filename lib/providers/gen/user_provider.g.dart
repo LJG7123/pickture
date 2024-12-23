@@ -170,7 +170,7 @@ class _UserProviderElement extends AutoDisposeFutureProviderElement<UserModel?>
   String get userId => (origin as UserProvider).userId;
 }
 
-String _$userSearchHash() => r'caa516e0b847b5fce2e3b6a8da0d254b85f5054c';
+String _$userSearchHash() => r'2e19b695bbd8d62072d6f2ac483c39604bd30cfd';
 
 /// See also [userSearch].
 @ProviderFor(userSearch)
