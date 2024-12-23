@@ -36,6 +36,18 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
         : const AsyncValue<List<UserModel>>.data([]);
     final userAsync = ref.watch(authProvider);
 
+    Future<void> onUserTap(UserModel contact) async {
+      await ref
+          .read(chatRoomControllerProvider(contact.uid).notifier)
+          .startChatWithUser(contact)
+          .then((chatId) {
+        if (!mounted) return;
+        context.go('/chats/$chatId');
+      }).catchError((e) {
+        ref.read(errorNotifierProvider.notifier).setError(e);
+      });
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -174,24 +186,22 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                     );
                   },
                   child: _isSearching
-                      ? SearchResults(
-                          contactsAsync: contactsAsync,
-                          isSearching: _isSearching,
-                          onUserTap: (contact) async {
-                            await ref
-                                .read(chatRoomControllerProvider(contact.uid)
-                                    .notifier)
-                                .startChatWithUser(contact)
-                                .then((chatId) {
-                              if (context.mounted) {
-                                context.go('/chats/$chatId');
-                              }
-                            }).catchError((e) {
-                              ref
-                                  .read(errorNotifierProvider.notifier)
-                                  .setError(e);
-                            });
-                          },
+                      ? contactsAsync.when(
+                          data: (contacts) => SearchResults(
+                            contacts: contacts,
+                            onUserTap: onUserTap,
+                          ),
+                          loading: () => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          error: (error, stack) => Center(
+                            child: Text(
+                              error is AppException
+                                  ? error.message
+                                  : '검색 중 오류가 발생했습니다',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
                         )
                       : ChatRoomsList(chatRoomsAsync: chatRoomsAsync),
                 ),

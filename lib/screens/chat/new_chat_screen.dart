@@ -25,6 +25,19 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
     super.dispose();
   }
 
+  Future<void> onUserTap(UserModel contact) async {
+    await ref
+        .read(chatRoomControllerProvider(contact.uid).notifier)
+        .startChatWithUser(contact)
+        .then((chatId) {
+      if (mounted && context.mounted) {
+        context.go('/chats/$chatId');
+      }
+    }).catchError((e) {
+      ref.read(errorNotifierProvider.notifier).setError(e);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final searchQuery = _searchController.text;
@@ -102,20 +115,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                   );
                 }
                 return SearchResults(
-                  contactsAsync: contactsAsync,
-                  isSearching: _isSearching,
-                  onUserTap: (contact) async {
-                    await ref
-                        .read(chatRoomControllerProvider(contact.uid).notifier)
-                        .startChatWithUser(contact)
-                        .then((chatId) {
-                      if (context.mounted) {
-                        context.go('/chats/$chatId');
-                      }
-                    }).catchError((e) {
-                      ref.read(errorNotifierProvider.notifier).setError(e);
-                    });
-                  },
+                  contacts: contacts,
+                  onUserTap: onUserTap,
                 );
               },
               loading: () => const Center(
