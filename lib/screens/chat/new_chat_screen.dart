@@ -38,6 +38,10 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
     });
   }
 
+  void _onCreateGroupTap() {
+    context.push('/chats/new/group');
+  }
+
   @override
   Widget build(BuildContext context) {
     final searchQuery = _searchController.text;
@@ -64,7 +68,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               controller: _searchController,
-              autofocus: true, // 화면 진입 시 자동으로 키보드 표시
+              autofocus: true,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: '사용자 검색',
@@ -93,6 +97,38 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                   _isSearching = value.isNotEmpty;
                 });
               },
+            ),
+          ),
+          // 그룹 채팅 만들기 버튼
+          InkWell(
+            onTap: _onCreateGroupTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[800],
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.group_add,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    '그룹 채팅 만들기',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Expanded(
