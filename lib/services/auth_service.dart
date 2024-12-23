@@ -57,9 +57,11 @@ class AuthService {
     return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
   }
 
-  Future<UserModel?> signUp(String email, String password, String dob, String name) async {
+  Future<UserModel?> signUp(
+      String email, String password, String dob, String name) async {
     try {
-      userCredential = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+      userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+          email: email, password: password);
     } catch (e) {
       _handleError(e);
     }
@@ -101,7 +103,11 @@ class AuthService {
   }
 
   Future<bool> isEmailAvailable(String email) async {
-    var accounts = await _firestore.collection('users').where('email', isEqualTo: email).count().get();
+    var accounts = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .count()
+        .get();
     return accounts.count == 0;
   }
 
