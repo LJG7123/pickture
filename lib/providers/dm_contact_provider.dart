@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/user_model.dart';
 import '../services/dm_contact_service.dart';
+import '../providers/auth_provider.dart';
 
 part 'gen/dm_contact_provider.g.dart';
 
@@ -11,7 +12,12 @@ DMContactService dmContactService(Ref ref) {
 }
 
 @riverpod
-Future<List<UserModel>> dmContactSearch(Ref ref, String query) {
+Future<List<UserModel>> dmContactSearch(
+  Ref ref,
+  String query,
+) async {
   final service = ref.watch(dmContactServiceProvider);
-  return service.searchContacts(query);
+  final currentUser = ref.watch(authProvider).value;
+
+  return service.searchContacts(query, currentUser?.uid ?? '');
 }
