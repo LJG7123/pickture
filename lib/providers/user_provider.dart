@@ -31,6 +31,9 @@ Future<List<UserModel>> allUsers(Ref ref) async {
 class SelectedUsers extends _$SelectedUsers {
   @override
   Set<UserModel> build() {
+    ref.onDispose(() {
+      state = {};
+    });
     return {};
   }
 

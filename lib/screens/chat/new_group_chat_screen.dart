@@ -25,14 +25,6 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   bool _isSearching = false;
   bool _isLoading = false;
 
-  @override
-  void dispose() {
-    if (mounted) {
-      ref.read(selectedUsersProvider.notifier).clearSelection();
-    }
-    super.dispose();
-  }
-
   void _toggleUserSelection(UserModel user) {
     ref.read(selectedUsersProvider.notifier).toggleUser(user);
   }
@@ -65,9 +57,6 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
         currentUser.uid,
         ...selectedUsers.map((user) => user.uid)
       ];
-
-      // 채팅방 생성 전에 선택된 사용자 목록을 초기화
-      ref.read(selectedUsersProvider.notifier).clearSelection();
 
       final chatId = await ref.read(createChatRoomProvider((
         participants: participants,
