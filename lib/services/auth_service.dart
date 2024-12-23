@@ -10,6 +10,7 @@ class AuthService {
   final FirebaseFirestore _firestore;
   final GoogleSignIn _googleSignIn;
   UserCredential? userCredential;
+  User? get currentUser => _firebaseAuth.currentUser;
 
   AuthService(this._firebaseAuth, this._firestore, this._googleSignIn);
 
@@ -100,6 +101,14 @@ class AuthService {
       return null;
     }
     return UserModel.fromJson(userCredential!.user!.uid, snapshot.data()!);
+  }
+
+  Future<UserModel?> getCurrentUserData() async {
+    if (currentUser == null) return null;
+    var snapshot = await _firestore.collection('users').doc(currentUser!.uid).get();
+
+    if (snapshot.data() == null) return null;
+    return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
   Future<bool> isEmailAvailable(String email) async {

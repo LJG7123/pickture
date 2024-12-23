@@ -72,6 +72,20 @@ class _SignInScreenState extends ConsumerState {
     }
   }
 
+  void _checkLoginState(BuildContext context) async {
+    if (ref.read(authProvider.notifier).authService.currentUser != null) {
+      _emailController.text = ref.read(authProvider.notifier).authService.currentUser!.email!;
+      Future(() => ref.read(_signInLoadingProvider.notifier).state = true);
+
+      await ref.read(authProvider.notifier).fetchUserData();
+
+      if (ref.read(authProvider).value != null) {
+        if (context.mounted) context.go('/post');
+      }
+      Future(() => ref.read(_signInLoadingProvider.notifier).state = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final obscurePassword = ref.watch(_obscurePasswordProvider);
@@ -112,6 +126,12 @@ class _SignInScreenState extends ConsumerState {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginState(context);
   }
 
   @override
