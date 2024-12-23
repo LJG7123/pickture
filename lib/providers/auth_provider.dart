@@ -39,6 +39,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
         await AsyncValue.guard(() => authService.signUpWithGoogle(dob, name));
   }
 
+  Future<void> fetchUserData() async {
+    state = await AsyncValue.guard(() => authService.getCurrentUserData());
+  }
+
   Future<bool> isEmailAvailable(String email) async {
     if (!Validator.isEmailValid(email)) return false;
     return authService.isEmailAvailable(email);
