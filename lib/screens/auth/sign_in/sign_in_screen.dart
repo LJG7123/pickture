@@ -68,6 +68,7 @@ class _SignInScreenState extends ConsumerState {
       }
     } else if (user != null) {
       // 로그인에 성공한 경우
+      if (context.mounted) context.go('/post');
     }
   }
 
@@ -104,7 +105,9 @@ class _SignInScreenState extends ConsumerState {
               iconAsset: _googleIcon,
             ),
             const Spacer(),
-            ExpandedOutlinedButton(onPressed: () {}, text: '새 계정 만들기')
+            ExpandedOutlinedButton(onPressed: () {
+              context.push('/signup');
+            }, text: '새 계정 만들기')
           ],
         ),
       ),
