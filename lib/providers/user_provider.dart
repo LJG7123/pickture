@@ -38,11 +38,13 @@ class SelectedUsers extends _$SelectedUsers {
   }
 
   void toggleUser(UserModel user) {
+    final newState = Set<UserModel>.from(state);
     if (state.contains(user)) {
-      state = {...state}..remove(user);
+      newState.remove(user);
     } else {
-      state = {...state, user};
+      newState.add(user);
     }
+    state = newState;
   }
 
   void clearSelection() {

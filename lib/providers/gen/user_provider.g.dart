@@ -317,7 +317,7 @@ final allUsersProvider = AutoDisposeFutureProvider<List<UserModel>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AllUsersRef = AutoDisposeFutureProviderRef<List<UserModel>>;
-String _$selectedUsersHash() => r'48d620e60f1fc43b3248aa0f7723055340cba8e1';
+String _$selectedUsersHash() => r'12278b2ae7bb1d6e960b39e80de3060a71e07cd4';
 
 /// See also [SelectedUsers].
 @ProviderFor(SelectedUsers)
