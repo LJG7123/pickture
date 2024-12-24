@@ -15,14 +15,10 @@ Future<void> initializeApp() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirebaseMessaging.instance.requestPermission();
+  FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+  );
 
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
-  FirebaseMessaging.onMessage.listen((message) {
-    /// 포그라운드 알림 수신
-    print("Message data: ${message.data}");
-    if (message.notification != null) {
-      print("Message notification: ${message.notification}");
-    }
-  });
 } 

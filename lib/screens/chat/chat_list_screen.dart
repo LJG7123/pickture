@@ -46,8 +46,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     if (initialMessage != null) {
       _handleMessage(initialMessage);
     }
-
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
   }
 
   void _handleMessage(RemoteMessage message) {
