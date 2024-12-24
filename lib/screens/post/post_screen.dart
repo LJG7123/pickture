@@ -1,16 +1,46 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/post_provider.dart';
 import 'package:pickture/screens/post/widgets/comment_button_widget.dart';
 import 'package:pickture/screens/post/widgets/like_button_widget.dart';
 import 'package:pickture/screens/post/widgets/save_dialog.dart';
 
-class PostScreen extends ConsumerWidget {
+class PostScreen extends ConsumerStatefulWidget {
   const PostScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _PostScreenState();
+}
+
+class _PostScreenState extends ConsumerState {
+
+  Future<void> setupInteractedMessage() async {
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
+
+  void _handleMessage(RemoteMessage message) {
+    if (message.data['type'] == 'chat') {
+      context.push('/chats');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setupInteractedMessage();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final posts = ref.watch(postProvider);
 
     return MaterialApp(
