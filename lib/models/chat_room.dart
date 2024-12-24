@@ -8,6 +8,7 @@ class ChatRoom {
   final int unreadCount;
   final String? groupName;
   final String? groupImage;
+  final String? lastMessageSenderId;
 
   ChatRoom({
     required this.id,
@@ -17,6 +18,7 @@ class ChatRoom {
     required this.unreadCount,
     this.groupName,
     this.groupImage,
+    this.lastMessageSenderId,
   });
 
   bool get isGroupChat => participants.length > 2;
@@ -33,6 +35,7 @@ class ChatRoom {
       unreadCount: data['unreadCount'] ?? 0,
       groupName: data['groupName'],
       groupImage: data['groupImage'],
+      lastMessageSenderId: data['lastMessageSenderId'],
     );
   }
 }

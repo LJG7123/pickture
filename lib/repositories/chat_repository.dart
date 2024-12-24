@@ -22,6 +22,7 @@ class ChatRepository {
       'lastMessage': '',
       'lastMessageTime': FieldValue.serverTimestamp(),
       'unreadCount': 0,
+      'lastMessageSenderId': null,
       if (groupName != null) 'groupName': groupName,
     });
 
@@ -83,6 +84,7 @@ class ChatRepository {
       'lastMessage': content,
       'lastMessageTime': FieldValue.serverTimestamp(),
       'unreadCount': FieldValue.increment(1),
+      'lastMessageSenderId': senderId,
     });
   }
 
