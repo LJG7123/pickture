@@ -14,7 +14,6 @@ final authProvider =
 
 class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
   final AuthService authService;
-  User? get currentUser => authService.currentUser;
 
   AuthNotifier(this.authService) : super(const AsyncValue.data(null));
 
