@@ -5,6 +5,8 @@ import '../../core/error/app_exception.dart';
 import '../../core/error/error_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/user_provider.dart';
+import '../../models/user_model.dart';
 import '../../utils/date_util.dart';
 
 class ChatRoomScreen extends ConsumerStatefulWidget {
@@ -24,8 +26,21 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final otherUserAsync = ref.watch(chatRoomControllerProvider(widget.chatId));
+    if (!mounted) return const SizedBox.shrink();
+
+    final chatRoomAsync = ref.watch(chatRoomProvider(widget.chatId));
+    final otherUserAsync = chatRoomAsync.when(
+      data: (chatRoom) {
+        if (chatRoom.participants.length > 2) {
+          return const AsyncValue.data(null);
+        }
+        return ref.watch(chatRoomUserProvider(chatRoom));
+      },
+      loading: () => const AsyncValue.loading(),
+      error: (err, stack) => AsyncValue.error(err, stack),
+    );
     final messagesAsync = ref.watch(messagesProvider(widget.chatId));
+    final currentUser = ref.watch(authProvider).value;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -33,52 +48,103 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (mounted && context.mounted) {
+              context.pop();
+            }
+          },
         ),
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundImage: otherUserAsync.value?.profileImage != null &&
-                      otherUserAsync.value!.profileImage!.isNotEmpty
-                  ? NetworkImage(otherUserAsync.value!.profileImage!)
-                  : null,
-              child: otherUserAsync.value?.profileImage == null ||
-                      otherUserAsync.value!.profileImage!.isEmpty
-                  ? const Icon(Icons.person, color: Colors.white, size: 20)
-                  : null,
-            ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  otherUserAsync.value?.name ?? '',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+        title: chatRoomAsync.when(
+          data: (chatRoom) {
+            if (chatRoom.isGroupChat) {
+              return Row(
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Colors.grey[800],
+                    child:
+                        const Icon(Icons.group, color: Colors.white, size: 20),
                   ),
-                ),
-                Text(
-                  otherUserAsync.value?.userId ?? '',
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 12,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          chatRoom.groupName ?? '그룹 채팅',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          '${chatRoom.participants.length}명',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              );
+            } else {
+              return Row(
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundImage:
+                        otherUserAsync.value?.profileImage != null &&
+                                otherUserAsync.value!.profileImage!.isNotEmpty
+                            ? NetworkImage(otherUserAsync.value!.profileImage!)
+                            : null,
+                    child: otherUserAsync.value?.profileImage == null ||
+                            otherUserAsync.value!.profileImage!.isEmpty
+                        ? const Icon(Icons.person,
+                            color: Colors.white, size: 20)
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          otherUserAsync.value?.name ?? '',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          otherUserAsync.value?.userId ?? '',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            }
+          },
+          loading: () => const CircularProgressIndicator(),
+          error: (_, __) =>
+              const Text('오류 발생', style: TextStyle(color: Colors.white)),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.phone_outlined, color: Colors.white),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.videocam_outlined, color: Colors.white),
-            onPressed: () {},
+            icon: const Icon(Icons.info_outline, color: Colors.white),
+            onPressed: () {
+              // TODO: 채팅방 정보 화면으로 이동
+            },
           ),
         ],
       ),
@@ -87,7 +153,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           Expanded(
             child: messagesAsync.when(
               data: (messages) {
-                // 날짜별로 메시지 그룹화
+                if (!mounted) return const SizedBox.shrink();
                 String? currentDate;
 
                 return ListView.builder(
@@ -98,14 +164,12 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     final messageDate =
                         message.sentTime.formatMessageDateOnly();
 
-                    // 날짜가 변경되면 날짜 구분선 표시
                     final showDateDivider = currentDate != messageDate;
                     if (showDateDivider) {
                       currentDate = messageDate;
                     }
 
-                    final isMe =
-                        message.senderId == ref.watch(authProvider).value?.uid;
+                    final isMe = message.senderId == currentUser?.uid;
                     return Column(
                       children: [
                         if (showDateDivider)
@@ -136,18 +200,46 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               if (!isMe) ...[
-                                CircleAvatar(
-                                  radius: 12,
-                                  backgroundImage: otherUserAsync
-                                              .value?.profileImage !=
-                                          null
-                                      ? NetworkImage(
-                                          otherUserAsync.value!.profileImage!)
-                                      : null,
-                                  child:
-                                      otherUserAsync.value?.profileImage == null
-                                          ? const Icon(Icons.person, size: 12)
-                                          : null,
+                                FutureBuilder<UserModel?>(
+                                  future: ref
+                                      .read(userServiceProvider)
+                                      .getUser(message.senderId),
+                                  builder: (context, snapshot) {
+                                    final user = snapshot.data;
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 12,
+                                          backgroundImage:
+                                              user?.profileImage != null
+                                                  ? NetworkImage(
+                                                      user!.profileImage!)
+                                                  : null,
+                                          child: user?.profileImage == null
+                                              ? const Icon(Icons.person,
+                                                  size: 12)
+                                              : null,
+                                        ),
+                                        if (chatRoomAsync.value != null &&
+                                            chatRoomAsync.value!.participants
+                                                    .length >
+                                                2)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 8, top: 4),
+                                            child: Text(
+                                              user?.name ?? '',
+                                              style: TextStyle(
+                                                color: Colors.grey[400],
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    );
+                                  },
                                 ),
                                 const SizedBox(width: 8),
                               ],
@@ -191,6 +283,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               },
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) {
+                if (!mounted) return const SizedBox.shrink();
                 ref.read(errorNotifierProvider.notifier).setError(
                       error is AppException
                           ? error
@@ -238,20 +331,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                               hintStyle: TextStyle(color: Colors.grey),
                               border: InputBorder.none,
                             ),
-                            onSubmitted: (_) {
-                              ref
-                                  .read(
-                                      chatRoomControllerProvider(widget.chatId)
-                                          .notifier)
-                                  .sendMessageAndClear(
-                                    widget.chatId,
-                                    _messageController.text,
-                                    _messageController,
-                                  )
-                                  .catchError((e) => ref
-                                      .read(errorNotifierProvider.notifier)
-                                      .setError(e));
-                            },
+                            onSubmitted: (_) => _sendMessage(),
                           ),
                         ),
                         IconButton(
@@ -274,5 +354,30 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _sendMessage() async {
+    if (!mounted) return;
+
+    final currentUser = ref.read(authProvider).value;
+    if (currentUser == null) return;
+
+    final message = _messageController.text.trim();
+    if (message.isEmpty) return;
+
+    try {
+      await ref.read(chatServiceProvider).sendMessage(
+            widget.chatId,
+            message,
+            currentUser.uid,
+          );
+      if (!mounted) return;
+      _messageController.clear();
+    } catch (e) {
+      if (!mounted) return;
+      ref.read(errorNotifierProvider.notifier).setError(
+            e is AppException ? e : AppException('메시지 전송에 실패했습니다'),
+          );
+    }
   }
 }
