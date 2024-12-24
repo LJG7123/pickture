@@ -14,7 +14,7 @@ class PostNotifier extends StateNotifier<List<Post>> {
   }
 
   Future<void> getPost() async {
-    final posts = await postService.getAllPost();
+    final posts = await postService.getPost();
     state = posts;
   }
 
