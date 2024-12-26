@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/page_provider.dart';
-import 'package:pickture/screens/auth/sign_up/sign_up_pages/page_1.dart';
-import 'package:pickture/screens/auth/sign_up/sign_up_pages/page_2.dart';
-import 'package:pickture/screens/auth/sign_up/sign_up_pages/page_3.dart';
-import 'package:pickture/screens/auth/sign_up/sign_up_pages/page_4.dart';
+import 'package:pickture/screens/auth/sign_up/sign_up_pages/first_page.dart';
+import 'package:pickture/screens/auth/sign_up/sign_up_pages/second_page.dart';
+import 'package:pickture/screens/auth/sign_up/sign_up_pages/third_page.dart';
+import 'package:pickture/screens/auth/sign_up/sign_up_pages/fourth_page.dart';
 import 'package:pickture/screens/auth/widgets/expanded_elevated_progress_button.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
@@ -18,78 +18,10 @@ class SignUpScreen extends ConsumerStatefulWidget {
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   static const int _pageCount = 4;
-  final _pageNotifierProvider =
-      ChangeNotifierProvider((ref) => PageNotifier(pageCount: _pageCount));
-  final _textControllers =
-      List.generate(_pageCount, (index) => TextEditingController());
-  final _errorMessageProvider = List.generate(
-      _pageCount, (index) => StateProvider<String?>((ref) => null));
+  final _pageNotifierProvider = ChangeNotifierProvider((ref) => PageNotifier(pageCount: _pageCount));
+  final _textControllers = List.generate(_pageCount, (index) => TextEditingController());
+  final _errorMessageProvider = List.generate(_pageCount, (index) => StateProvider<String?>((ref) => null));
   final _obscurePasswordProvider = StateProvider<bool>((ref) => true);
-
-  @override
-  Widget build(BuildContext context) {
-    var pageProvider = ref.watch(_pageNotifierProvider);
-    var emailError = ref.watch(_errorMessageProvider[0]);
-    var passwordError = ref.watch(_errorMessageProvider[1]);
-    var dobError = ref.watch(_errorMessageProvider[2]);
-    var nameError = ref.watch(_errorMessageProvider[3]);
-    var obscurePassword = ref.watch(_obscurePasswordProvider);
-
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: pageProvider.currentPage == 0
-              ? context.pop
-              : pageProvider.toPreviousPage,
-          icon: const Icon(Icons.arrow_back),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView(
-                controller: pageProvider.pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                onPageChanged: pageProvider.setCurrentPage,
-                children: [
-                  Page1(
-                    controller: _textControllers[0],
-                    errorMessage: emailError,
-                  ),
-                  Page2(
-                    controller: _textControllers[1],
-                    obscureText: obscurePassword,
-                    onSuffixIconPressed: _togglePasswordVisibility,
-                    errorMessage: passwordError,
-                  ),
-                  Page3(
-                    controller: _textControllers[2],
-                    errorMessage: dobError,
-                  ),
-                  Page4(
-                    controller: _textControllers[3],
-                    errorMessage: nameError,
-                  ),
-                ],
-              ),
-            ),
-            ExpandedElevatedProgressButton(
-              onPressed: () => _onNextButtonClicked(context, pageProvider),
-              text: "다음",
-              isLoading: pageProvider.isLoading,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _togglePasswordVisibility() {
-    ref.read(_obscurePasswordProvider.notifier).state =
-        !ref.read(_obscurePasswordProvider);
-  }
 
   @override
   void initState() {
@@ -109,46 +41,123 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    var pageProvider = ref.watch(_pageNotifierProvider);
+    var emailError = ref.watch(_errorMessageProvider[0]);
+    var passwordError = ref.watch(_errorMessageProvider[1]);
+    var dobError = ref.watch(_errorMessageProvider[2]);
+    var nameError = ref.watch(_errorMessageProvider[3]);
+    var obscurePassword = ref.watch(_obscurePasswordProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: pageProvider.currentPage == 0 ? context.pop : pageProvider.toPreviousPage,
+          icon: const Icon(Icons.arrow_back),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Expanded(
+              child: PageView(
+                controller: pageProvider.pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                onPageChanged: pageProvider.setCurrentPage,
+                children: [
+                  FirstPage(
+                    controller: _textControllers[0],
+                    errorMessage: emailError,
+                  ),
+                  SecondPage(
+                    controller: _textControllers[1],
+                    obscureText: obscurePassword,
+                    onSuffixIconPressed: _togglePasswordVisibility,
+                    errorMessage: passwordError,
+                  ),
+                  ThirdPage(
+                    controller: _textControllers[2],
+                    errorMessage: dobError,
+                  ),
+                  FourthPage(
+                    controller: _textControllers[3],
+                    errorMessage: nameError,
+                  ),
+                ],
+              ),
+            ),
+            ExpandedElevatedProgressButton(
+              onPressed: () => _onNextButtonClicked(context, pageProvider),
+              text: "다음",
+              isLoading: pageProvider.isLoading,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _togglePasswordVisibility() {
+    ref.read(_obscurePasswordProvider.notifier).state = !ref.read(_obscurePasswordProvider);
+  }
+
   void _onNextButtonClicked(BuildContext context, PageNotifier pageNotifier) async {
-    bool isAvailable = false;
     pageNotifier.setLoading(true);
-    var authNotifier = ref.read(authProvider.notifier);
-    var currentPage = pageNotifier.currentPage;
 
-    switch (currentPage) {
-      case 0:
-        isAvailable =
-            await authNotifier.isEmailAvailable(_textControllers[0].text);
-        if (!isAvailable) {
-          ref.read(_errorMessageProvider[0].notifier).state =
-              '이미 사용중이거나 사용할 수 없는 이메일입니다.';
-        }
-      case 1:
-        isAvailable =
-            authNotifier.isPasswordAvailable(_textControllers[1].text);
-        if (!isAvailable) {
-          ref.read(_errorMessageProvider[1].notifier).state =
-              '사용할 수 없는 비밀번호입니다.';
-        }
-      default:
-        isAvailable = _textControllers[currentPage].text.isNotEmpty;
-        if (!isAvailable) {
-          ref.read(_errorMessageProvider[currentPage].notifier).state =
-              '필수 항목입니다.';
-        }
-    }
+    int currentPage = pageNotifier.currentPage;
+    bool isValid = await _validateCurrentPage(currentPage);
 
-    if (isAvailable) {
+    if (isValid) {
       if (currentPage < _pageCount - 1) {
         pageNotifier.toNextPage();
       } else {
-        await authNotifier.signUp(_textControllers[0].text, _textControllers[1].text,
-            _textControllers[2].text, _textControllers[3].text);
-        if (ref.read(authProvider).value != null) {
-          if (context.mounted) context.go('/');
-        }
+        _completeSignUp();
       }
     }
+
     pageNotifier.setLoading(false);
+  }
+
+  Future<bool> _validateCurrentPage(int currentPage) async {
+    var authNotifier = ref.read(authProvider.notifier);
+    String inputText = _textControllers[currentPage].text;
+
+    switch (currentPage) {
+      case 0:
+        bool isAvailable = await authNotifier.isEmailAvailable(inputText);
+        if (!isAvailable) {
+          _setError(currentPage, '이미 사용중이거나 사용할 수 없는 이메일입니다.');
+          return false;
+        }
+      case 1:
+        bool isAvailable = authNotifier.isPasswordAvailable(inputText);
+        if (!isAvailable) {
+          _setError(currentPage, '사용할 수 없는 비밀번호입니다.');
+          return false;
+        }
+      default:
+        if (inputText.isEmpty) {
+          _setError(currentPage, '필수 항목입니다.');
+          return false;
+        }
+    }
+
+    return true;
+  }
+
+  Future<void> _completeSignUp() async {
+    var authNotifier = ref.read(authProvider.notifier);
+
+    await authNotifier.signUp(_textControllers[0].text, _textControllers[1].text, _textControllers[2].text, _textControllers[3].text);
+
+    if (ref.read(authProvider).value != null) {
+      if (mounted) context.go('/');
+    }
+  }
+
+  void _setError(int pageIndex, String message) {
+    ref.read(_errorMessageProvider[pageIndex].notifier).state = message;
   }
 }
