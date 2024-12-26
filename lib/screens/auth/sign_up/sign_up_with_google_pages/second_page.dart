@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class Page2 extends StatelessWidget {
+class SecondPage extends StatelessWidget {
   final TextEditingController controller;
 
-  const Page2({required this.controller, super.key});
+  const SecondPage({required this.controller, super.key});
 
   @override
   Widget build(BuildContext context) {
