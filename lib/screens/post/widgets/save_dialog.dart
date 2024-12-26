@@ -62,7 +62,7 @@ Post createPost(Post? post, String title, String content, WidgetRef ref) {
     content: content,
     likes: post?.likes ?? [],
     comments: post?.comments ?? [],
-    createUserModel: post?.createUserModel ?? ref.watch(authProvider).value!,
+    creator: post?.creator ?? ref.watch(authProvider).value!,
     createdAt: post?.createdAt ?? DateTime.now(),
     updatedAt: post == null ? null : DateTime.now(),
   );
