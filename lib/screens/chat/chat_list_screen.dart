@@ -40,6 +40,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final currentUser = ref.watch(authProvider).value;
     final chatRoomsAsync = currentUser != null

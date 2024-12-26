@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pickture/screens/auth/widgets/auth_text_field.dart';
 
-class Page2 extends ConsumerWidget {
+class Page2 extends StatelessWidget {
   final TextEditingController controller;
   final String? errorMessage;
-  final StateProvider<bool> obscurePasswordProvider;
+  final bool obscureText;
+  final Function onSuffixIconPressed;
 
-  const Page2({required this.controller, this.errorMessage, required this.obscurePasswordProvider, super.key});
-
-  void _togglePasswordVisibility(WidgetRef ref) {
-    ref.read(obscurePasswordProvider.notifier).state =
-        !ref.read(obscurePasswordProvider);
-  }
+  const Page2(
+      {required this.controller,
+      required this.obscureText,
+      required this.onSuffixIconPressed,
+      this.errorMessage,
+      super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final obscurePassword = ref.watch(obscurePasswordProvider);
+  Widget build(BuildContext context) {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,8 +34,8 @@ class Page2 extends ConsumerWidget {
           controller: controller,
           hintText: '비밀번호',
           errorMessage: errorMessage,
-          obscureText: obscurePassword,
-          onSuffixIconPressed: () => _togglePasswordVisibility(ref),
+          obscureText: obscureText,
+          onSuffixIconPressed: () => onSuffixIconPressed(),
         ),
       ],
     );
