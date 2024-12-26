@@ -9,7 +9,7 @@ class Post {
   final String content;
   final List<Like> likes;
   final List<Comment> comments;
-  final UserModel createUserModel;
+  final UserModel creator;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -19,24 +19,20 @@ class Post {
     required this.content,
     required this.likes,
     required this.comments,
-    required this.createUserModel,
+    required this.creator,
     required this.createdAt,
     this.updatedAt,
   });
 
-  factory Post.fromJson(
-      String postId, Map<String, dynamic> json, UserModel createUserModel) {
+  factory Post.fromJson(String postId, Map<String, dynamic> json,
+      List<Like> likes, List<Comment> comments, UserModel creator) {
     return Post(
       postId: postId,
       title: json["title"],
       content: json["content"],
-      likes: (json["likes"] as List<dynamic>)
-          .map((likeJson) => Like.fromJson(likeJson))
-          .toList(),
-      comments: (json["comments"] as List<dynamic>)
-          .map((commentJson) => Comment.fromJson(commentJson))
-          .toList(),
-      createUserModel: createUserModel,
+      likes: likes,
+      comments: comments,
+      creator: creator,
       createdAt: (json["createdAt"] as Timestamp).toDate(),
       updatedAt: json["updatedAt"] != null
           ? (json["updatedAt"] as Timestamp).toDate()
@@ -61,7 +57,7 @@ class Post {
     String? content,
     List<Like>? likes,
     List<Comment>? comments,
-    UserModel? createUserModel,
+    UserModel? creator,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -71,7 +67,7 @@ class Post {
       content: content ?? this.content,
       likes: likes ?? this.likes,
       comments: comments ?? this.comments,
-      createUserModel: createUserModel ?? this.createUserModel,
+      creator: creator ?? this.creator,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

@@ -5,7 +5,6 @@ import 'package:pickture/models/post.dart';
 import 'package:pickture/models/user_model.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/post_provider.dart';
-import 'package:pickture/providers/user_provider.dart';
 
 class CommentButtomSheet extends ConsumerStatefulWidget {
   const CommentButtomSheet({super.key, required this.post});
@@ -18,92 +17,10 @@ class CommentButtomSheet extends ConsumerStatefulWidget {
 class _CommentButtomSheetState extends ConsumerState<CommentButtomSheet> {
   final TextEditingController commentController = TextEditingController();
   Comment? replyComment;
-  bool _isLoading = true;
-  List<String> _userIds = [];
-
-  @override
-  void initState() {
-    super.initState();
-    final userIds = _getAllUserIds(widget.post.comments);
-    _userIds = userIds;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      for (final userId in userIds) {
-        await ref.read(userProvider(userId).future);
-      }
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
-  }
-
-  List<String> _getAllUserIds(List<Comment> comments) {
-    List<String> userIds = [];
-
-    for (Comment comment in comments) {
-      userIds.add(comment.userId);
-      if (comment.comments.isNotEmpty) {
-        userIds.addAll(_getAllUserIds(comment.comments));
-      }
-    }
-
-    return userIds.toSet().toList();
-  }
 
   @override
   Widget build(BuildContext context) {
-    final userId = ref.watch(authProvider).value!.uid;
-
-    if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text("Comment"),
-          centerTitle: true,
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    // 사용자 정보 가져오기
-    final userAsyncValues = _userIds.map((id) => ref.watch(userProvider(id)));
-
-    // 모든 사용자 정보가 로드될 때까지 대기
-    final hasError = userAsyncValues.any((async) => async.hasError);
-    final isLoading = userAsyncValues.any((async) => async.isLoading);
-
-    if (hasError) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text("Comment"),
-          centerTitle: true,
-        ),
-        body: const Center(
-          child: Text("사용자 정보를 불러오는데 실패했습니다."),
-        ),
-      );
-    }
-
-    if (isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text("Comment"),
-          centerTitle: true,
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    final users = userAsyncValues
-        .map((async) => async.value)
-        .where((user) => user != null)
-        .cast<UserModel>()
-        .toList();
+    final user = ref.watch(authProvider).value!;
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
@@ -129,20 +46,14 @@ class _CommentButtomSheetState extends ConsumerState<CommentButtomSheet> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildCard(
-                        users.firstWhere(
-                            (userModel) => userModel.uid == comment.userId),
-                        comment),
+                    _buildCard(comment.user, comment),
                     if (comment.comments.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(left: 16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: comment.comments.map((reply) {
-                            return _buildCard(
-                                users.firstWhere((userModel) =>
-                                    userModel.uid == reply.userId),
-                                reply);
+                            return _buildCard(reply.user, comment);
                           }).toList(),
                         ),
                       ),
@@ -160,11 +71,11 @@ class _CommentButtomSheetState extends ConsumerState<CommentButtomSheet> {
                 prefixIcon: const Icon(Icons.people_alt),
                 border: const OutlineInputBorder(),
                 hintText: replyComment == null
-                    ? "${widget.post.createUserModel.userId}에게 댓글 추가"
-                    : "${users.firstWhere((userModel) => userModel.uid == replyComment!.userId).userId}에게 답글 추가",
+                    ? "${widget.post.creator.userId}에게 댓글 추가"
+                    : "${replyComment!.user.userId}에게 답글 추가",
                 suffixIcon: IconButton(
                   onPressed: () => _updateComment(
-                      ref, commentController, replyComment, userId),
+                      ref, commentController, replyComment, user),
                   icon: const Icon(Icons.upload),
                 ),
               ),
@@ -209,15 +120,15 @@ class _CommentButtomSheetState extends ConsumerState<CommentButtomSheet> {
     WidgetRef ref,
     TextEditingController commentController,
     Comment? replyComment,
-    String userId,
+    UserModel user,
   ) {
     if (commentController.text.isNotEmpty) {
       final comment = Comment(
-        userId: userId,
-        comment: commentController.text,
-        createdAt: DateTime.now(),
-        comments: [],
-      );
+          userId: user.uid,
+          comment: commentController.text,
+          createdAt: DateTime.now(),
+          comments: [],
+          user: user);
 
       if (replyComment == null) {
         widget.post.comments.add(comment);

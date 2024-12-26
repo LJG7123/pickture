@@ -12,17 +12,21 @@ class LikeButtonWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userId = ref.watch(authProvider).value!.uid;
-    final isLiked = post.likes.any((like) => like.userId == userId);
+    final user = ref.watch(authProvider).value!;
+    final isLiked = post.likes.any((like) => like.userId == user.uid);
 
     return TextButton.icon(
       onPressed: () {},
       icon: GestureDetector(
         onTap: () {
           if (isLiked) {
-            post.likes.removeWhere((like) => like.userId == userId);
+            post.likes.removeWhere((like) => like.userId == user.uid);
           } else {
-            final like = Like(userId: userId, createdAt: DateTime.now());
+            final like = Like(
+              userId: user.uid,
+              createdAt: DateTime.now(),
+              user: user,
+            );
             post.likes.add(like);
           }
 
