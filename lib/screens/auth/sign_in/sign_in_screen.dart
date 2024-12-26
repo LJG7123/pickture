@@ -22,54 +22,11 @@ class _SignInScreenState extends ConsumerState {
   final _obscurePasswordProvider = StateProvider<bool>((ref) => true);
   final _signInLoadingProvider = StateProvider<bool>((ref) => false);
 
-  void _togglePasswordVisibility() {
-    ref.read(_obscurePasswordProvider.notifier).state =
-        !ref.read(_obscurePasswordProvider);
-  }
-
-  void _onLoginButtonClicked(BuildContext context) async {
-    ref.read(_signInLoadingProvider.notifier).state = true;
-    await ref
-        .read(authProvider.notifier)
-        .signIn(_emailController.text, _passwordController.text);
-    ref.read(_signInLoadingProvider.notifier).state = false;
-
-    if (ref.read(authProvider).value != null) {
-      // 로그인에 성공한 경우
-      if (context.mounted) context.go('/');
-    }
-  }
-
-  void _onLoginWithGoogleButtonClicked(BuildContext context) async {
-    var authNotifier = ref.read(authProvider.notifier);
-    await authNotifier.signInWithGoogle();
-
-    var user = ref.read(authProvider).value;
-    if (user == null && authNotifier.authService.currentUser != null) {
-      // 유저 정보가 등록되어 있지 않은 경우
-      if (context.mounted) {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text("사용자 정보 미등록"),
-                content: const Text("확인 버튼 클릭 시 사용자 정보 등록 화면으로 이동합니다."),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      context.pop();
-                      context.push('/signup_with_google');
-                    },
-                    child: const Text("확인"),
-                  )
-                ],
-              );
-            });
-      }
-    } else if (user != null) {
-      // 로그인에 성공한 경우
-      if (context.mounted) context.go('/');
-    }
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -94,30 +51,74 @@ class _SignInScreenState extends ConsumerState {
             ),
             const SizedBox(height: 20),
             ExpandedElevatedProgressButton(
-              onPressed: () => _onLoginButtonClicked(context),
+              onPressed: () => _onLoginButtonClicked(),
               text: '로그인',
               isLoading: isLoading,
             ),
             const SizedBox(height: 20),
             ExpandedElevatedIconButton(
-              onPressed: () => _onLoginWithGoogleButtonClicked(context),
+              onPressed: () => _onLoginWithGoogleButtonClicked(),
               text: 'Google 로 로그인',
               iconAsset: _googleIcon,
             ),
             const Spacer(),
-            ExpandedOutlinedButton(onPressed: () {
-              context.push('/signup');
-            }, text: '새 계정 만들기')
+            ExpandedOutlinedButton(
+              onPressed: () {
+                context.push('/signup');
+              },
+              text: '새 계정 만들기',
+            ),
           ],
         ),
       ),
     );
   }
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
+  void _togglePasswordVisibility() {
+    ref.read(_obscurePasswordProvider.notifier).state = !ref.read(_obscurePasswordProvider);
+  }
+
+  void _onLoginButtonClicked() async {
+    ref.read(_signInLoadingProvider.notifier).state = true;
+    await ref.read(authProvider.notifier).signIn(_emailController.text, _passwordController.text);
+    ref.read(_signInLoadingProvider.notifier).state = false;
+
+    if (ref.read(authProvider).value != null) {
+      // 로그인에 성공한 경우
+      if (mounted) context.go('/');
+    }
+  }
+
+  void _onLoginWithGoogleButtonClicked() async {
+    var authNotifier = ref.read(authProvider.notifier);
+    await authNotifier.signInWithGoogle();
+
+    var user = ref.read(authProvider).value;
+    if (user == null && authNotifier.authService.currentUser != null) {
+      // 유저 정보가 등록되어 있지 않은 경우
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("사용자 정보 미등록"),
+              content: const Text("확인 버튼 클릭 시 사용자 정보 등록 화면으로 이동합니다."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    context.pop();
+                    context.push('/signup_with_google');
+                  },
+                  child: const Text("확인"),
+                )
+              ],
+            );
+          },
+        );
+      }
+    } else if (user != null) {
+      // 로그인에 성공한 경우
+      if (mounted) context.go('/');
+    }
   }
 }
