@@ -62,8 +62,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   CircleAvatar(
                     radius: 16,
                     backgroundColor: Colors.grey[800],
-                    child:
-                        const Icon(Icons.group, color: Colors.white, size: 20),
+                    child: const Icon(Icons.group, color: Colors.white, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -96,15 +95,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 children: [
                   CircleAvatar(
                     radius: 16,
-                    backgroundImage:
-                        otherUserAsync.value?.profileImage != null &&
-                                otherUserAsync.value!.profileImage!.isNotEmpty
-                            ? NetworkImage(otherUserAsync.value!.profileImage!)
-                            : null,
-                    child: otherUserAsync.value?.profileImage == null ||
-                            otherUserAsync.value!.profileImage!.isEmpty
-                        ? const Icon(Icons.person,
-                            color: Colors.white, size: 20)
+                    backgroundImage: otherUserAsync.value?.profileImage != null && otherUserAsync.value!.profileImage!.isNotEmpty
+                        ? NetworkImage(otherUserAsync.value!.profileImage!)
+                        : null,
+                    child: otherUserAsync.value?.profileImage == null || otherUserAsync.value!.profileImage!.isEmpty
+                        ? const Icon(Icons.person, color: Colors.white, size: 20)
                         : null,
                   ),
                   const SizedBox(width: 12),
@@ -136,8 +131,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             }
           },
           loading: () => const CircularProgressIndicator(),
-          error: (_, __) =>
-              const Text('오류 발생', style: TextStyle(color: Colors.white)),
+          error: (_, __) => const Text('오류 발생', style: TextStyle(color: Colors.white)),
         ),
         actions: [
           IconButton(
@@ -161,8 +155,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
-                    final messageDate =
-                        message.sentTime.formatMessageDateOnly();
+                    final messageDate = message.sentTime.formatMessageDateOnly();
 
                     final showDateDivider = currentDate != messageDate;
                     if (showDateDivider) {
@@ -176,8 +169,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
                                 color: Colors.grey[900],
                                 borderRadius: BorderRadius.circular(12),
@@ -194,41 +186,25 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8),
                           child: Row(
-                            mainAxisAlignment: isMe
-                                ? MainAxisAlignment.end
-                                : MainAxisAlignment.start,
+                            mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               if (!isMe) ...[
                                 FutureBuilder<UserModel?>(
-                                  future: ref
-                                      .read(userServiceProvider)
-                                      .getUser(message.senderId),
+                                  future: ref.read(userServiceProvider).getUser(message.senderId),
                                   builder: (context, snapshot) {
                                     final user = snapshot.data;
                                     return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         CircleAvatar(
                                           radius: 12,
-                                          backgroundImage:
-                                              user?.profileImage != null
-                                                  ? NetworkImage(
-                                                      user!.profileImage!)
-                                                  : null,
-                                          child: user?.profileImage == null
-                                              ? const Icon(Icons.person,
-                                                  size: 12)
-                                              : null,
+                                          backgroundImage: user?.profileImage != null ? NetworkImage(user!.profileImage!) : null,
+                                          child: user?.profileImage == null ? const Icon(Icons.person, size: 12) : null,
                                         ),
-                                        if (chatRoomAsync.value != null &&
-                                            chatRoomAsync.value!.participants
-                                                    .length >
-                                                2)
+                                        if (chatRoomAsync.value != null && chatRoomAsync.value!.participants.length > 2)
                                           Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 8, top: 4),
+                                            padding: const EdgeInsets.only(left: 8, top: 4),
                                             child: Text(
                                               user?.name ?? '',
                                               style: TextStyle(
@@ -245,8 +221,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                               ],
                               Container(
                                 constraints: BoxConstraints(
-                                  maxWidth:
-                                      MediaQuery.of(context).size.width * 0.7,
+                                  maxWidth: MediaQuery.of(context).size.width * 0.7,
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
@@ -262,13 +237,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                                   ),
                                 ),
                                 child: Text(
-                                  message.isDeleted
-                                      ? '삭제된 메시지입니다'
-                                      : message.content,
+                                  message.isDeleted ? '삭제된 메시지입니다' : message.content,
                                   style: TextStyle(
-                                    color: message.isDeleted
-                                        ? Colors.grey[400]
-                                        : Colors.white,
+                                    color: message.isDeleted ? Colors.grey[400] : Colors.white,
                                     fontSize: 16,
                                   ),
                                 ),
@@ -285,9 +256,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               error: (error, stack) {
                 if (!mounted) return const SizedBox.shrink();
                 ref.read(errorNotifierProvider.notifier).setError(
-                      error is AppException
-                          ? error
-                          : AppException('메시지를 불러오는데 실패했습니다'),
+                      error is AppException ? error : AppException('메시지를 불러오는데 실패했습니다'),
                     );
                 return const Center(
                   child: Text(
@@ -309,8 +278,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.camera_alt_outlined,
-                      color: Colors.white),
+                  icon: const Icon(Icons.camera_alt_outlined, color: Colors.white),
                   onPressed: () {},
                 ),
                 Expanded(
@@ -335,13 +303,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.image_outlined,
-                              color: Colors.white),
+                          icon: const Icon(Icons.image_outlined, color: Colors.white),
                           onPressed: () {},
                         ),
                         IconButton(
-                          icon: const Icon(Icons.favorite_border,
-                              color: Colors.white),
+                          icon: const Icon(Icons.favorite_border, color: Colors.white),
                           onPressed: () {},
                         ),
                       ],
