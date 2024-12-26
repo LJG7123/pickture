@@ -1,4 +1,3 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -40,24 +39,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     }
   }
 
-  Future<void> setupInteractedMessage() async {
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-
-    if (initialMessage != null) {
-      _handleMessage(initialMessage);
-    }
-  }
-
-  void _handleMessage(RemoteMessage message) {
-    if (message.data['type'] == 'chat') {
-      context.go('/chats/${message.data['chatRoomId']}');
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    setupInteractedMessage();
   }
 
   @override

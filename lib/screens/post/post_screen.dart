@@ -23,8 +23,7 @@ class _PostScreenState extends ConsumerState {
 
   Future<void> setupInteractedMessage() async {
     /// 백그라운드 알림
-    RemoteMessage? initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
 
     if (initialMessage != null) {
       _handleMessage(initialMessage);
@@ -35,16 +34,13 @@ class _PostScreenState extends ConsumerState {
 
   Future<void> setupForegroundMessage() async {
     /// 포그라운드 알림
-    const channel = AndroidNotificationChannel(
-          'high_importance_channel', 'High Importance Notifications',
-          importance: Importance.max);
+    const channel = AndroidNotificationChannel('high_importance_channel', 'High Importance Notifications', importance: Importance.max);
 
     var iOSInitializationSettings = const DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
     );
-    var androidInitializationSettings =
-        const AndroidInitializationSettings('@mipmap/ic_launcher');
+    var androidInitializationSettings = const AndroidInitializationSettings('@mipmap/ic_launcher');
 
     var initializationSettings = InitializationSettings(
       android: androidInitializationSettings,
@@ -53,21 +49,14 @@ class _PostScreenState extends ConsumerState {
 
     final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+    await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
 
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.getActiveNotifications();
+    await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.getActiveNotifications();
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse: (detail) {
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings, onDidReceiveNotificationResponse: (detail) {
       if (detail.payload == null) return;
       context.push('/chats');
-      context.go('/chats/${detail.payload}');
+      context.push('/chats/${detail.payload}');
     });
 
     foregroundMessageSubscription = FirebaseMessaging.onMessage.listen((message) {
@@ -92,6 +81,7 @@ class _PostScreenState extends ConsumerState {
   void _handleMessage(RemoteMessage message) {
     if (message.data['type'] == 'chat') {
       context.push('/chats');
+      context.push('/chats/${message.data['chatRoomId']}');
     }
   }
 
@@ -147,24 +137,20 @@ class _PostScreenState extends ConsumerState {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(post.createUserModel.userId),
-                            if (ref.watch(authProvider).value!.uid ==
-                                post.createUserModel.uid)
+                            if (ref.watch(authProvider).value!.uid == post.createUserModel.uid)
                               Row(
                                 children: [
                                   IconButton(
                                     onPressed: () {
                                       showDialog(
                                         context: context,
-                                        builder: (context) =>
-                                            SaveDialog(post: post),
+                                        builder: (context) => SaveDialog(post: post),
                                       );
                                     },
                                     icon: const Icon(Icons.edit),
                                   ),
                                   IconButton(
-                                    onPressed: () => ref
-                                        .read(postProvider.notifier)
-                                        .deletePost(post),
+                                    onPressed: () => ref.read(postProvider.notifier).deletePost(post),
                                     icon: const Icon(Icons.delete),
                                   ),
                                 ],
