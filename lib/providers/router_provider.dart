@@ -81,3 +81,12 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   return router;
 });
+
+final routeInformationProvider = ChangeNotifierProvider((ref) {
+  final router = ref.watch(routerProvider);
+  return router.routeInformationProvider;
+});
+
+final currentRouteProvider = Provider((ref) {
+  return ref.watch(routeInformationProvider).value.uri;
+});

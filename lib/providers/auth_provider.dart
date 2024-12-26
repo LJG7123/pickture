@@ -7,10 +7,9 @@ import 'package:pickture/models/user_model.dart';
 import 'package:pickture/services/auth_service.dart';
 import 'package:pickture/utils/validator.dart';
 
-final authProvider =
-    StateNotifierProvider<AuthNotifier, AsyncValue<UserModel?>>((ref) =>
-        AuthNotifier(AuthService(FirebaseAuth.instance,
-            FirebaseFirestore.instance, FirebaseMessaging.instance, GoogleSignIn())));
+final authProvider = StateNotifierProvider<AuthNotifier, AsyncValue<UserModel?>>(
+    (ref) => AuthNotifier(AuthService(FirebaseAuth.instance, FirebaseFirestore.instance, FirebaseMessaging.instance, GoogleSignIn())));
+
 final authStateProvider = StreamProvider<User?>((ref) async* {
   final auth = FirebaseAuth.instance;
   yield* auth.authStateChanges();
@@ -29,15 +28,12 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     state = await AsyncValue.guard(() => authService.signInWithGoogle());
   }
 
-  Future<void> signUp(
-      String email, String password, String dob, String name) async {
-    state = await AsyncValue.guard(
-        () => authService.signUp(email, password, dob, name));
+  Future<void> signUp(String email, String password, String dob, String name) async {
+    state = await AsyncValue.guard(() => authService.signUp(email, password, dob, name));
   }
 
   Future<void> signUpWithGoogle(String dob, String name) async {
-    state =
-        await AsyncValue.guard(() => authService.signUpWithGoogle(dob, name));
+    state = await AsyncValue.guard(() => authService.signUpWithGoogle(dob, name));
   }
 
   Future<void> fetchUserData() async {
