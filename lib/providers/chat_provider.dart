@@ -4,8 +4,8 @@ import '../models/chat_room.dart';
 import '../models/message.dart';
 import '../models/user_model.dart';
 import '../services/chat_service.dart';
-import '../providers/auth_provider.dart';
 import '../providers/user_provider.dart';
+import '../core/error/app_exception.dart';
 
 part 'gen/chat_provider.g.dart';
 
@@ -21,6 +21,7 @@ Stream<List<ChatRoom>> chatRooms(Ref ref, String userId) {
 
 @riverpod
 Future<ChatRoom> chatRoom(Ref ref, String chatId) async {
+  if (chatId.isEmpty) throw AppException('채팅방 ID가 없습니다.');
   return ref.read(chatServiceProvider).getChatRoom(chatId);
 }
 
@@ -30,26 +31,71 @@ Stream<List<Message>> messages(Ref ref, String chatId) {
 }
 
 @riverpod
-Future<String> createChatRoom(
-    Ref ref, ({List<String> participants, String? groupName}) params) async {
-  final chatRoom = await ref
-      .read(chatServiceProvider)
-      .createChatRoom(params.participants, groupName: params.groupName);
-  return chatRoom.id;
-}
-
-@riverpod
-Future<String> startChatWithUser(Ref ref, String otherUserId) async {
-  final currentUserId = ref.read(authProvider).value?.uid;
-  return await ref
-      .read(chatServiceProvider)
-      .startChatWithUser(currentUserId, otherUserId);
+Future<ChatRoom> createChatRoom(
+  Ref ref,
+  ({List<String> participants, String? groupName}) params,
+) async {
+  return ref.read(chatServiceProvider).createChatRoom(
+        params.participants,
+        groupName: params.groupName,
+      );
 }
 
 @riverpod
 Future<UserModel?> chatRoomUser(Ref ref, ChatRoom chatRoom) async {
-  final currentUserId = ref.read(authProvider).value?.uid;
-  final otherUserId =
-      chatRoom.participants.firstWhere((id) => id != currentUserId);
-  return ref.read(userProvider(otherUserId).future);
+  if (chatRoom.isGroupChat) return null;
+
+  final participants = chatRoom.participants;
+  if (participants.length != 2) return null;
+
+  final users = await ref.read(usersByIdsProvider(participants).future);
+  return users.firstOrNull;
+}
+
+@riverpod
+class MessageUserIds extends _$MessageUserIds {
+  @override
+  Set<String> build() => {};
+
+  void updateMessageUserIds(List<Message> messages) {
+    final userIds = messages.where((m) => m.senderId.isNotEmpty).map((m) => m.senderId).toSet();
+    state = userIds;
+    ref.read(usersByIdsProvider(userIds.toList()));
+  }
+
+  @override
+  bool updateShouldNotify(Set<String> previous, Set<String> next) {
+    return previous.length != next.length || previous.any((id) => !next.contains(id));
+  }
+}
+
+@riverpod
+Future<void> sendMessage(
+  Ref ref,
+  ({String chatId, String content, String senderId}) params,
+) async {
+  if (params.content.trim().isEmpty) {
+    throw AppException('메시지를 입력해주세요.');
+  }
+
+  await ref.read(chatServiceProvider).sendMessage(
+        params.chatId,
+        params.content.trim(),
+        params.senderId,
+      );
+}
+
+@riverpod
+Future<({ChatRoom chatRoom, UserModel? otherUser})> chatRoomWithUser(
+  Ref ref,
+  String chatId,
+) async {
+  final chatRoom = await ref.watch(chatRoomProvider(chatId).future);
+
+  if (chatRoom.participants.length > 2) {
+    return (chatRoom: chatRoom, otherUser: null);
+  }
+
+  final otherUser = await ref.watch(chatRoomUserProvider(chatRoom).future);
+  return (chatRoom: chatRoom, otherUser: otherUser);
 }
