@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pickture/core/error/app_exception.dart';
 import 'package:pickture/core/error/auth_exception.dart';
@@ -8,10 +9,11 @@ import 'package:pickture/models/user_model.dart';
 class AuthService {
   final FirebaseAuth _firebaseAuth;
   final FirebaseFirestore _firestore;
+  final FirebaseMessaging _messaging;
   final GoogleSignIn _googleSignIn;
   User? get currentUser => _firebaseAuth.currentUser;
 
-  AuthService(this._firebaseAuth, this._firestore, this._googleSignIn);
+  AuthService(this._firebaseAuth, this._firestore, this._messaging, this._googleSignIn);
 
   Future<UserModel> signIn(String email, String password) async {
     try {
@@ -30,6 +32,7 @@ class AuthService {
         code: 'login_failed',
       );
     }
+    _updateFcmToken();
     return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
@@ -54,6 +57,7 @@ class AuthService {
     if (snapshot.data() == null) {
       return null;
     }
+    _updateFcmToken();
     return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
@@ -81,6 +85,7 @@ class AuthService {
     if (snapshot.data() == null) {
       throw AppException('회원가입에 실패했습니다.', code: 'signup_failed');
     }
+    _updateFcmToken();
     return UserModel.fromJson(userUid, snapshot.data()!);
   }
 
@@ -100,6 +105,7 @@ class AuthService {
     if (snapshot.data() == null) {
       return null;
     }
+    _updateFcmToken();
     return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
@@ -108,6 +114,7 @@ class AuthService {
     var snapshot = await _firestore.collection('users').doc(currentUser!.uid).get();
 
     if (snapshot.data() == null) return null;
+    _updateFcmToken();
     return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
@@ -126,5 +133,11 @@ class AuthService {
     } else {
       throw AppException("알 수 없는 오류가 발생했습니다.");
     }
+  }
+
+  void _updateFcmToken() async {
+    await _firestore.collection('users').doc(currentUser!.uid).update({
+      'fcmToken': await _messaging.getToken()
+    });
   }
 }
