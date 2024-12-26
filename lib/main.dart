@@ -3,7 +3,8 @@ import 'package:app_settings/app_settings.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pickture/routes.dart';
+import 'package:pickture/providers/auth_provider.dart';
+import 'package:pickture/providers/router_provider.dart';
 import 'core/bootstrap/bootstrap.dart';
 import 'core/bootstrap/error_handlers.dart';
 import 'core/error/error_widget.dart';
@@ -38,6 +39,13 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var router = ref.watch(routerProvider);
+    var authState = ref.watch(authStateProvider);
+
+    if (authState.value != null) {
+      ref.read(authProvider.notifier).fetchUserData();
+    }
+
     return MaterialApp.router(
       routerConfig: router,
       scaffoldMessengerKey: scaffoldMessengerKey,
