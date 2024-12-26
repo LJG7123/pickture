@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickture/models/like.dart';
+import 'package:pickture/models/post.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/screens/auth/sign_in/sign_in_screen.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_screen.dart';
@@ -9,14 +10,16 @@ import 'package:pickture/screens/chat/chat_list_screen.dart';
 import 'package:pickture/screens/chat/chat_room_screen.dart';
 import 'package:pickture/screens/chat/new_chat_screen.dart';
 import 'package:pickture/screens/chat/new_group_chat_screen.dart';
+import 'package:pickture/screens/home_screen.dart';
 import 'package:pickture/screens/post/like_screen.dart';
 import 'package:pickture/screens/post/post_screen.dart';
+import 'package:pickture/screens/post/save_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
 
   final router = GoRouter(
-    initialLocation: '/',
+    initialLocation: '/home',
     routes: [
       GoRoute(
         path: '/signin',
@@ -53,7 +56,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
-        path: "/",
+        path: "/post",
         builder: (context, state) => const PostScreen(),
       ),
       GoRoute(
@@ -63,10 +66,21 @@ final routerProvider = Provider<GoRouter>((ref) {
           return LikeScreen(likes: likes);
         },
       ),
+      GoRoute(
+        path: "/home",
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: "/save",
+        builder: (context, state) {
+          final post = state.extra as Post;
+          return SaveScreen(post: post);
+        },
+      ),
     ],
     redirect: (context, state) {
       if (authState.value != null && (state.matchedLocation == '/signin' || state.matchedLocation == '/signup')) {
-        return '/';
+        return '/home';
       }
       if (authState.value == null && (state.matchedLocation != '/signin' && state.matchedLocation != '/signup')) {
         return '/signin';

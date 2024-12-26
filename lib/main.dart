@@ -41,7 +41,7 @@ class MyApp extends ConsumerWidget {
     }
 
     ref.listen(currentRouteProvider, (previous, next) {
-      if (next.path == '/') {
+      if (next.path == '/home') {
         notification.listenForegroundMessage();
       } else {
         notification.cancelForegroundMessage();

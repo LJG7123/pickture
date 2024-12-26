@@ -56,7 +56,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go('/'),
+          onPressed: () => context.go('/home'),
         ),
         title: userAsync.when(
           data: (user) => Row(

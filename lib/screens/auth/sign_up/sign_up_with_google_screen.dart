@@ -63,7 +63,7 @@ class _SignUpWithGoogleScreenState extends ConsumerState {
                           )
                           .then((value) {
                         if (ref.read(authProvider).value != null) {
-                          if (context.mounted) context.go('/');
+                          if (context.mounted) context.go('/home');
                         }
                       });
                     },

@@ -85,7 +85,7 @@ class _SignInScreenState extends ConsumerState {
 
     if (ref.read(authProvider).value != null) {
       // 로그인에 성공한 경우
-      if (mounted) context.go('/');
+      if (mounted) context.go('/home');
     }
   }
 
@@ -118,7 +118,7 @@ class _SignInScreenState extends ConsumerState {
       }
     } else if (user != null) {
       // 로그인에 성공한 경우
-      if (mounted) context.go('/');
+      if (mounted) context.go('/home');
     }
   }
 }

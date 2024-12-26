@@ -153,7 +153,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     await authNotifier.signUp(_textControllers[0].text, _textControllers[1].text, _textControllers[2].text, _textControllers[3].text);
 
     if (ref.read(authProvider).value != null) {
-      if (mounted) context.go('/');
+      if (mounted) context.go('/home');
     }
   }
 
