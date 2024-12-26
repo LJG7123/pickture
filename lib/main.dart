@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'package:app_settings/app_settings.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pickture/routes.dart';
 import 'core/bootstrap/bootstrap.dart';
 import 'core/bootstrap/error_handlers.dart';
 import 'core/error/error_widget.dart';
+
+final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 void main() {
   runZonedGuarded(() async {
@@ -13,19 +17,30 @@ void main() {
     runApp(
       UncontrolledProviderScope(
         container: container,
-        child: const MyApp(),
+        child: MyApp(),
       ),
     );
   }, handleZoneError);
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+  MyApp({super.key}) {
+    FirebaseMessaging.instance.requestPermission().then((value) {
+      if (value.authorizationStatus == AuthorizationStatus.denied) {
+        scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
+          content: const Text("알림 기능을 사용하려면 알림 권한을 허용해야 합니다."),
+          duration: const Duration(seconds: 10),
+          action: SnackBarAction(label: "이동", onPressed: () => AppSettings.openAppSettings(type: AppSettingsType.notification)),
+        ));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       routerConfig: router,
+      scaffoldMessengerKey: scaffoldMessengerKey,
       builder: (context, child) {
         return GlobalErrorWidget(
           child: child ?? const SizedBox(),
