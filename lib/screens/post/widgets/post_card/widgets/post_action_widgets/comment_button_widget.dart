@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pickture/models/comment.dart';
 import 'package:pickture/models/post.dart';
-import 'package:pickture/screens/post/widgets/comment_buttom_sheet.dart';
+import 'package:pickture/screens/post/widgets/post_card/widgets/post_action_widgets/comment_buttom_sheet.dart';
 
 class CommentButtonWidget extends ConsumerWidget {
   const CommentButtonWidget({super.key, required this.post});

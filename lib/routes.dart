@@ -1,9 +1,12 @@
 import 'package:go_router/go_router.dart';
 import 'package:pickture/models/like.dart';
+import 'package:pickture/models/post.dart';
 import 'package:pickture/screens/auth/sign_in/sign_in_screen.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_screen.dart';
+import 'package:pickture/screens/home_screen.dart';
 import 'package:pickture/screens/post/like_screen.dart';
 import 'package:pickture/screens/post/post_screen.dart';
+import 'package:pickture/screens/post/save_screen.dart';
 import 'screens/chat/chat_list_screen.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_with_google_screen.dart';
 import 'screens/chat/new_chat_screen.dart';
@@ -56,6 +59,17 @@ final router = GoRouter(
       builder: (context, state) {
         final likes = state.extra as List<Like>;
         return LikeScreen(likes: likes);
+      },
+    ),
+    GoRoute(
+      path: "/home",
+      builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: "/save",
+      builder: (context, state) {
+        final post = state.extra as Post;
+        return SaveScreen(post: post);
       },
     ),
   ],

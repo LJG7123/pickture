@@ -23,20 +23,17 @@ class _SignInScreenState extends ConsumerState {
   final _signInLoadingProvider = StateProvider<bool>((ref) => false);
 
   void _togglePasswordVisibility() {
-    ref.read(_obscurePasswordProvider.notifier).state =
-        !ref.read(_obscurePasswordProvider);
+    ref.read(_obscurePasswordProvider.notifier).state = !ref.read(_obscurePasswordProvider);
   }
 
   void _onLoginButtonClicked(BuildContext context) async {
     ref.read(_signInLoadingProvider.notifier).state = true;
-    await ref
-        .read(authProvider.notifier)
-        .signIn(_emailController.text, _passwordController.text);
+    await ref.read(authProvider.notifier).signIn(_emailController.text, _passwordController.text);
     ref.read(_signInLoadingProvider.notifier).state = false;
 
     if (ref.read(authProvider).value != null) {
       // 로그인에 성공한 경우
-      if (context.mounted) context.go("/post");
+      if (context.mounted) context.go("/home");
     }
   }
 
@@ -68,7 +65,7 @@ class _SignInScreenState extends ConsumerState {
       }
     } else if (user != null) {
       // 로그인에 성공한 경우
-      if (context.mounted) context.go('/post');
+      if (context.mounted) context.go('/home');
     }
   }
 
@@ -80,7 +77,7 @@ class _SignInScreenState extends ConsumerState {
       await ref.read(authProvider.notifier).fetchUserData();
 
       if (ref.read(authProvider).value != null) {
-        if (context.mounted) context.go('/post');
+        if (context.mounted) context.go('/home');
       }
       Future(() => ref.read(_signInLoadingProvider.notifier).state = false);
     }
@@ -119,9 +116,11 @@ class _SignInScreenState extends ConsumerState {
               iconAsset: _googleIcon,
             ),
             const Spacer(),
-            ExpandedOutlinedButton(onPressed: () {
-              context.push('/signup');
-            }, text: '새 계정 만들기')
+            ExpandedOutlinedButton(
+                onPressed: () {
+                  context.push('/signup');
+                },
+                text: '새 계정 만들기')
           ],
         ),
       ),
