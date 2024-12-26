@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/user_model.dart';
+import 'package:pickture/models/user_model.dart';
 
 class GroupUserSearchTile extends StatelessWidget {
   final UserModel user;
