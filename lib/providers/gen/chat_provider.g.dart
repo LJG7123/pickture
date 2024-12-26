@@ -172,7 +172,7 @@ class _ChatRoomsProviderElement
   String get userId => (origin as ChatRoomsProvider).userId;
 }
 
-String _$chatRoomHash() => r'104c5ccfe087a24ad9abbe5c4509a23b45633a1c';
+String _$chatRoomHash() => r'6bba1f3a6a7edcc6d237a5d313f4f9b371091a68';
 
 /// See also [chatRoom].
 @ProviderFor(chatRoom)
@@ -430,14 +430,14 @@ class _MessagesProviderElement
   String get chatId => (origin as MessagesProvider).chatId;
 }
 
-String _$createChatRoomHash() => r'94d8a842033f12b78a074342cf456da1994b46da';
+String _$createChatRoomHash() => r'bf41d3efb57e61b64eb97ebecaf2684cad178f99';
 
 /// See also [createChatRoom].
 @ProviderFor(createChatRoom)
 const createChatRoomProvider = CreateChatRoomFamily();
 
 /// See also [createChatRoom].
-class CreateChatRoomFamily extends Family<AsyncValue<String>> {
+class CreateChatRoomFamily extends Family<AsyncValue<ChatRoom>> {
   /// See also [createChatRoom].
   const CreateChatRoomFamily();
 
@@ -475,7 +475,7 @@ class CreateChatRoomFamily extends Family<AsyncValue<String>> {
 }
 
 /// See also [createChatRoom].
-class CreateChatRoomProvider extends AutoDisposeFutureProvider<String> {
+class CreateChatRoomProvider extends AutoDisposeFutureProvider<ChatRoom> {
   /// See also [createChatRoom].
   CreateChatRoomProvider(
     ({String? groupName, List<String> participants}) params,
@@ -510,7 +510,7 @@ class CreateChatRoomProvider extends AutoDisposeFutureProvider<String> {
 
   @override
   Override overrideWith(
-    FutureOr<String> Function(CreateChatRoomRef provider) create,
+    FutureOr<ChatRoom> Function(CreateChatRoomRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -527,7 +527,7 @@ class CreateChatRoomProvider extends AutoDisposeFutureProvider<String> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<String> createElement() {
+  AutoDisposeFutureProviderElement<ChatRoom> createElement() {
     return _CreateChatRoomProviderElement(this);
   }
 
@@ -547,13 +547,13 @@ class CreateChatRoomProvider extends AutoDisposeFutureProvider<String> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin CreateChatRoomRef on AutoDisposeFutureProviderRef<String> {
+mixin CreateChatRoomRef on AutoDisposeFutureProviderRef<ChatRoom> {
   /// The parameter `params` of this provider.
   ({String? groupName, List<String> participants}) get params;
 }
 
 class _CreateChatRoomProviderElement
-    extends AutoDisposeFutureProviderElement<String> with CreateChatRoomRef {
+    extends AutoDisposeFutureProviderElement<ChatRoom> with CreateChatRoomRef {
   _CreateChatRoomProviderElement(super.provider);
 
   @override
@@ -561,138 +561,7 @@ class _CreateChatRoomProviderElement
       (origin as CreateChatRoomProvider).params;
 }
 
-String _$startChatWithUserHash() => r'efaab1b805192f4bf6f5559b1052c91d4e093fe5';
-
-/// See also [startChatWithUser].
-@ProviderFor(startChatWithUser)
-const startChatWithUserProvider = StartChatWithUserFamily();
-
-/// See also [startChatWithUser].
-class StartChatWithUserFamily extends Family<AsyncValue<String>> {
-  /// See also [startChatWithUser].
-  const StartChatWithUserFamily();
-
-  /// See also [startChatWithUser].
-  StartChatWithUserProvider call(
-    String otherUserId,
-  ) {
-    return StartChatWithUserProvider(
-      otherUserId,
-    );
-  }
-
-  @override
-  StartChatWithUserProvider getProviderOverride(
-    covariant StartChatWithUserProvider provider,
-  ) {
-    return call(
-      provider.otherUserId,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'startChatWithUserProvider';
-}
-
-/// See also [startChatWithUser].
-class StartChatWithUserProvider extends AutoDisposeFutureProvider<String> {
-  /// See also [startChatWithUser].
-  StartChatWithUserProvider(
-    String otherUserId,
-  ) : this._internal(
-          (ref) => startChatWithUser(
-            ref as StartChatWithUserRef,
-            otherUserId,
-          ),
-          from: startChatWithUserProvider,
-          name: r'startChatWithUserProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$startChatWithUserHash,
-          dependencies: StartChatWithUserFamily._dependencies,
-          allTransitiveDependencies:
-              StartChatWithUserFamily._allTransitiveDependencies,
-          otherUserId: otherUserId,
-        );
-
-  StartChatWithUserProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.otherUserId,
-  }) : super.internal();
-
-  final String otherUserId;
-
-  @override
-  Override overrideWith(
-    FutureOr<String> Function(StartChatWithUserRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: StartChatWithUserProvider._internal(
-        (ref) => create(ref as StartChatWithUserRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        otherUserId: otherUserId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<String> createElement() {
-    return _StartChatWithUserProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is StartChatWithUserProvider &&
-        other.otherUserId == otherUserId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, otherUserId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin StartChatWithUserRef on AutoDisposeFutureProviderRef<String> {
-  /// The parameter `otherUserId` of this provider.
-  String get otherUserId;
-}
-
-class _StartChatWithUserProviderElement
-    extends AutoDisposeFutureProviderElement<String> with StartChatWithUserRef {
-  _StartChatWithUserProviderElement(super.provider);
-
-  @override
-  String get otherUserId => (origin as StartChatWithUserProvider).otherUserId;
-}
-
-String _$chatRoomUserHash() => r'7a1d4770e6a316432bcbe8c22280aa8b758570a2';
+String _$chatRoomUserHash() => r'3efc0adfb46cce2450cee60a6c320fa5da698fce';
 
 /// See also [chatRoomUser].
 @ProviderFor(chatRoomUser)
@@ -821,5 +690,289 @@ class _ChatRoomUserProviderElement
   @override
   ChatRoom get chatRoom => (origin as ChatRoomUserProvider).chatRoom;
 }
+
+String _$sendMessageHash() => r'3316207ec99ee434ac12f85f6a8a606d17e1dc67';
+
+/// See also [sendMessage].
+@ProviderFor(sendMessage)
+const sendMessageProvider = SendMessageFamily();
+
+/// See also [sendMessage].
+class SendMessageFamily extends Family<AsyncValue<void>> {
+  /// See also [sendMessage].
+  const SendMessageFamily();
+
+  /// See also [sendMessage].
+  SendMessageProvider call(
+    ({String chatId, String content, String senderId}) params,
+  ) {
+    return SendMessageProvider(
+      params,
+    );
+  }
+
+  @override
+  SendMessageProvider getProviderOverride(
+    covariant SendMessageProvider provider,
+  ) {
+    return call(
+      provider.params,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'sendMessageProvider';
+}
+
+/// See also [sendMessage].
+class SendMessageProvider extends AutoDisposeFutureProvider<void> {
+  /// See also [sendMessage].
+  SendMessageProvider(
+    ({String chatId, String content, String senderId}) params,
+  ) : this._internal(
+          (ref) => sendMessage(
+            ref as SendMessageRef,
+            params,
+          ),
+          from: sendMessageProvider,
+          name: r'sendMessageProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$sendMessageHash,
+          dependencies: SendMessageFamily._dependencies,
+          allTransitiveDependencies:
+              SendMessageFamily._allTransitiveDependencies,
+          params: params,
+        );
+
+  SendMessageProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.params,
+  }) : super.internal();
+
+  final ({String chatId, String content, String senderId}) params;
+
+  @override
+  Override overrideWith(
+    FutureOr<void> Function(SendMessageRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: SendMessageProvider._internal(
+        (ref) => create(ref as SendMessageRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        params: params,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<void> createElement() {
+    return _SendMessageProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SendMessageProvider && other.params == params;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, params.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin SendMessageRef on AutoDisposeFutureProviderRef<void> {
+  /// The parameter `params` of this provider.
+  ({String chatId, String content, String senderId}) get params;
+}
+
+class _SendMessageProviderElement extends AutoDisposeFutureProviderElement<void>
+    with SendMessageRef {
+  _SendMessageProviderElement(super.provider);
+
+  @override
+  ({String chatId, String content, String senderId}) get params =>
+      (origin as SendMessageProvider).params;
+}
+
+String _$chatRoomWithUserHash() => r'5bd06f504bff8d9cd4a8b52259ae6c98d83f2f58';
+
+/// See also [chatRoomWithUser].
+@ProviderFor(chatRoomWithUser)
+const chatRoomWithUserProvider = ChatRoomWithUserFamily();
+
+/// See also [chatRoomWithUser].
+class ChatRoomWithUserFamily
+    extends Family<AsyncValue<({ChatRoom chatRoom, UserModel? otherUser})>> {
+  /// See also [chatRoomWithUser].
+  const ChatRoomWithUserFamily();
+
+  /// See also [chatRoomWithUser].
+  ChatRoomWithUserProvider call(
+    String chatId,
+  ) {
+    return ChatRoomWithUserProvider(
+      chatId,
+    );
+  }
+
+  @override
+  ChatRoomWithUserProvider getProviderOverride(
+    covariant ChatRoomWithUserProvider provider,
+  ) {
+    return call(
+      provider.chatId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'chatRoomWithUserProvider';
+}
+
+/// See also [chatRoomWithUser].
+class ChatRoomWithUserProvider extends AutoDisposeFutureProvider<
+    ({ChatRoom chatRoom, UserModel? otherUser})> {
+  /// See also [chatRoomWithUser].
+  ChatRoomWithUserProvider(
+    String chatId,
+  ) : this._internal(
+          (ref) => chatRoomWithUser(
+            ref as ChatRoomWithUserRef,
+            chatId,
+          ),
+          from: chatRoomWithUserProvider,
+          name: r'chatRoomWithUserProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$chatRoomWithUserHash,
+          dependencies: ChatRoomWithUserFamily._dependencies,
+          allTransitiveDependencies:
+              ChatRoomWithUserFamily._allTransitiveDependencies,
+          chatId: chatId,
+        );
+
+  ChatRoomWithUserProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.chatId,
+  }) : super.internal();
+
+  final String chatId;
+
+  @override
+  Override overrideWith(
+    FutureOr<({ChatRoom chatRoom, UserModel? otherUser})> Function(
+            ChatRoomWithUserRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ChatRoomWithUserProvider._internal(
+        (ref) => create(ref as ChatRoomWithUserRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        chatId: chatId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<({ChatRoom chatRoom, UserModel? otherUser})>
+      createElement() {
+    return _ChatRoomWithUserProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatRoomWithUserProvider && other.chatId == chatId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, chatId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin ChatRoomWithUserRef on AutoDisposeFutureProviderRef<
+    ({ChatRoom chatRoom, UserModel? otherUser})> {
+  /// The parameter `chatId` of this provider.
+  String get chatId;
+}
+
+class _ChatRoomWithUserProviderElement extends AutoDisposeFutureProviderElement<
+    ({ChatRoom chatRoom, UserModel? otherUser})> with ChatRoomWithUserRef {
+  _ChatRoomWithUserProviderElement(super.provider);
+
+  @override
+  String get chatId => (origin as ChatRoomWithUserProvider).chatId;
+}
+
+String _$messageUserIdsHash() => r'73263b3565faa8c45aff4a361035cd7483b2d472';
+
+/// See also [MessageUserIds].
+@ProviderFor(MessageUserIds)
+final messageUserIdsProvider =
+    AutoDisposeNotifierProvider<MessageUserIds, Set<String>>.internal(
+  MessageUserIds.new,
+  name: r'messageUserIdsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$messageUserIdsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$MessageUserIds = AutoDisposeNotifier<Set<String>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
