@@ -58,9 +58,6 @@ class _ChatMessageInputState extends ConsumerState<ChatMessageInput> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          top: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1),
-        ),
       ),
       child: Row(
         children: [
@@ -85,6 +82,12 @@ class _ChatMessageInputState extends ConsumerState<ChatMessageInput> {
                         hintText: '메시지 보내기...',
                         hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       ),
                       onSubmitted: (_) => _sendMessage(),
                     ),

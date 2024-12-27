@@ -13,7 +13,7 @@ import '../../core/cache/cache_provider.dart';
 import '../../widgets/user/search_results.dart';
 import '../../widgets/user/search_text_field.dart';
 import '../../widgets/user/search_container.dart';
-import 'widgets/chat_rooms_list.dart';
+import 'widgets/chat_list/chat_rooms_list.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
   const ChatListScreen({super.key});
