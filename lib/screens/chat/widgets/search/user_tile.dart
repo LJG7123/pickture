@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/user_model.dart';
+import 'package:pickture/models/user_model.dart';
 
 class UserSearchTile extends StatelessWidget {
   final UserModel user;
@@ -20,13 +20,8 @@ class UserSearchTile extends StatelessWidget {
       leading: CircleAvatar(
         backgroundColor: Colors.grey[800],
         radius: 20,
-        backgroundImage:
-            user.profileImage != null && user.profileImage!.isNotEmpty
-                ? NetworkImage(user.profileImage!)
-                : null,
-        child: user.profileImage == null || user.profileImage!.isEmpty
-            ? const Icon(Icons.person, color: Colors.white)
-            : null,
+        backgroundImage: user.profileImage != null && user.profileImage!.isNotEmpty ? NetworkImage(user.profileImage!) : null,
+        child: user.profileImage == null || user.profileImage!.isEmpty ? const Icon(Icons.person, color: Colors.white) : null,
       ),
       title: Text(
         user.name,

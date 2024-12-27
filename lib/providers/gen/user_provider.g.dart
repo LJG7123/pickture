@@ -317,6 +317,137 @@ final allUsersProvider = AutoDisposeFutureProvider<List<UserModel>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AllUsersRef = AutoDisposeFutureProviderRef<List<UserModel>>;
+String _$usersByIdsHash() => r'd142c087003e56183573744c2de5c3c098faf438';
+
+/// See also [usersByIds].
+@ProviderFor(usersByIds)
+const usersByIdsProvider = UsersByIdsFamily();
+
+/// See also [usersByIds].
+class UsersByIdsFamily extends Family<AsyncValue<List<UserModel>>> {
+  /// See also [usersByIds].
+  const UsersByIdsFamily();
+
+  /// See also [usersByIds].
+  UsersByIdsProvider call(
+    List<String> userIds,
+  ) {
+    return UsersByIdsProvider(
+      userIds,
+    );
+  }
+
+  @override
+  UsersByIdsProvider getProviderOverride(
+    covariant UsersByIdsProvider provider,
+  ) {
+    return call(
+      provider.userIds,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'usersByIdsProvider';
+}
+
+/// See also [usersByIds].
+class UsersByIdsProvider extends AutoDisposeFutureProvider<List<UserModel>> {
+  /// See also [usersByIds].
+  UsersByIdsProvider(
+    List<String> userIds,
+  ) : this._internal(
+          (ref) => usersByIds(
+            ref as UsersByIdsRef,
+            userIds,
+          ),
+          from: usersByIdsProvider,
+          name: r'usersByIdsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$usersByIdsHash,
+          dependencies: UsersByIdsFamily._dependencies,
+          allTransitiveDependencies:
+              UsersByIdsFamily._allTransitiveDependencies,
+          userIds: userIds,
+        );
+
+  UsersByIdsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.userIds,
+  }) : super.internal();
+
+  final List<String> userIds;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<UserModel>> Function(UsersByIdsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: UsersByIdsProvider._internal(
+        (ref) => create(ref as UsersByIdsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        userIds: userIds,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<UserModel>> createElement() {
+    return _UsersByIdsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is UsersByIdsProvider && other.userIds == userIds;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, userIds.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin UsersByIdsRef on AutoDisposeFutureProviderRef<List<UserModel>> {
+  /// The parameter `userIds` of this provider.
+  List<String> get userIds;
+}
+
+class _UsersByIdsProviderElement
+    extends AutoDisposeFutureProviderElement<List<UserModel>>
+    with UsersByIdsRef {
+  _UsersByIdsProviderElement(super.provider);
+
+  @override
+  List<String> get userIds => (origin as UsersByIdsProvider).userIds;
+}
+
 String _$selectedUsersHash() => r'12278b2ae7bb1d6e960b39e80de3060a71e07cd4';
 
 /// See also [SelectedUsers].
