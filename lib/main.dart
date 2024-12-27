@@ -3,7 +3,6 @@ import 'package:app_settings/app_settings.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/notification_provider.dart';
 import 'package:pickture/providers/router_provider.dart';
 import 'core/bootstrap/bootstrap.dart';
@@ -32,13 +31,8 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var authState = ref.watch(authStateProvider);
     var router = ref.watch(routerProvider);
     var notification = ref.read(notificationProvider.notifier);
-
-    if ((authState.value != null && ref.read(authProvider).value == null) || (authState.value == null && ref.read(authProvider).value != null)) {
-      Future(() => ref.read(authProvider.notifier).fetchUserData());
-    }
 
     ref.listen(currentRouteProvider, (previous, next) {
       if (next.path == '/home') {
