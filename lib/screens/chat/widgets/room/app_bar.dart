@@ -15,26 +15,26 @@ class ChatRoomAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AppBar(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
         onPressed: () => context.pop(),
       ),
       title: chatRoomWithUserAsync.when(
         data: (data) {
           if (data.chatRoom.isGroupChat) {
-            return _buildGroupTitle(data.chatRoom);
+            return _buildGroupTitle(context, data.chatRoom);
           } else {
-            return _buildPrivateTitle(data.otherUser);
+            return _buildPrivateTitle(context, data.otherUser);
           }
         },
         loading: () => const CircularProgressIndicator(),
-        error: (_, __) => const Text('오류 발생', style: TextStyle(color: Colors.white)),
+        error: (_, __) => Text('오류 발생', style: TextStyle(color: Theme.of(context).colorScheme.error)),
       ),
       actions: [
         Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.info_outline, color: Colors.white),
+            icon: Icon(Icons.info_outline, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () {
               Scaffold.of(context).openEndDrawer();
             },
@@ -44,13 +44,13 @@ class ChatRoomAppBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildGroupTitle(ChatRoom chatRoom) {
+  Widget _buildGroupTitle(BuildContext context, ChatRoom chatRoom) {
     return Row(
       children: [
         CircleAvatar(
           radius: 16,
-          backgroundColor: Colors.grey[800],
-          child: const Icon(Icons.group, color: Colors.white, size: 20),
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+          child: Icon(Icons.group, color: Theme.of(context).colorScheme.onSurface, size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -59,8 +59,8 @@ class ChatRoomAppBar extends ConsumerWidget implements PreferredSizeWidget {
             children: [
               Text(
                 chatRoom.groupName ?? '그룹 채팅',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -69,7 +69,7 @@ class ChatRoomAppBar extends ConsumerWidget implements PreferredSizeWidget {
               Text(
                 '${chatRoom.participants.length}명',
                 style: TextStyle(
-                  color: Colors.grey[400],
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 12,
                 ),
               ),
@@ -80,13 +80,13 @@ class ChatRoomAppBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildPrivateTitle(UserModel? otherUser) {
+  Widget _buildPrivateTitle(BuildContext context, UserModel? otherUser) {
     return Row(
       children: [
         CircleAvatar(
           radius: 16,
           backgroundImage: otherUser?.profileImage?.isNotEmpty == true ? NetworkImage(otherUser!.profileImage!) : null,
-          child: otherUser?.profileImage?.isNotEmpty != true ? const Icon(Icons.person, color: Colors.white, size: 20) : null,
+          child: otherUser?.profileImage?.isNotEmpty != true ? Icon(Icons.person, color: Theme.of(context).colorScheme.onSurface, size: 20) : null,
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -95,8 +95,8 @@ class ChatRoomAppBar extends ConsumerWidget implements PreferredSizeWidget {
             children: [
               Text(
                 otherUser?.name ?? '',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -105,7 +105,7 @@ class ChatRoomAppBar extends ConsumerWidget implements PreferredSizeWidget {
               Text(
                 otherUser?.userId ?? '',
                 style: TextStyle(
-                  color: Colors.grey[400],
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 12,
                 ),
               ),

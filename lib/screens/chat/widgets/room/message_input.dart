@@ -57,22 +57,22 @@ class _ChatMessageInputState extends ConsumerState<ChatMessageInput> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
-          top: BorderSide(color: Colors.grey[900]!, width: 1),
+          top: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1),
         ),
       ),
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.camera_alt_outlined, color: Colors.white),
+            icon: Icon(Icons.camera_alt_outlined, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () {},
           ),
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: Colors.grey[900],
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Row(
@@ -80,21 +80,21 @@ class _ChatMessageInputState extends ConsumerState<ChatMessageInput> {
                   Expanded(
                     child: TextField(
                       controller: _messageController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                      decoration: InputDecoration(
                         hintText: '메시지 보내기...',
-                        hintStyle: TextStyle(color: Colors.grey),
+                        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         border: InputBorder.none,
                       ),
                       onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.image_outlined, color: Colors.white),
+                    icon: Icon(Icons.image_outlined, color: Theme.of(context).colorScheme.onSurface),
                     onPressed: () {},
                   ),
                   IconButton(
-                    icon: const Icon(Icons.favorite_border, color: Colors.white),
+                    icon: Icon(Icons.favorite_border, color: Theme.of(context).colorScheme.onSurface),
                     onPressed: () {},
                   ),
                 ],

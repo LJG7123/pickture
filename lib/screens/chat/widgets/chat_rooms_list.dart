@@ -24,19 +24,19 @@ class ChatRoomsList extends ConsumerWidget {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(color: Theme.of(context).colorScheme.onSurface, width: 2),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.mail_outline,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                     size: 40,
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   '아직 메시지가 없습니다.',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                   ),
                 ),
@@ -51,13 +51,13 @@ class ChatRoomsList extends ConsumerWidget {
           },
         );
       },
-      loading: () => const Center(
-        child: CircularProgressIndicator(color: Colors.white),
+      loading: () => Center(
+        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onSurface),
       ),
-      error: (error, stack) => const Center(
+      error: (error, stack) => Center(
         child: Text(
           '채팅방 목록을 불러오는 중 오류가 발생했습니다.',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Theme.of(context).colorScheme.error),
         ),
       ),
     );

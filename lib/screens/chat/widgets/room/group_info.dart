@@ -16,15 +16,16 @@ class GroupInfoDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final participantsAsync = ref.watch(usersByIdsProvider(chatRoom.participants));
 
-    return SizedBox(
+    return Container(
       width: 300,
+      color: Theme.of(context).colorScheme.surface,
       child: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
-            const Divider(color: Colors.grey),
+            _buildHeader(context),
+            Divider(color: Theme.of(context).colorScheme.outline),
             Expanded(
-              child: _buildParticipantsList(participantsAsync),
+              child: _buildParticipantsList(context, participantsAsync),
             ),
           ],
         ),
@@ -32,16 +33,16 @@ class GroupInfoDrawer extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundColor: Colors.grey[800],
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             backgroundImage: chatRoom.groupImage != null ? NetworkImage(chatRoom.groupImage!) : null,
-            child: chatRoom.groupImage == null ? const Icon(Icons.group, color: Colors.white, size: 36) : null,
+            child: chatRoom.groupImage == null ? Icon(Icons.group, color: Theme.of(context).colorScheme.onSurface, size: 36) : null,
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -50,8 +51,8 @@ class GroupInfoDrawer extends ConsumerWidget {
               children: [
                 Text(
                   chatRoom.groupName ?? '그룹 채팅',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -60,7 +61,7 @@ class GroupInfoDrawer extends ConsumerWidget {
                 Text(
                   '${chatRoom.participants.length}명의 참가자',
                   style: TextStyle(
-                    color: Colors.grey[400],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 14,
                   ),
                 ),
@@ -72,7 +73,7 @@ class GroupInfoDrawer extends ConsumerWidget {
     );
   }
 
-  Widget _buildParticipantsList(AsyncValue<List<UserModel>> participantsAsync) {
+  Widget _buildParticipantsList(BuildContext context, AsyncValue<List<UserModel>> participantsAsync) {
     return participantsAsync.when(
       data: (participants) {
         return ListView.builder(
@@ -82,15 +83,15 @@ class GroupInfoDrawer extends ConsumerWidget {
             return ListTile(
               leading: CircleAvatar(
                 backgroundImage: user.profileImage != null ? NetworkImage(user.profileImage!) : null,
-                child: user.profileImage == null ? const Icon(Icons.person) : null,
+                child: user.profileImage == null ? Icon(Icons.person, color: Theme.of(context).colorScheme.onSurface) : null,
               ),
               title: Text(
                 user.name,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               ),
               subtitle: Text(
                 user.userId,
-                style: TextStyle(color: Colors.grey[400]),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             );
           },
@@ -100,7 +101,7 @@ class GroupInfoDrawer extends ConsumerWidget {
       error: (error, stack) => Center(
         child: Text(
           '참가자 정보를 불러오는데 실패했습니다',
-          style: TextStyle(color: Colors.grey[400]),
+          style: TextStyle(color: Theme.of(context).colorScheme.error),
         ),
       ),
     );
