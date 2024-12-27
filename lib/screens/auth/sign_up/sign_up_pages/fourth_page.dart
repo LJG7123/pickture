@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pickture/screens/auth/widgets/auth_text_field.dart';
 
-class Page4 extends StatelessWidget {
+class FourthPage extends StatelessWidget {
   final TextEditingController controller;
   final String? errorMessage;
 
-  const Page4({required this.controller, this.errorMessage, super.key});
+  const FourthPage({required this.controller, this.errorMessage, super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pickture/utils/date_util.dart';
 
-class Page1 extends StatelessWidget {
+class ThirdPage extends StatelessWidget {
   final TextEditingController controller;
+  final String? errorMessage;
 
-  const Page1({required this.controller, super.key});
+  const ThirdPage({required this.controller, this.errorMessage, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,11 @@ class Page1 extends StatelessWidget {
         TextField(
           controller: controller,
           readOnly: true,
-          decoration: const InputDecoration(border: OutlineInputBorder()),
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            label: const Icon(Icons.calendar_month),
+            errorText: errorMessage,
+          ),
           onTap: () {
             showDatePicker(
               context: context,

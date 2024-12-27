@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:pickture/screens/auth/widgets/auth_text_field.dart';
 
-class Page2 extends StatelessWidget {
+class SecondPage extends StatelessWidget {
   final TextEditingController controller;
   final String? errorMessage;
   final bool obscureText;
   final Function onSuffixIconPressed;
 
-  const Page2(
-      {required this.controller,
-      required this.obscureText,
-      required this.onSuffixIconPressed,
-      this.errorMessage,
-      super.key});
+  const SecondPage({required this.controller, required this.obscureText, required this.onSuffixIconPressed, this.errorMessage, super.key});
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
