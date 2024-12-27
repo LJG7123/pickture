@@ -36,7 +36,7 @@ class MyApp extends ConsumerWidget {
     var router = ref.watch(routerProvider);
     var notification = ref.read(notificationProvider.notifier);
 
-    if (authState.value != null && ref.read(authProvider).value == null) {
+    if ((authState.value != null && ref.read(authProvider).value == null) || (authState.value == null && ref.read(authProvider).value != null)) {
       Future(() => ref.read(authProvider.notifier).fetchUserData());
     }
 
