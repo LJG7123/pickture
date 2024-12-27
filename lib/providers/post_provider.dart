@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pickture/models/post.dart';
 import 'package:pickture/services/post_service.dart';
 
-final postProvider = StateNotifierProvider<PostNotifier, List<Post>>(
-    (ref) => PostNotifier(PostService(FirebaseFirestore.instance)));
+final postProvider = StateNotifierProvider<PostNotifier, List<Post>>((ref) => PostNotifier(PostService(FirebaseFirestore.instance)));
 
 class PostNotifier extends StateNotifier<List<Post>> {
   final PostService postService;
@@ -18,9 +17,14 @@ class PostNotifier extends StateNotifier<List<Post>> {
     state = posts;
   }
 
+  // Future<void> getPostByUserId() async {
+  //   final posts = await postService.getPostByUserId();
+  //   state = posts;
+  // }
+
   Future<void> addPost(Post post) async {
-    await postService.addPost(post);
-    state = [...state, post];
+    final addPost = await postService.addPost(post);
+    state = [...state, addPost];
   }
 
   Future<void> updatePost(Post updatePost) async {
