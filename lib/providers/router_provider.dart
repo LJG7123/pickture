@@ -79,10 +79,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
     redirect: (context, state) {
-      if (authState.value != null && (state.matchedLocation == '/signin' || state.matchedLocation == '/signup')) {
+      if (authState.value != null && (state.matchedLocation == '/signin' || state.matchedLocation == '/signup' || state.matchedLocation == '/signup_with_google')) {
         return '/home';
       }
-      if (authState.value == null && (state.matchedLocation != '/signin' && state.matchedLocation != '/signup')) {
+      if (authState.value == null && (state.matchedLocation != '/signin' && state.matchedLocation != '/signup' && state.matchedLocation != '/signup_with_google')) {
         return '/signin';
       }
       return null;

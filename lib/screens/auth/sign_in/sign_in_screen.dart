@@ -80,20 +80,19 @@ class _SignInScreenState extends ConsumerState {
 
   void _onLoginButtonClicked() async {
     ref.read(_signInLoadingProvider.notifier).state = true;
-    await ref.read(authProvider.notifier).signIn(_emailController.text, _passwordController.text);
-    ref.read(_signInLoadingProvider.notifier).state = false;
 
-    if (ref.read(authProvider).value != null) {
-      // 로그인에 성공한 경우
-      if (mounted) context.go('/home');
-    }
+    var authNotifier = ref.read(authProvider.notifier);
+    await authNotifier.signIn(_emailController.text, _passwordController.text);
+    await authNotifier.fetchUserData();
+
+    ref.read(_signInLoadingProvider.notifier).state = false;
   }
 
   void _onLoginWithGoogleButtonClicked() async {
     var authNotifier = ref.read(authProvider.notifier);
     await authNotifier.signInWithGoogle();
 
-    var user = ref.read(authProvider).value;
+    var user = await ref.read(authProvider.notifier).getUserData();
     if (user == null && authNotifier.authService.currentUser != null) {
       // 유저 정보가 등록되어 있지 않은 경우
       if (mounted) {
@@ -116,9 +115,10 @@ class _SignInScreenState extends ConsumerState {
           },
         );
       }
-    } else if (user != null) {
+    }
+    else if (user != null) {
       // 로그인에 성공한 경우
-      if (mounted) context.go('/home');
+      await authNotifier.fetchUserData();
     }
   }
 }
