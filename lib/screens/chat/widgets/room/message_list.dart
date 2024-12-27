@@ -42,8 +42,8 @@ class ChatMessageList extends ConsumerWidget {
             final isMe = message.senderId == currentUser?.uid;
             return Column(
               children: [
-                if (showDateDivider) _buildDateDivider(messageDate),
-                _buildMessageItem(ref, message, isMe),
+                if (showDateDivider) _buildDateDivider(context, messageDate),
+                _buildMessageItem(context, ref, message, isMe),
               ],
             );
           },
@@ -54,29 +54,29 @@ class ChatMessageList extends ConsumerWidget {
         ref.read(errorNotifierProvider.notifier).setError(
               error is AppException ? error : AppException('메시지를 불러오는데 실패했습니다'),
             );
-        return const Center(
+        return Center(
           child: Text(
             '메시지를 불러오는데 실패했습니다',
-            style: TextStyle(color: Colors.red),
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
         );
       },
     );
   }
 
-  Widget _buildDateDivider(String date) {
+  Widget _buildDateDivider(BuildContext context, String date) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.grey[900],
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
           date,
           style: TextStyle(
-            color: Colors.grey[400],
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 12,
           ),
         ),
@@ -84,7 +84,7 @@ class ChatMessageList extends ConsumerWidget {
     );
   }
 
-  Widget _buildMessageItem(WidgetRef ref, Message message, bool isMe) {
+  Widget _buildMessageItem(BuildContext context, WidgetRef ref, Message message, bool isMe) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -92,16 +92,43 @@ class ChatMessageList extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) ...[
-            _buildSenderInfo(ref, message),
+            _buildSenderInfo(context, ref, message),
             const SizedBox(width: 8),
           ],
-          _buildMessageBubble(message, isMe),
+          _buildMessageBubble(context, message, isMe),
         ],
       ),
     );
   }
 
-  Widget _buildSenderInfo(WidgetRef ref, Message message) {
+  Widget _buildMessageBubble(BuildContext context, Message message, bool isMe) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 250),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        color: isMe ? colorScheme.primary : colorScheme.surfaceContainerHighest.withOpacity(0.8),
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(20),
+          topRight: const Radius.circular(20),
+          bottomLeft: Radius.circular(isMe ? 20 : 4),
+          bottomRight: Radius.circular(isMe ? 4 : 20),
+        ),
+      ),
+      child: Text(
+        message.isDeleted ? '삭제된 메시지입니다' : message.content,
+        style: TextStyle(
+          color: isMe ? colorScheme.onPrimary : colorScheme.onSurface,
+          fontSize: 16,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSenderInfo(BuildContext context, WidgetRef ref, Message message) {
     return ref.watch(userProvider(message.senderId)).when(
           data: (user) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +144,7 @@ class ChatMessageList extends ConsumerWidget {
                   child: Text(
                     user?.name ?? '',
                     style: TextStyle(
-                      color: Colors.grey[400],
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 12,
                     ),
                   ),
@@ -131,31 +158,5 @@ class ChatMessageList extends ConsumerWidget {
           ),
           error: (_, __) => const SizedBox(width: 24, height: 24),
         );
-  }
-
-  Widget _buildMessageBubble(Message message, bool isMe) {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 250),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
-      decoration: BoxDecoration(
-        color: isMe ? Colors.blue : Colors.grey[800],
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(20),
-          topRight: const Radius.circular(20),
-          bottomLeft: Radius.circular(isMe ? 20 : 4),
-          bottomRight: Radius.circular(isMe ? 4 : 20),
-        ),
-      ),
-      child: Text(
-        message.isDeleted ? '삭제된 메시지입니다' : message.content,
-        style: TextStyle(
-          color: message.isDeleted ? Colors.grey[400] : Colors.white,
-          fontSize: 16,
-        ),
-      ),
-    );
   }
 }

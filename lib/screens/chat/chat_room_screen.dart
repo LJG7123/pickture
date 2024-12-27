@@ -42,7 +42,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     });
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: ChatRoomAppBar(
         chatRoomWithUserAsync: chatRoomWithUserAsync,
       ),
@@ -51,12 +51,16 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           data: (data) {
             if (!data.chatRoom.isGroupChat) return const SizedBox.shrink();
             return Drawer(
-              backgroundColor: Colors.grey[900],
               child: GroupInfoDrawer(chatRoom: data.chatRoom),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) => const Center(child: Text('오류가 발생했습니다')),
+          error: (_, __) => Center(
+            child: Text(
+              '오류가 발생했습니다',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ),
         ),
       ),
       body: Column(

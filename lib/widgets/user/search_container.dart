@@ -11,15 +11,9 @@ class SearchContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.black,
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey[900]!,
-            width: 1,
-          ),
-        ),
+        color: Theme.of(context).colorScheme.surface,
       ),
       child: child,
     );

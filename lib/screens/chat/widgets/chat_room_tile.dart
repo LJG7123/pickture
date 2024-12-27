@@ -26,45 +26,38 @@ class ChatRoomTile extends ConsumerWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: CircleAvatar(
-        backgroundColor: Colors.grey[800],
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         radius: 20,
-        backgroundImage: !chatRoom.isGroupChat &&
-                otherUserAsync.value?.profileImage != null &&
-                otherUserAsync.value!.profileImage!.isNotEmpty
+        backgroundImage: !chatRoom.isGroupChat && otherUserAsync.value?.profileImage != null && otherUserAsync.value!.profileImage!.isNotEmpty
             ? NetworkImage(otherUserAsync.value!.profileImage!)
             : null,
         child: chatRoom.isGroupChat
-            ? const Icon(Icons.group, color: Colors.white, size: 20)
-            : (otherUserAsync.value?.profileImage == null ||
-                    otherUserAsync.value!.profileImage!.isEmpty
-                ? const Icon(Icons.person, color: Colors.white, size: 20)
+            ? Icon(Icons.group, color: Theme.of(context).colorScheme.onSurface, size: 20)
+            : (otherUserAsync.value?.profileImage == null || otherUserAsync.value!.profileImage!.isEmpty
+                ? Icon(Icons.person, color: Theme.of(context).colorScheme.onSurface, size: 20)
                 : null),
       ),
       title: Text(
-        chatRoom.isGroupChat
-            ? chatRoom.groupName ?? '그룹 채팅'
-            : otherUserAsync.value?.name ?? '로딩 중...',
-        style: const TextStyle(
-          color: Colors.white,
+        chatRoom.isGroupChat ? chatRoom.groupName ?? '그룹 채팅' : otherUserAsync.value?.name ?? '로딩 중...',
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
           fontSize: 16,
           height: 1.2,
         ),
       ),
       subtitle: Text(
-        chatRoom.isGroupChat
-            ? '${chatRoom.participants.length}명 · ${chatRoom.lastMessage}'
-            : chatRoom.lastMessage,
+        chatRoom.isGroupChat ? '${chatRoom.participants.length}명 · ${chatRoom.lastMessage}' : chatRoom.lastMessage,
         style: TextStyle(
-          color: Colors.grey[400],
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           fontSize: 14,
           height: 1.2,
         ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      trailing: const Icon(
+      trailing: Icon(
         Icons.arrow_forward_ios,
-        color: Colors.grey,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         size: 16,
       ),
       onTap: () => context.go('/chats/${chatRoom.id}'),

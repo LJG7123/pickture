@@ -19,18 +19,35 @@ class SearchResults extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!isSearching) {
-      return const Center(
-        child: Text(
-          '사용자를 검색해보세요',
-          style: TextStyle(color: Colors.grey),
-        ),
-      );
+      return const SizedBox.shrink();
     }
+
     if (contacts.isEmpty) {
-      return const Center(
-        child: Text(
-          '검색 결과가 없습니다',
-          style: TextStyle(color: Colors.grey),
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Theme.of(context).colorScheme.onSurface, width: 2),
+              ),
+              child: Icon(
+                Icons.search_off_outlined,
+                color: Theme.of(context).colorScheme.onSurface,
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '검색 결과가 없습니다.',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+              ),
+            ),
+          ],
         ),
       );
     }

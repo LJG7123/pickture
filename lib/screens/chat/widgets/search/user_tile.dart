@@ -18,15 +18,15 @@ class UserSearchTile extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: CircleAvatar(
-        backgroundColor: Colors.grey[800],
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         radius: 20,
         backgroundImage: user.profileImage != null && user.profileImage!.isNotEmpty ? NetworkImage(user.profileImage!) : null,
-        child: user.profileImage == null || user.profileImage!.isEmpty ? const Icon(Icons.person, color: Colors.white) : null,
+        child: user.profileImage == null || user.profileImage!.isEmpty ? Icon(Icons.person, color: Theme.of(context).colorScheme.onSurface) : null,
       ),
       title: Text(
         user.name,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
           fontSize: 16,
           fontWeight: FontWeight.normal,
         ),
@@ -34,14 +34,14 @@ class UserSearchTile extends StatelessWidget {
       subtitle: Text(
         user.userId,
         style: TextStyle(
-          color: Colors.grey[400],
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           fontSize: 14,
         ),
       ),
       trailing: isSelected != null
           ? Icon(
               isSelected! ? Icons.check_circle : Icons.circle_outlined,
-              color: isSelected! ? Colors.blue : Colors.grey,
+              color: isSelected! ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant,
             )
           : null,
       onTap: onTap,

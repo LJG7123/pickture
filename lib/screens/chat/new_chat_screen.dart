@@ -60,16 +60,16 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
     final contactsAsync = _isSearching ? ref.watch(userSearchProvider(_searchText)) : const AsyncValue<List<UserModel>>.data([]);
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           '새 메시지',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
       ),
       body: Column(
@@ -95,26 +95,35 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
             onTap: _onCreateGroupTap,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                border: Border(
+                  bottom: BorderSide(
+                    color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+              ),
               child: Row(
                 children: [
                   Container(
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.grey[800],
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.group_add,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                       size: 24,
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
+                  Text(
                     '그룹 채팅 만들기',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 16,
                     ),
                   ),
@@ -138,10 +147,10 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                 ref.read(errorNotifierProvider.notifier).setError(
                       error is AppException ? error : AppException('사용자 검색 중 오류가 발생했습니다'),
                     );
-                return const Center(
+                return Center(
                   child: Text(
                     '사용자 검색 중 오류가 발생했습니다',
-                    style: TextStyle(color: Colors.red),
+                    style: TextStyle(color: Theme.of(context).colorScheme.error),
                   ),
                 );
               },

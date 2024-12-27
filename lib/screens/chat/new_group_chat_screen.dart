@@ -5,7 +5,6 @@ import 'package:pickture/screens/chat/widgets/search/user_tile.dart';
 import '../../core/error/app_exception.dart';
 import '../../core/error/error_provider.dart';
 import '../../models/user_model.dart';
-import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../core/cache/cache_provider.dart';
@@ -21,8 +20,9 @@ class NewGroupChatScreen extends ConsumerStatefulWidget {
 }
 
 class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
+  final _groupNameController = TextEditingController();
+  final Set<UserModel> _selectedUsers = {};
   String _searchText = '';
-  String _groupName = '';
   bool _isSearching = false;
   bool _isLoading = false;
 
@@ -35,63 +35,39 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
     });
   }
 
-  void _toggleUserSelection(UserModel user) {
-    ref.read(selectedUsersProvider.notifier).toggleUser(user);
+  void _onUserTap(UserModel user) {
+    setState(() {
+      if (_selectedUsers.contains(user)) {
+        _selectedUsers.remove(user);
+      } else {
+        _selectedUsers.add(user);
+      }
+    });
   }
 
-  Future<void> _createGroupChat() async {
-    if (!mounted) return;
-
-    final selectedUsers = ref.read(selectedUsersProvider);
-    if (selectedUsers.length < 2) {
-      ref.read(errorNotifierProvider.notifier).setError(
-            AppException('그룹 채팅은 2명 이상의 참여자가 필요합니다'),
-          );
-      return;
-    }
-
-    final currentUser = ref.read(authProvider).value;
-    if (currentUser == null) {
-      ref.read(errorNotifierProvider.notifier).setError(
-            AppException('로그인이 필요합니다'),
-          );
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
+  Future<void> _onCreateGroupTap() async {
+    if (_selectedUsers.isEmpty) return;
 
     try {
-      final participants = [currentUser.uid, ...selectedUsers.map((user) => user.userId)];
-
       final chatRoom = await ref.read(createChatRoomProvider((
-        participants: participants,
-        groupName: _groupName.trim().isNotEmpty ? _groupName.trim() : null,
+        participants: _selectedUsers.map((user) => user.userId).toList(),
+        groupName: _groupNameController.text.trim(),
       )).future);
 
-      if (!mounted) return;
-
-      // 로딩 상태를 먼저 해제
-      setState(() {
-        _isLoading = false;
-      });
-
       if (!mounted || !context.mounted) return;
-
-      // 화면 전환
       context.go('/chats/${chatRoom.id}');
     } catch (e) {
       if (!mounted) return;
-
-      setState(() {
-        _isLoading = false;
-      });
-
       ref.read(errorNotifierProvider.notifier).setError(
-            e is AppException ? e : AppException('그룹 채팅 생성에 실패했습니다'),
+            e is AppException ? e : AppException('그룹 채팅방 생성에 실패했습니다'),
           );
     }
+  }
+
+  @override
+  void dispose() {
+    _groupNameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -103,16 +79,16 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
     final selectedUsers = ref.watch(selectedUsersProvider);
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           '새 그룹 채팅',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
       ),
       body: Stack(
@@ -120,37 +96,26 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
           Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: TextField(
-                  style: const TextStyle(color: Colors.white),
+                  controller: _groupNameController,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                   decoration: InputDecoration(
                     hintText: '그룹 이름(선택 사항)',
-                    hintStyle: const TextStyle(color: Colors.grey),
+                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                     filled: true,
-                    fillColor: Colors.grey[900],
+                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.grey[700]!),
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.grey[700]!),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Colors.blue),
-                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
-                  onChanged: (text) {
-                    setState(() {
-                      _groupName = text;
-                    });
-                  },
                 ),
               ),
               SearchContainer(
                 child: SearchTextField(
-                  hintText: '검색',
+                  hintText: '사용자 검색',
                   onSearchingChanged: (isSearching) {
                     setState(() {
                       _isSearching = isSearching;
@@ -179,8 +144,8 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                       isSearching: _isSearching,
                       itemBuilder: (context, user) => UserSearchTile(
                         user: user,
-                        onTap: () => _toggleUserSelection(user),
-                        isSelected: selectedUsers.contains(user),
+                        onTap: () => _onUserTap(user),
+                        isSelected: _selectedUsers.contains(user),
                       ),
                     );
                   },
@@ -207,11 +172,11 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
             ),
         ],
       ),
-      floatingActionButton: selectedUsers.length >= 2 && !_isLoading
+      floatingActionButton: _selectedUsers.length >= 2 && !_isLoading
           ? FloatingActionButton(
-              onPressed: _createGroupChat,
-              backgroundColor: Colors.blue,
-              child: const Icon(Icons.check, color: Colors.white),
+              onPressed: _onCreateGroupTap,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Icon(Icons.check, color: Theme.of(context).colorScheme.onPrimary),
             )
           : null,
     );
