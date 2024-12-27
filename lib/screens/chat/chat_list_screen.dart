@@ -58,11 +58,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     final userAsync = ref.watch(authProvider);
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => context.go('/home'),
         ),
         title: userAsync.when(
@@ -70,31 +70,33 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: Colors.grey[800],
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                 backgroundImage: user?.profileImage != null && user!.profileImage!.isNotEmpty ? NetworkImage(user.profileImage!) : null,
-                child: user?.profileImage == null || user!.profileImage!.isEmpty ? const Icon(Icons.person, color: Colors.white, size: 20) : null,
+                child: user?.profileImage == null || user!.profileImage!.isEmpty
+                    ? Icon(Icons.person, color: Theme.of(context).colorScheme.onSurface, size: 20)
+                    : null,
               ),
               const SizedBox(width: 12),
               Text(
                 user?.name ?? '채팅',
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               ),
             ],
           ),
-          loading: () => const Row(
+          loading: () => Row(
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: Colors.grey,
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Text(
                 '로딩 중...',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               ),
             ],
           ),
@@ -106,16 +108,16 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
               children: [
                 CircleAvatar(
                   radius: 16,
-                  backgroundColor: Colors.grey[800],
-                  child: const Icon(Icons.person, color: Colors.white, size: 20),
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurface, size: 20),
                 ),
                 const SizedBox(width: 12),
-                const Text(
+                Text(
                   '채팅',
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurface),
                   onPressed: () => ref.refresh(authProvider),
                 ),
               ],
@@ -124,7 +126,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit, color: Colors.white),
+            icon: Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () {
               context.push('/chats/new', extra: ref.read(authProvider).value);
             },

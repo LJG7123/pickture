@@ -22,54 +22,84 @@ class SearchTextField extends ConsumerStatefulWidget {
 
 class SearchTextFieldState extends ConsumerState<SearchTextField> {
   final _controller = TextEditingController();
+  final _focusNode = FocusNode();
   Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      widget.onSearchingChanged?.call(_focusNode.hasFocus);
+    });
+  }
 
   @override
   void dispose() {
     _controller.dispose();
     _debounce?.cancel();
+    _focusNode.dispose();
     super.dispose();
   }
 
   void _onSearchChanged(String value) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      widget.onSearchingChanged?.call(value.isNotEmpty);
+      widget.onSearchingChanged?.call(value.isNotEmpty || _focusNode.hasFocus);
       widget.onTextChanged?.call(value);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: _controller,
-      autofocus: widget.autofocus,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        hintStyle: const TextStyle(color: Colors.grey),
-        prefixIcon: const Icon(Icons.search, color: Colors.grey),
-        filled: true,
-        fillColor: Colors.grey[900],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide.none,
+    final containerColor = Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+          width: 1,
         ),
-        suffixIcon: _controller.text.isNotEmpty
-            ? IconButton(
-                icon: const Icon(Icons.clear, color: Colors.grey),
-                onPressed: () {
-                  _controller.clear();
-                  widget.onSearchingChanged?.call(false);
-                  widget.onTextChanged?.call('');
-                },
-              )
-            : null,
       ),
-      onChanged: (value) {
-        setState(() {});
-        _onSearchChanged(value);
-      },
+      child: Row(
+        children: [
+          Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextField(
+              controller: _controller,
+              focusNode: _focusNode,
+              autofocus: widget.autofocus,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              decoration: InputDecoration(
+                hintText: widget.hintText,
+                hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                filled: true,
+                fillColor: containerColor,
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onChanged: (value) {
+                setState(() {});
+                _onSearchChanged(value);
+              },
+            ),
+          ),
+          if (_controller.text.isNotEmpty)
+            IconButton(
+              icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              onPressed: () {
+                _controller.clear();
+                widget.onSearchingChanged?.call(false);
+                widget.onTextChanged?.call('');
+              },
+            ),
+        ],
+      ),
     );
   }
 
