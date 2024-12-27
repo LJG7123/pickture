@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/cache/cache_provider.dart';
 import '../../providers/chat_provider.dart';
-import 'widgets/room/app_bar.dart';
-import 'widgets/room/message_input.dart';
-import 'widgets/room/message_list.dart';
-import 'widgets/room/group_info.dart';
+import 'widgets/chat_room/app_bar.dart';
+import 'widgets/chat_room/message_input.dart';
+import 'widgets/chat_room/message_list.dart';
+import 'widgets/chat_room/group_info.dart';
 
 class ChatRoomScreen extends ConsumerStatefulWidget {
   final String chatId;

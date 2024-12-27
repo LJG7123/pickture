@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickture/screens/chat/widgets/search/user_tile.dart';
 import '../../core/error/app_exception.dart';
 import '../../core/error/error_provider.dart';
 import '../../models/user_model.dart';
@@ -11,6 +10,7 @@ import '../../core/cache/cache_provider.dart';
 import '../../widgets/user/search_results.dart';
 import '../../widgets/user/search_text_field.dart';
 import '../../widgets/user/search_container.dart';
+import 'widgets/search/group_user_tile.dart';
 
 class NewGroupChatScreen extends ConsumerStatefulWidget {
   const NewGroupChatScreen({super.key});
@@ -74,112 +74,134 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
     super.dispose();
   }
 
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+        onPressed: () => context.pop(),
+      ),
+      title: Text(
+        '새 그룹 채팅',
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      ),
+    );
+  }
+
+  Widget _buildGroupNameField() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: TextField(
+        controller: _groupNameController,
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        decoration: InputDecoration(
+          hintText: '그룹 이름(선택 사항)',
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          filled: true,
+          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return SearchContainer(
+      child: SearchTextField(
+        hintText: '사용자 검색',
+        onSearchingChanged: (isSearching) {
+          setState(() {
+            _isSearching = isSearching;
+          });
+        },
+        onTextChanged: (text) {
+          setState(() {
+            _searchText = text;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildSearchResults(AsyncValue<List<UserModel>> contactsAsync) {
+    return contactsAsync.when(
+      data: (contacts) {
+        if (contacts.isEmpty && _searchText.isNotEmpty) {
+          return const Center(
+            child: Text(
+              '검색 결과가 없습니다',
+              style: TextStyle(color: Colors.grey),
+            ),
+          );
+        }
+        return SearchResults(
+          contacts: contacts,
+          isSearching: _isSearching,
+          itemBuilder: (context, user) => GroupUserSearchTile(
+            user: user,
+            onTap: () => _onUserTap(user),
+            isSelected: ref.watch(selectedUsersProvider).contains(user),
+          ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) {
+        ref.read(errorNotifierProvider.notifier).setError(error as AppException);
+        return const Center(
+          child: Text(
+            '사용자 검색 중 오류가 발생했습니다',
+            style: TextStyle(color: Colors.red),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoadingOverlay() {
+    if (!_isLoading) return const SizedBox.shrink();
+    return Container(
+      color: Colors.black.withAlpha(128),
+      child: const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildFloatingActionButton() {
+    if (ref.watch(selectedUsersProvider).length < 2 || _isLoading) return const SizedBox.shrink();
+    return FloatingActionButton(
+      onPressed: _onCreateGroupTap,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      child: Icon(Icons.check, color: Theme.of(context).colorScheme.onPrimary),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // 검색 결과가 있을 때 자동으로 캐시에 저장
     final contactsAsync = _isSearching ? ref.watch(userSearchProvider(_searchText)) : const AsyncValue<List<UserModel>>.data([]);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          '새 그룹 채팅',
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-        ),
-      ),
+      appBar: _buildAppBar(),
       body: Stack(
         children: [
           Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: TextField(
-                  controller: _groupNameController,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                  decoration: InputDecoration(
-                    hintText: '그룹 이름(선택 사항)',
-                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-              ),
-              SearchContainer(
-                child: SearchTextField(
-                  hintText: '사용자 검색',
-                  onSearchingChanged: (isSearching) {
-                    setState(() {
-                      _isSearching = isSearching;
-                    });
-                  },
-                  onTextChanged: (text) {
-                    setState(() {
-                      _searchText = text;
-                    });
-                  },
-                ),
-              ),
+              _buildGroupNameField(),
+              _buildSearchBar(),
               Expanded(
-                child: contactsAsync.when(
-                  data: (contacts) {
-                    if (contacts.isEmpty && _searchText.isNotEmpty) {
-                      return const Center(
-                        child: Text(
-                          '검색 결과가 없습니다',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      );
-                    }
-                    return SearchResults(
-                      contacts: contacts,
-                      isSearching: _isSearching,
-                      itemBuilder: (context, user) => UserSearchTile(
-                        user: user,
-                        onTap: () => _onUserTap(user),
-                        isSelected: ref.watch(selectedUsersProvider).contains(user),
-                      ),
-                    );
-                  },
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (error, stack) {
-                    ref.read(errorNotifierProvider.notifier).setError(error as AppException);
-                    return const Center(
-                      child: Text(
-                        '사용자 검색 중 오류가 발생했습니다',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    );
-                  },
-                ),
+                child: _buildSearchResults(contactsAsync),
               ),
             ],
           ),
-          if (_isLoading)
-            Container(
-              color: Colors.black.withAlpha(128),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
+          _buildLoadingOverlay(),
         ],
       ),
-      floatingActionButton: ref.watch(selectedUsersProvider).length >= 2 && !_isLoading
-          ? FloatingActionButton(
-              onPressed: _onCreateGroupTap,
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: Icon(Icons.check, color: Theme.of(context).colorScheme.onPrimary),
-            )
-          : null,
+      floatingActionButton: _buildFloatingActionButton(),
     );
   }
 }
