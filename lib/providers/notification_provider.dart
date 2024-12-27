@@ -15,6 +15,7 @@ class NotificationNotifier extends StateNotifier<StreamSubscription?> {
   NotificationNotifier(this.ref) : super(null) {
     setupInteractedMessage();
     setupForegroundMessage();
+    listenForegroundMessage();
   }
 
   Future<void> setupInteractedMessage() async {
