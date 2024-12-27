@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../models/chat_room.dart';
+import '../../../../models/chat_room.dart';
 import 'chat_room_tile.dart';
 
 class ChatRoomsList extends ConsumerWidget {
@@ -20,23 +20,16 @@ class ChatRoomsList extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Theme.of(context).colorScheme.onSurface, width: 2),
-                  ),
-                  child: Icon(
-                    Icons.mail_outline,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    size: 40,
-                  ),
+                Icon(
+                  Icons.chat_bubble_outline,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  '아직 메시지가 없습니다.',
+                  '채팅방이 없습니다',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 16,
                   ),
                 ),
@@ -44,19 +37,19 @@ class ChatRoomsList extends ConsumerWidget {
             ),
           );
         }
+
         return ListView.builder(
           itemCount: chatRooms.length,
           itemBuilder: (context, index) {
-            return ChatRoomTile(chatRoom: chatRooms[index]);
+            final chatRoom = chatRooms[index];
+            return ChatRoomTile(chatId: chatRoom.id);
           },
         );
       },
-      loading: () => Center(
-        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onSurface),
-      ),
+      loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(
         child: Text(
-          '채팅방 목록을 불러오는 중 오류가 발생했습니다.',
+          '채팅방을 불러오는데 실패했습니다',
           style: TextStyle(color: Theme.of(context).colorScheme.error),
         ),
       ),
