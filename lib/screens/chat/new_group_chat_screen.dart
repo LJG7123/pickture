@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pickture/screens/chat/widgets/search/user_tile.dart';
 import '../../core/error/app_exception.dart';
 import '../../core/error/error_provider.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../core/cache/cache_provider.dart';
 import '../../widgets/user/search_results.dart';
 import '../../widgets/user/search_text_field.dart';
 import '../../widgets/user/search_container.dart';
-import 'widgets/user_search_tile.dart';
 
 class NewGroupChatScreen extends ConsumerStatefulWidget {
   const NewGroupChatScreen({super.key});
@@ -24,6 +25,15 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   String _groupName = '';
   bool _isSearching = false;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // 캐시 정리 스케줄러 활성화
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(cacheCleanupSchedulerProvider);
+    });
+  }
 
   void _toggleUserSelection(UserModel user) {
     ref.read(selectedUsersProvider.notifier).toggleUser(user);
@@ -53,12 +63,9 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
     });
 
     try {
-      final participants = [
-        currentUser.uid,
-        ...selectedUsers.map((user) => user.uid)
-      ];
+      final participants = [currentUser.uid, ...selectedUsers.map((user) => user.userId)];
 
-      final chatId = await ref.read(createChatRoomProvider((
+      final chatRoom = await ref.read(createChatRoomProvider((
         participants: participants,
         groupName: _groupName.trim().isNotEmpty ? _groupName.trim() : null,
       )).future);
@@ -73,7 +80,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
       if (!mounted || !context.mounted) return;
 
       // 화면 전환
-      context.go('/chats/$chatId');
+      context.go('/chats/${chatRoom.id}');
     } catch (e) {
       if (!mounted) return;
 
@@ -81,15 +88,18 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
         _isLoading = false;
       });
 
-      ref.read(errorNotifierProvider.notifier).setError(e as AppException);
+      ref.read(errorNotifierProvider.notifier).setError(
+            e is AppException ? e : AppException('그룹 채팅 생성에 실패했습니다'),
+          );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final contactsAsync = _isSearching
-        ? ref.watch(userSearchProvider(_searchText))
-        : const AsyncValue<List<UserModel>>.data([]);
+    // 검색 결과가 있을 때 자동으로 캐시에 저장
+    final contactsAsync = _isSearching ? ref.watch(userSearchProvider(_searchText)) : const AsyncValue<List<UserModel>>.data([]);
+
+    // 선택된 사용자들의 정보도 캐시에서 관리
     final selectedUsers = ref.watch(selectedUsersProvider);
 
     return Scaffold(
@@ -174,12 +184,9 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                       ),
                     );
                   },
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
+                  loading: () => const Center(child: CircularProgressIndicator()),
                   error: (error, stack) {
-                    ref
-                        .read(errorNotifierProvider.notifier)
-                        .setError(error as AppException);
+                    ref.read(errorNotifierProvider.notifier).setError(error as AppException);
                     return const Center(
                       child: Text(
                         '사용자 검색 중 오류가 발생했습니다',

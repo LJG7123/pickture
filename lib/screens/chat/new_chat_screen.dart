@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pickture/screens/chat/widgets/search/user_tile.dart';
 import '../../core/error/app_exception.dart';
 import '../../core/error/error_provider.dart';
 import '../../models/user_model.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/chat_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../core/cache/cache_provider.dart';
 import '../../widgets/user/search_results.dart';
 import '../../widgets/user/search_text_field.dart';
 import '../../widgets/user/search_container.dart';
-import 'widgets/user_search_tile.dart';
 
 class NewChatScreen extends ConsumerStatefulWidget {
   const NewChatScreen({super.key});
@@ -22,15 +24,29 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
   bool _isSearching = false;
   String _searchText = '';
 
+  @override
+  void initState() {
+    super.initState();
+    // 캐시 정리 스케줄러 활성화
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(cacheCleanupSchedulerProvider);
+    });
+  }
+
   Future<void> onUserTap(UserModel contact) async {
     try {
-      final chatId =
-          await ref.read(startChatWithUserProvider(contact.uid).future);
-      if (mounted && context.mounted) {
-        context.go('/chats/$chatId');
-      }
+      final chatRoom = await ref.read(createChatRoomProvider((
+        participants: [ref.read(authProvider).value!.uid, contact.uid],
+        groupName: null,
+      )).future);
+
+      if (!mounted || !context.mounted) return;
+      context.go('/chats/${chatRoom.id}');
     } catch (e) {
-      ref.read(errorNotifierProvider.notifier).setError(e as AppException);
+      if (!mounted) return;
+      ref.read(errorNotifierProvider.notifier).setError(
+            e is AppException ? e : AppException('채팅방 생성에 실패했습니다'),
+          );
     }
   }
 
@@ -40,9 +56,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final contactsAsync = _isSearching
-        ? ref.watch(userSearchProvider(_searchText))
-        : const AsyncValue<List<UserModel>>.data([]);
+    // 검색 결과가 있을 때 자동으로 캐시에 저장
+    final contactsAsync = _isSearching ? ref.watch(userSearchProvider(_searchText)) : const AsyncValue<List<UserModel>>.data([]);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -119,9 +134,10 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) {
-                ref
-                    .read(errorNotifierProvider.notifier)
-                    .setError(error as AppException);
+                if (!mounted) return const SizedBox.shrink();
+                ref.read(errorNotifierProvider.notifier).setError(
+                      error is AppException ? error : AppException('사용자 검색 중 오류가 발생했습니다'),
+                    );
                 return const Center(
                   child: Text(
                     '사용자 검색 중 오류가 발생했습니다',

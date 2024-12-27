@@ -28,6 +28,12 @@ Future<List<UserModel>> allUsers(Ref ref) async {
 }
 
 @riverpod
+Future<List<UserModel>> usersByIds(Ref ref, List<String> userIds) async {
+  if (userIds.isEmpty) return [];
+  return ref.read(userServiceProvider).getUsersByIds(userIds);
+}
+
+@riverpod
 class SelectedUsers extends _$SelectedUsers {
   @override
   Set<UserModel> build() {
