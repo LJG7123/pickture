@@ -11,14 +11,14 @@ class AuthService {
   final FirebaseFirestore _firestore;
   final FirebaseMessaging _messaging;
   final GoogleSignIn _googleSignIn;
+
   User? get currentUser => _firebaseAuth.currentUser;
 
   AuthService(this._firebaseAuth, this._firestore, this._messaging, this._googleSignIn);
 
   Future<void> signIn(String email, String password) async {
     try {
-      await _firebaseAuth.signInWithEmailAndPassword(
-          email: email, password: password);
+      await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
     } catch (e) {
       _handleError(e);
     }
@@ -33,8 +33,7 @@ class AuthService {
       );
     }
     final googleAuth = await googleAccount.authentication;
-    final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken, accessToken: googleAuth.accessToken);
+    final credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken, accessToken: googleAuth.accessToken);
 
     await _firebaseAuth.signInWithCredential(credential);
   }
@@ -70,9 +69,7 @@ class AuthService {
 
   Future<void> signOut() async {
     try {
-      await _firestore.collection('users').doc(currentUser!.uid).update({
-        'fcmToken': null
-      });
+      await _firestore.collection('users').doc(currentUser!.uid).update({'fcmToken': null});
       await _firebaseAuth.signOut();
     } catch (e) {
       _handleError(e);
@@ -89,11 +86,7 @@ class AuthService {
   }
 
   Future<bool> isEmailAvailable(String email) async {
-    var accounts = await _firestore
-        .collection('users')
-        .where('email', isEqualTo: email)
-        .count()
-        .get();
+    var accounts = await _firestore.collection('users').where('email', isEqualTo: email).count().get();
     return accounts.count == 0;
   }
 
@@ -106,8 +99,6 @@ class AuthService {
   }
 
   void _updateFcmToken() async {
-    await _firestore.collection('users').doc(currentUser!.uid).update({
-      'fcmToken': await _messaging.getToken()
-    });
+    await _firestore.collection('users').doc(currentUser!.uid).update({'fcmToken': await _messaging.getToken()});
   }
 }
