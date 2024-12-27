@@ -16,7 +16,7 @@ import 'package:pickture/screens/post/post_screen.dart';
 import 'package:pickture/screens/post/save_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
+  final authState = ref.watch(authProvider);
 
   final router = GoRouter(
     initialLocation: '/home',
@@ -88,10 +88,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
   );
-
-  ref.listen(authStateProvider, (previous, next) {
-    router.refresh();
-  });
 
   return router;
 });

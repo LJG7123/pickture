@@ -32,12 +32,12 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var router = ref.watch(routerProvider);
     var authState = ref.watch(authStateProvider);
-    var notification = ref.watch(notificationProvider.notifier);
+    var router = ref.watch(routerProvider);
+    var notification = ref.read(notificationProvider.notifier);
 
-    if (authState.value != null) {
-      ref.read(authProvider.notifier).fetchUserData();
+    if (authState.value != null && ref.read(authProvider).value == null) {
+      Future(() => ref.read(authProvider.notifier).fetchUserData());
     }
 
     ref.listen(currentRouteProvider, (previous, next) {
