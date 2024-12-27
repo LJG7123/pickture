@@ -83,7 +83,9 @@ class _SignInScreenState extends ConsumerState {
 
     var authNotifier = ref.read(authProvider.notifier);
     await authNotifier.signIn(_emailController.text, _passwordController.text);
-    await authNotifier.fetchUserData();
+    if (authNotifier.authService.currentUser != null) {
+      await authNotifier.fetchUserData();
+    }
 
     ref.read(_signInLoadingProvider.notifier).state = false;
   }

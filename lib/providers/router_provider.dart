@@ -16,7 +16,7 @@ import 'package:pickture/screens/post/post_screen.dart';
 import 'package:pickture/screens/post/save_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  final authState = ref.watch(authProvider).value;
 
   final router = GoRouter(
     initialLocation: '/home',
@@ -79,10 +79,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
     redirect: (context, state) {
-      if (authState.value != null && (state.matchedLocation == '/signin' || state.matchedLocation == '/signup' || state.matchedLocation == '/signup_with_google')) {
+      if (authState != null && (state.matchedLocation == '/signin' || state.matchedLocation == '/signup' || state.matchedLocation == '/signup_with_google')) {
         return '/home';
       }
-      if (authState.value == null && (state.matchedLocation != '/signin' && state.matchedLocation != '/signup' && state.matchedLocation != '/signup_with_google')) {
+      if (authState == null && (state.matchedLocation != '/signin' && state.matchedLocation != '/signup' && state.matchedLocation != '/signup_with_google')) {
         return '/signin';
       }
       return null;
