@@ -73,7 +73,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: "/save",
         builder: (context, state) {
-          final post = state.extra as Post;
+          final post = state.extra as Post?;
           return SaveScreen(post: post);
         },
       ),
