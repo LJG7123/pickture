@@ -9,13 +9,14 @@ import 'package:pickture/providers/router_provider.dart';
 import 'core/bootstrap/bootstrap.dart';
 import 'core/bootstrap/error_handlers.dart';
 import 'core/error/error_widget.dart';
+import 'core/design_system/theme.dart';
 
 final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 void main() {
   runZonedGuarded(() async {
     final container = await bootstrap();
-    
+
     runApp(
       UncontrolledProviderScope(
         container: container,
@@ -56,6 +57,9 @@ class MyApp extends ConsumerWidget {
           child: child ?? const SizedBox(),
         );
       },
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ThemeMode.light,
     );
   }
 
