@@ -110,7 +110,7 @@ class ChatMessageList extends ConsumerWidget {
         vertical: 12,
       ),
       decoration: BoxDecoration(
-        color: isMe ? colorScheme.primary : colorScheme.surfaceContainerHighest.withOpacity(0.8),
+        color: isMe ? colorScheme.primary : colorScheme.surfaceContainerHighest.withAlpha(204),
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(20),
           topRight: const Radius.circular(20),
