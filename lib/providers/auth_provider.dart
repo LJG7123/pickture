@@ -20,23 +20,44 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
   }
 
   Future<void> signIn(String email, String password) async {
-    await AsyncValue.guard(() => authService.signIn(email, password));
+    try {
+      await authService.signIn(email, password);
+    } catch (e) {
+      state = AsyncError(e, StackTrace.current);
+    }
   }
 
   Future<void> signInWithGoogle() async {
-    await AsyncValue.guard(() => authService.signInWithGoogle());
+    try {
+      await authService.signInWithGoogle();
+    } catch (e) {
+      state = AsyncError(e, StackTrace.current);
+    }
   }
 
   Future<void> signUp(String email, String password, String dob, String name) async {
-    await AsyncValue.guard(() => authService.signUp(email, password, dob, name));
+    try {
+      await authService.signUp(email, password, dob, name);
+    } catch (e) {
+      state = AsyncError(e, StackTrace.current);
+    }
   }
 
   Future<void> signUpWithGoogle(String dob, String name) async {
-    await AsyncValue.guard(() => authService.signUpWithGoogle(dob, name));
+    try {
+      await authService.signUpWithGoogle(dob, name);
+    } catch (e) {
+      state = AsyncError(e, StackTrace.current);
+    }
   }
 
   Future<void> signOut() async {
-    await AsyncValue.guard(() => authService.signOut());
+    try {
+      await authService.signOut();
+    } catch (e) {
+      state = AsyncError(e, StackTrace.current);
+      return;
+    }
     state = const AsyncValue.data(null);
   }
 
