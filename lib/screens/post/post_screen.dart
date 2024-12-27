@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickture/providers/post_provider.dart';
 import 'package:pickture/screens/post/widgets/post_card/post_card.dart';
-import 'package:pickture/screens/post/widgets/post_card/widgets/save_dialog.dart';
 
 class PostScreen extends ConsumerWidget {
   const PostScreen({super.key});
@@ -32,12 +31,7 @@ class PostScreen extends ConsumerWidget {
         Row(
           children: [
             IconButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const SaveDialog(),
-                );
-              },
+              onPressed: () => context.push("/save", extra: null),
               icon: const Icon(Icons.add),
             ),
             IconButton(

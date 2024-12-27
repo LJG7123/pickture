@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pickture/screens/post/save_screen.dart';
 import 'package:pickture/screens/post/post_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,7 +19,6 @@ class _HomeScreenState extends State<HomeScreen> {
         children: const [
           PostScreen(),
           PostScreen(),
-          SaveScreen(),
           PostScreen(),
         ],
       ),
@@ -38,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: "Add"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "My"),
         ],
       ),

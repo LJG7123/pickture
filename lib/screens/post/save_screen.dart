@@ -5,6 +5,8 @@ import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/file_provider.dart';
 import 'package:pickture/screens/post/widgets/post_card/post_card.dart';
 
+final contentController = StateProvider<TextEditingController>((ref) => TextEditingController());
+
 class SaveScreen extends ConsumerStatefulWidget {
   const SaveScreen({super.key, this.post});
 
@@ -15,11 +17,24 @@ class SaveScreen extends ConsumerStatefulWidget {
 }
 
 class _SaveScreenState extends ConsumerState<SaveScreen> {
+  late TextEditingController titleController;
+
+  @override
+  void initState() {
+    super.initState();
+    titleController = TextEditingController(text: widget.post?.title);
+
+    Future.microtask(() => ref.read(contentController.notifier).state = TextEditingController(text: widget.post?.content));
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final titleController = TextEditingController(text: widget.post?.title);
-    final contentController = TextEditingController(text: widget.post?.content);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Save"),
@@ -31,9 +46,10 @@ class _SaveScreenState extends ConsumerState<SaveScreen> {
             post: createPost(
               widget.post,
               titleController.text,
-              widget.post?.content ?? contentController.text,
+              ref.watch(contentController).text,
             ),
-            isNew: true, //widget.post == null ? true : false,
+            isNew: widget.post == null,
+            isEditing: true,
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -49,12 +65,10 @@ class _SaveScreenState extends ConsumerState<SaveScreen> {
                     setState(() {});
                   },
                 ),
-                if (!testCode()) ...[
-                  const SizedBox(
-                    height: 20,
-                  ),
+                if (!canShowContent()) ...[
+                  const SizedBox(height: 20),
                   TextField(
-                    controller: contentController,
+                    controller: ref.watch(contentController),
                     decoration: const InputDecoration(
                       labelText: "Content",
                       border: OutlineInputBorder(),
@@ -72,30 +86,21 @@ class _SaveScreenState extends ConsumerState<SaveScreen> {
     );
   }
 
-  bool testCode() {
-    if (widget.post == null) {
-      if (ref.watch(fileNotifierProvider).file == null) {
-        //텍스트 필드 보여줘야함
-        return false;
-      }
+  bool canShowContent() {
+    final isPostNull = widget.post == null;
+
+    final isFileNull = ref.watch(fileNotifierProvider).file == null;
+    final isContentEmpty = ref.watch(contentController).text.isEmpty;
+
+    if (isPostNull) {
+      return !isFileNull;
     } else {
-      if (widget.post!.content.startsWith("https://firebasestorage")) {
-        if (ref.watch(fileNotifierProvider).file == null) {
-          //텍스트 필드 보여줘야함
-          return false;
-        } else {
-          //텍스트 필드 보여주고 초기화
-          setState(() {});
-        }
+      if (widget.post!.isImage) {
+        return !isContentEmpty;
       } else {
-        if (ref.watch(fileNotifierProvider).file == null) {
-          //텍스트 필드 보여줘야함
-          return false;
-        }
+        return !isFileNull;
       }
     }
-
-    return true;
   }
 
   Post createPost(Post? post, String title, String content) {

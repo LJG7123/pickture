@@ -13,6 +13,8 @@ class Post {
   final DateTime createdAt;
   final DateTime? updatedAt;
 
+  bool get isImage => content.startsWith("https://firebasestorage");
+
   Post({
     required this.postId,
     required this.title,
@@ -24,8 +26,7 @@ class Post {
     this.updatedAt,
   });
 
-  factory Post.fromJson(String postId, Map<String, dynamic> json,
-      List<Like> likes, List<Comment> comments, UserModel creator) {
+  factory Post.fromJson(String postId, Map<String, dynamic> json, List<Like> likes, List<Comment> comments, UserModel creator) {
     return Post(
       postId: postId,
       title: json["title"],
@@ -34,9 +35,7 @@ class Post {
       comments: comments,
       creator: creator,
       createdAt: (json["createdAt"] as Timestamp).toDate(),
-      updatedAt: json["updatedAt"] != null
-          ? (json["updatedAt"] as Timestamp).toDate()
-          : null,
+      updatedAt: json["updatedAt"] != null ? (json["updatedAt"] as Timestamp).toDate() : null,
     );
   }
 

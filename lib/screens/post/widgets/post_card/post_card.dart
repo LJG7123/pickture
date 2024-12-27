@@ -6,10 +6,16 @@ import 'package:pickture/screens/post/widgets/post_card/widgets/post_content.dar
 import 'package:pickture/screens/post/widgets/post_card/widgets/post_header.dart';
 
 class PostCard extends ConsumerWidget {
-  const PostCard({super.key, required this.post, this.isNew = false});
+  const PostCard({
+    super.key,
+    required this.post,
+    this.isNew = false,
+    this.isEditing = false,
+  });
 
   final Post post;
   final bool isNew;
+  final bool isEditing;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,7 +25,7 @@ class PostCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PostHeader(post: post, isNew: isNew),
+            PostHeader(post: post, isNew: isNew, isEditing: isEditing),
             PostContent(post: post, isNew: isNew),
             if (!isNew) PostAction(post: post),
             _buildPostFooter(post),

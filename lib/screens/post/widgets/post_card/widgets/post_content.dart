@@ -12,31 +12,41 @@ class PostContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fileProvider = ref.watch(fileNotifierProvider);
-    final isImage = post!.content.startsWith("https://firebasestorage");
 
     return Center(
       child: Container(
         width: MediaQuery.of(context).size.width * 0.8,
-        height: isImage ? null : 150,
+        height: 150,
         color: Colors.grey,
         child: isNew
             ? fileProvider.file != null
-                ? IntrinsicHeight(
-                    child: Image.file(
-                      fileProvider.file!,
-                      fit: BoxFit.contain,
-                    ),
-                  )
+                ? _buildImageFile(fileProvider)
                 : _buildTextContent()
-            : isImage
-                ? IntrinsicHeight(
-                    child: Image.network(
-                      height: 150,
-                      post!.content,
-                      fit: BoxFit.contain,
-                    ),
-                  )
-                : _buildTextContent(),
+            : post!.isImage
+                ? fileProvider.file != null
+                    ? _buildImageFile(fileProvider)
+                    : _buildImageContent()
+                : fileProvider.file != null
+                    ? _buildImageFile(fileProvider)
+                    : _buildTextContent(),
+      ),
+    );
+  }
+
+  Widget _buildImageFile(FileNotifier fileProvider) {
+    return IntrinsicHeight(
+      child: Image.file(
+        fileProvider.file!,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+
+  Widget _buildImageContent() {
+    return IntrinsicHeight(
+      child: Image.network(
+        post!.content,
+        fit: BoxFit.contain,
       ),
     );
   }
