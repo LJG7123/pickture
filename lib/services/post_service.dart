@@ -21,10 +21,7 @@ class PostService {
     Map<String, UserModel> postUserMap = await getUserMap(userIds);
 
     for (String userId in userIds) {
-      final userPost = await _firestore
-          .collection("posts/$userId/post")
-          .orderBy("createdAt", descending: true)
-          .get();
+      final userPost = await _firestore.collection("posts/$userId/post").orderBy("createdAt", descending: true).get();
 
       for (var userPostDoc in userPost.docs) {
         final likes = await getLikes(userPostDoc);
@@ -49,10 +46,7 @@ class PostService {
       return {};
     }
 
-    final userSnapshots = await _firestore
-        .collection("users")
-        .where(FieldPath.documentId, whereIn: userIds.toList())
-        .get();
+    final userSnapshots = await _firestore.collection("users").where(FieldPath.documentId, whereIn: userIds.toList()).get();
 
     Map<String, UserModel> userMap = {};
     for (var userDoc in userSnapshots.docs) {
@@ -62,27 +56,16 @@ class PostService {
     return userMap;
   }
 
-  Future<List<Like>> getLikes(
-      QueryDocumentSnapshot<Map<String, dynamic>> userPostDoc) async {
-    final likeUserMap = await getUserMap(
-        (userPostDoc.data()["likes"] as List<dynamic>)
-            .map((likeJson) => likeJson["userId"] as String)
-            .toSet());
+  Future<List<Like>> getLikes(QueryDocumentSnapshot<Map<String, dynamic>> userPostDoc) async {
+    final likeUserMap = await getUserMap((userPostDoc.data()["likes"] as List<dynamic>).map((likeJson) => likeJson["userId"] as String).toSet());
 
-    return (userPostDoc.data()["likes"] as List<dynamic>)
-        .map((likeJson) =>
-            Like.fromJson(likeJson, likeUserMap[likeJson["userId"] as String]!))
-        .toList();
+    return (userPostDoc.data()["likes"] as List<dynamic>).map((likeJson) => Like.fromJson(likeJson, likeUserMap[likeJson["userId"] as String]!)).toList();
   }
 
-  Future<List<Comment>> getComments(
-      QueryDocumentSnapshot<Map<String, dynamic>> userPostDoc) async {
-    final commentUserMap =
-        await getUserMap(getUser(userPostDoc.data()["comments"]));
+  Future<List<Comment>> getComments(QueryDocumentSnapshot<Map<String, dynamic>> userPostDoc) async {
+    final commentUserMap = await getUserMap(getUser(userPostDoc.data()["comments"]));
 
-    return (userPostDoc.data()["comments"] as List<dynamic>)
-        .map((commentJson) => _getCommentWithUser(commentJson, commentUserMap))
-        .toList();
+    return (userPostDoc.data()["comments"] as List<dynamic>).map((commentJson) => _getCommentWithUser(commentJson, commentUserMap)).toList();
   }
 
   Set<String> getUser(List<dynamic> comments) {
@@ -106,35 +89,26 @@ class PostService {
     final user = commentUserMap[commentJson["userId"] as String]!;
 
     final List<Comment> comments =
-        (commentJson["comments"] as List<dynamic>? ?? [])
-            .map((nestedCommentJson) =>
-                _getCommentWithUser(nestedCommentJson, commentUserMap))
-            .toList();
+        (commentJson["comments"] as List<dynamic>? ?? []).map((nestedCommentJson) => _getCommentWithUser(nestedCommentJson, commentUserMap)).toList();
 
     return Comment.fromJson(commentJson, user, comments);
   }
 
-  Future<void> addPost(Post post) async {
+  Future<Post> addPost(Post post) async {
     await _firestore.collection("posts").doc(post.creator.uid).set({
       "createdAt": FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
 
-    await _firestore
-        .collection("posts/${post.creator.uid}/post")
-        .add(post.toJson());
+    DocumentReference postRef = await _firestore.collection("posts/${post.creator.uid}/post").add(post.toJson());
+
+    return post.copyWith(postId: postRef.id);
   }
 
   Future<void> updatePost(Post post) async {
-    await _firestore
-        .collection("posts/${post.creator.uid}/post")
-        .doc(post.postId)
-        .update(post.toJson());
+    await _firestore.collection("posts/${post.creator.uid}/post").doc(post.postId).update(post.toJson());
   }
 
   Future<void> deletePost(Post post) async {
-    await _firestore
-        .collection("posts/${post.creator.uid}/post")
-        .doc(post.postId)
-        .delete();
+    await _firestore.collection("posts/${post.creator.uid}/post").doc(post.postId).delete();
   }
 }
