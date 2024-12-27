@@ -25,9 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
         showUnselectedLabels: true,
         currentIndex: _selectedIndex,
         onTap: (value) {
