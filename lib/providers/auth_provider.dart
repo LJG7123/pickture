@@ -10,34 +10,42 @@ import 'package:pickture/utils/validator.dart';
 final authProvider = StateNotifierProvider<AuthNotifier, AsyncValue<UserModel?>>(
     (ref) => AuthNotifier(AuthService(FirebaseAuth.instance, FirebaseFirestore.instance, FirebaseMessaging.instance, GoogleSignIn())));
 
-final authStateProvider = StreamProvider<User?>((ref) async* {
-  final auth = FirebaseAuth.instance;
-  yield* auth.authStateChanges();
-});
-
 class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
   final AuthService authService;
 
-  AuthNotifier(this.authService) : super(const AsyncValue.data(null));
+  AuthNotifier(this.authService) : super(const AsyncValue.data(null)) {
+    if (authService.currentUser != null) {
+      fetchUserData();
+    }
+  }
 
   Future<void> signIn(String email, String password) async {
-    state = await AsyncValue.guard(() => authService.signIn(email, password));
+    await AsyncValue.guard(() => authService.signIn(email, password));
   }
 
   Future<void> signInWithGoogle() async {
-    state = await AsyncValue.guard(() => authService.signInWithGoogle());
+    await AsyncValue.guard(() => authService.signInWithGoogle());
   }
 
   Future<void> signUp(String email, String password, String dob, String name) async {
-    state = await AsyncValue.guard(() => authService.signUp(email, password, dob, name));
+    await AsyncValue.guard(() => authService.signUp(email, password, dob, name));
   }
 
   Future<void> signUpWithGoogle(String dob, String name) async {
-    state = await AsyncValue.guard(() => authService.signUpWithGoogle(dob, name));
+    await AsyncValue.guard(() => authService.signUpWithGoogle(dob, name));
+  }
+
+  Future<void> signOut() async {
+    await AsyncValue.guard(() => authService.signOut());
+    state = const AsyncValue.data(null);
   }
 
   Future<void> fetchUserData() async {
     state = await AsyncValue.guard(() => authService.getCurrentUserData());
+  }
+
+  Future<UserModel?> getUserData() {
+    return authService.getCurrentUserData();
   }
 
   Future<bool> isEmailAvailable(String email) async {

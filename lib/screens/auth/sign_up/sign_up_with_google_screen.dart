@@ -54,18 +54,9 @@ class _SignUpWithGoogleScreenState extends ConsumerState {
             ExpandedElevatedProgressButton(
               onPressed: pageProvider.currentPage < pageProvider.pageCount - 1
                   ? pageProvider.toNextPage
-                  : () {
-                      ref
-                          .read(authProvider.notifier)
-                          .signUpWithGoogle(
-                            _dobController.text,
-                            _nameController.text,
-                          )
-                          .then((value) {
-                        if (ref.read(authProvider).value != null) {
-                          if (context.mounted) context.go('/home');
-                        }
-                      });
+                  : () async {
+                      await ref.read(authProvider.notifier).signUpWithGoogle(_dobController.text, _nameController.text);
+                      await ref.read(authProvider.notifier).fetchUserData();
                     },
               text: "다음",
               isLoading: pageProvider.isLoading,

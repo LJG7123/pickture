@@ -15,28 +15,16 @@ class AuthService {
 
   AuthService(this._firebaseAuth, this._firestore, this._messaging, this._googleSignIn);
 
-  Future<UserModel> signIn(String email, String password) async {
+  Future<void> signIn(String email, String password) async {
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
     } catch (e) {
       _handleError(e);
     }
-    var snapshot = await _firestore
-        .collection('users')
-        .doc(currentUser?.uid)
-        .get();
-    if (snapshot.data() == null) {
-      throw AppException(
-        '로그인에 실패했습니다.',
-        code: 'login_failed',
-      );
-    }
-    _updateFcmToken();
-    return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
-  Future<UserModel?> signInWithGoogle() async {
+  Future<void> signInWithGoogle() async {
     final googleAccount = await _googleSignIn.signIn();
     if (googleAccount == null) {
       throw AppException(
@@ -49,23 +37,11 @@ class AuthService {
         idToken: googleAuth.idToken, accessToken: googleAuth.accessToken);
 
     await _firebaseAuth.signInWithCredential(credential);
-
-    var snapshot = await _firestore
-        .collection('users')
-        .doc(currentUser?.uid)
-        .get();
-    if (snapshot.data() == null) {
-      return null;
-    }
-    _updateFcmToken();
-    return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
-  Future<UserModel?> signUp(
-      String email, String password, String dob, String name) async {
+  Future<void> signUp(String email, String password, String dob, String name) async {
     try {
-      await _firebaseAuth.createUserWithEmailAndPassword(
-          email: email, password: password);
+      await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
       await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
     } catch (e) {
       _handleError(e);
@@ -80,33 +56,27 @@ class AuthService {
       'email': email,
       'name': name,
     });
-
-    var snapshot = await _firestore.collection('users').doc(userUid).get();
-    if (snapshot.data() == null) {
-      throw AppException('회원가입에 실패했습니다.', code: 'signup_failed');
-    }
-    _updateFcmToken();
-    return UserModel.fromJson(userUid, snapshot.data()!);
   }
 
-  Future<UserModel?> signUpWithGoogle(String dob, String name) async {
-    if (currentUser == null) return null;
+  Future<void> signUpWithGoogle(String dob, String name) async {
+    if (currentUser == null) return;
 
     await _firestore.collection('users').doc(currentUser!.uid).set({
       'dob': dob,
       'email': currentUser!.email,
       'name': name,
     });
+  }
 
-    var snapshot = await _firestore
-        .collection('users')
-        .doc(currentUser!.uid)
-        .get();
-    if (snapshot.data() == null) {
-      return null;
+  Future<void> signOut() async {
+    try {
+      await _firestore.collection('users').doc(currentUser!.uid).update({
+        'fcmToken': null
+      });
+      await _firebaseAuth.signOut();
+    } catch (e) {
+      _handleError(e);
     }
-    _updateFcmToken();
-    return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
   Future<UserModel?> getCurrentUserData() async {
