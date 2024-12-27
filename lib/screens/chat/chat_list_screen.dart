@@ -40,11 +40,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final currentUser = ref.watch(authProvider).value;
     final chatRoomsAsync = currentUser != null
@@ -61,7 +56,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go('/'),
+          onPressed: () => context.go('/home'),
         ),
         title: userAsync.when(
           data: (user) => Row(
