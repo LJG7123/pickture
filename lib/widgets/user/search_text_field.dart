@@ -51,7 +51,7 @@ class SearchTextFieldState extends ConsumerState<SearchTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final containerColor = Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5);
+    final containerColor = Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(128);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -59,7 +59,7 @@ class SearchTextFieldState extends ConsumerState<SearchTextField> {
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+          color: Theme.of(context).colorScheme.outline.withAlpha(128),
           width: 1,
         ),
       ),

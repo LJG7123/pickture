@@ -21,7 +21,6 @@ class NewGroupChatScreen extends ConsumerStatefulWidget {
 
 class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   final _groupNameController = TextEditingController();
-  final Set<UserModel> _selectedUsers = {};
   String _searchText = '';
   bool _isSearching = false;
   bool _isLoading = false;
@@ -36,21 +35,20 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   }
 
   void _onUserTap(UserModel user) {
-    setState(() {
-      if (_selectedUsers.contains(user)) {
-        _selectedUsers.remove(user);
-      } else {
-        _selectedUsers.add(user);
-      }
-    });
+    ref.read(selectedUsersProvider.notifier).toggleUser(user);
   }
 
   Future<void> _onCreateGroupTap() async {
-    if (_selectedUsers.isEmpty) return;
+    final selectedUsers = ref.read(selectedUsersProvider);
+    if (selectedUsers.isEmpty) return;
+
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       final chatRoom = await ref.read(createChatRoomProvider((
-        participants: _selectedUsers.map((user) => user.userId).toList(),
+        participants: selectedUsers.map((user) => user.userId).toList(),
         groupName: _groupNameController.text.trim(),
       )).future);
 
@@ -61,6 +59,12 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
       ref.read(errorNotifierProvider.notifier).setError(
             e is AppException ? e : AppException('그룹 채팅방 생성에 실패했습니다'),
           );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -74,9 +78,6 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   Widget build(BuildContext context) {
     // 검색 결과가 있을 때 자동으로 캐시에 저장
     final contactsAsync = _isSearching ? ref.watch(userSearchProvider(_searchText)) : const AsyncValue<List<UserModel>>.data([]);
-
-    // 선택된 사용자들의 정보도 캐시에서 관리
-    final selectedUsers = ref.watch(selectedUsersProvider);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -145,7 +146,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                       itemBuilder: (context, user) => UserSearchTile(
                         user: user,
                         onTap: () => _onUserTap(user),
-                        isSelected: _selectedUsers.contains(user),
+                        isSelected: ref.watch(selectedUsersProvider).contains(user),
                       ),
                     );
                   },
@@ -172,7 +173,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
             ),
         ],
       ),
-      floatingActionButton: _selectedUsers.length >= 2 && !_isLoading
+      floatingActionButton: ref.watch(selectedUsersProvider).length >= 2 && !_isLoading
           ? FloatingActionButton(
               onPressed: _onCreateGroupTap,
               backgroundColor: Theme.of(context).colorScheme.primary,
