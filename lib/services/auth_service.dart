@@ -109,6 +109,17 @@ class AuthService {
     return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
+  Future<void> signOut() async {
+    try {
+      await _firestore.collection('users').doc(currentUser!.uid).update({
+        'fcmToken': null
+      });
+      await _firebaseAuth.signOut();
+    } catch (e) {
+      _handleError(e);
+    }
+  }
+
   Future<UserModel?> getCurrentUserData() async {
     if (currentUser == null) return null;
     var snapshot = await _firestore.collection('users').doc(currentUser!.uid).get();
