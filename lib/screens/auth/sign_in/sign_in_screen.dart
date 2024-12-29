@@ -4,8 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/screens/auth/widgets/auth_text_field.dart';
-import 'package:pickture/screens/auth/widgets/expanded_elevated_icon_button.dart';
-import 'package:pickture/screens/auth/widgets/expanded_elevated_progress_button.dart';
+import 'package:pickture/screens/auth/widgets/expanded_outlined_icon_button.dart';
+import 'package:pickture/screens/auth/widgets/expanded_outlined_progress_button.dart';
 import 'package:pickture/screens/auth/widgets/expanded_outlined_button.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
@@ -52,13 +52,13 @@ class _SignInScreenState extends ConsumerState {
               onSuffixIconPressed: () => _togglePasswordVisibility(),
             ),
             const SizedBox(height: 20),
-            ExpandedElevatedProgressButton(
+            ExpandedOutlinedProgressButton(
               onPressed: () => _onLoginButtonClicked(),
               text: '로그인',
               isLoading: isLoading,
             ),
             const SizedBox(height: 20),
-            ExpandedElevatedIconButton(
+            ExpandedOutlinedIconButton(
               onPressed: () => _onLoginWithGoogleButtonClicked(),
               text: 'Google 로 로그인',
               isLoading: isGoogleLoading,

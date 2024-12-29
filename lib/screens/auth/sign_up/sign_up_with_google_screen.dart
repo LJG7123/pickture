@@ -5,7 +5,7 @@ import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/page_provider.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_with_google_pages/first_page.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_with_google_pages/second_page.dart';
-import 'package:pickture/screens/auth/widgets/expanded_elevated_progress_button.dart';
+import 'package:pickture/screens/auth/widgets/expanded_outlined_progress_button.dart';
 
 class SignUpWithGoogleScreen extends ConsumerStatefulWidget {
   const SignUpWithGoogleScreen({super.key});
@@ -51,7 +51,7 @@ class _SignUpWithGoogleScreenState extends ConsumerState {
                 ],
               ),
             ),
-            ExpandedElevatedProgressButton(
+            ExpandedOutlinedProgressButton(
               onPressed: pageProvider.currentPage < pageProvider.pageCount - 1
                   ? pageProvider.toNextPage
                   : () async {

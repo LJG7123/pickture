@@ -7,7 +7,7 @@ import 'package:pickture/screens/auth/sign_up/sign_up_pages/first_page.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_pages/second_page.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_pages/third_page.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_pages/fourth_page.dart';
-import 'package:pickture/screens/auth/widgets/expanded_elevated_progress_button.dart';
+import 'package:pickture/screens/auth/widgets/expanded_outlined_progress_button.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -88,7 +88,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 ],
               ),
             ),
-            ExpandedElevatedProgressButton(
+            ExpandedOutlinedProgressButton(
               onPressed: () => _onNextButtonClicked(context, pageProvider),
               text: "다음",
               isLoading: pageProvider.isLoading,

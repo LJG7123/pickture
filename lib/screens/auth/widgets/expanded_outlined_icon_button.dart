@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickture/core/design_system/foundation/spacing.dart';
 
-class ExpandedElevatedIconButton extends StatelessWidget {
-  const ExpandedElevatedIconButton({
+class ExpandedOutlinedIconButton extends StatelessWidget {
+  const ExpandedOutlinedIconButton({
     super.key,
     required this.onPressed,
     required this.text,
