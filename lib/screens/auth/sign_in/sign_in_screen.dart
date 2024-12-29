@@ -21,6 +21,7 @@ class _SignInScreenState extends ConsumerState {
   final _passwordController = TextEditingController();
   final _obscurePasswordProvider = StateProvider<bool>((ref) => true);
   final _signInLoadingProvider = StateProvider<bool>((ref) => false);
+  final _signInWithGoogleLoadingProvider = StateProvider<bool>((ref) => false);
 
   @override
   void dispose() {
@@ -33,6 +34,7 @@ class _SignInScreenState extends ConsumerState {
   Widget build(BuildContext context) {
     final obscurePassword = ref.watch(_obscurePasswordProvider);
     final isLoading = ref.watch(_signInLoadingProvider);
+    final isGoogleLoading = ref.watch(_signInWithGoogleLoadingProvider);
 
     return Scaffold(
       body: Padding(
@@ -59,6 +61,7 @@ class _SignInScreenState extends ConsumerState {
             ExpandedElevatedIconButton(
               onPressed: () => _onLoginWithGoogleButtonClicked(),
               text: 'Google 로 로그인',
+              isLoading: isGoogleLoading,
               iconAsset: _googleIcon,
             ),
             const Spacer(),
@@ -91,6 +94,8 @@ class _SignInScreenState extends ConsumerState {
   }
 
   void _onLoginWithGoogleButtonClicked() async {
+    ref.read(_signInWithGoogleLoadingProvider.notifier).state = true;
+
     var authNotifier = ref.read(authProvider.notifier);
     await authNotifier.signInWithGoogle();
 
@@ -122,5 +127,7 @@ class _SignInScreenState extends ConsumerState {
       // 로그인에 성공한 경우
       await authNotifier.fetchUserData();
     }
+
+    ref.read(_signInWithGoogleLoadingProvider.notifier).state = false;
   }
 }
