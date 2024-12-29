@@ -10,14 +10,13 @@ import 'package:pickture/screens/chat/chat_list_screen.dart';
 import 'package:pickture/screens/chat/chat_room_screen.dart';
 import 'package:pickture/screens/chat/new_chat_screen.dart';
 import 'package:pickture/screens/chat/new_group_chat_screen.dart';
+import 'package:pickture/screens/edit_profile_image/edit_profile_image_screen.dart';
 import 'package:pickture/screens/home_screen.dart';
 import 'package:pickture/screens/post/like_screen.dart';
 import 'package:pickture/screens/post/post_screen.dart';
 import 'package:pickture/screens/post/save_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider).value;
-
   final router = GoRouter(
     initialLocation: '/home',
     routes: [
@@ -77,17 +76,27 @@ final routerProvider = Provider<GoRouter>((ref) {
           return SaveScreen(post: post);
         },
       ),
+      GoRoute(
+        path: '/edit_profile_image',
+        builder: (context, state) => EditProfileImageScreen(),
+      ),
     ],
     redirect: (context, state) {
-      if (authState != null && (state.matchedLocation == '/signin' || state.matchedLocation == '/signup' || state.matchedLocation == '/signup_with_google')) {
+      if (ref.read(authProvider).value != null &&
+          (state.matchedLocation == '/signin' || state.matchedLocation == '/signup' || state.matchedLocation == '/signup_with_google')) {
         return '/home';
       }
-      if (authState == null && (state.matchedLocation != '/signin' && state.matchedLocation != '/signup' && state.matchedLocation != '/signup_with_google')) {
+      if (ref.read(authProvider).value == null &&
+          (state.matchedLocation != '/signin' && state.matchedLocation != '/signup' && state.matchedLocation != '/signup_with_google')) {
         return '/signin';
       }
       return null;
     },
   );
+
+  ref.listen(authProvider.select((value) => value.value), (previous, next) {
+    router.refresh();
+  });
 
   return router;
 });
