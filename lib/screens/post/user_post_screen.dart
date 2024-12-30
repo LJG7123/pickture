@@ -5,6 +5,7 @@ import 'package:pickture/core/design_system/foundation/spacing.dart';
 import 'package:pickture/models/user_model.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/post_provider.dart';
+import 'package:pickture/screens/auth/widgets/auth_text_field.dart';
 import 'package:pickture/screens/post/widgets/post_card/post_card.dart';
 import 'package:pickture/services/user_service.dart';
 import 'package:pickture/widgets/button/expanded_outlined_button.dart';
@@ -171,9 +172,11 @@ class UserPostScreen extends ConsumerWidget {
       centerTitle: true,
       leading: !Navigator.of(context).canPop()
           ? TextButton(
-              onPressed: () {},
-              child: Text(userId),
-            )
+        onPressed: () {
+          showDialog(context: context, builder: (context) => const _UpdateNameDialog());
+        },
+        child: Text(userId),
+      )
           : null,
       actions: [
         Row(
@@ -188,6 +191,58 @@ class UserPostScreen extends ConsumerWidget {
             ),
           ],
         )
+      ],
+    );
+  }
+}
+
+class _UpdateNameDialog extends ConsumerStatefulWidget {
+  const _UpdateNameDialog();
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _UpdateNameDialogState();
+}
+
+class _UpdateNameDialogState extends ConsumerState<_UpdateNameDialog> {
+  final _nameController = TextEditingController();
+  final _errorMessageProvider = StateProvider<String?>((ref) => null);
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(() {
+      ref.read(_errorMessageProvider.notifier).state = null;
+    });
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final errorMessage = ref.watch(_errorMessageProvider);
+    return AlertDialog(
+      title: const Text('이름 변경'),
+      content: AuthTextField(controller: _nameController, hintText: '새로운 이름', errorMessage: errorMessage),
+      actions: [
+        TextButton(onPressed: context.pop, child: const Text('취소')),
+        TextButton(
+          onPressed: () async {
+            if (_nameController.text.isEmpty) {
+              ref.read(_errorMessageProvider.notifier).state = '이름은 공백일 수 없습니다.';
+              return;
+            }
+            await ref.read(authProvider.notifier).updateName(_nameController.text);
+            if (context.mounted) {
+              context.pop();
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('이름이 성공적으로 업데이트 되었습니다.')));
+            }
+          },
+          child: const Text('확인'),
+        ),
       ],
     );
   }
