@@ -82,6 +82,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
     redirect: (context, state) {
+      if (ref.read(authProvider).isLoading) {
+        return null;
+      }
       if (ref.read(authProvider).value != null &&
           (state.matchedLocation == '/signin' || state.matchedLocation == '/signup' || state.matchedLocation == '/signup_with_google')) {
         return '/home';
