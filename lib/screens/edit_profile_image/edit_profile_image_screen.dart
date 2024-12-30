@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pickture/core/design_system/foundation/spacing.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/file_provider.dart';
+import 'package:pickture/screens/auth/widgets/expanded_outlined_button.dart';
 import 'package:pickture/screens/auth/widgets/expanded_outlined_progress_button.dart';
 
 class EditProfileImageScreen extends ConsumerWidget {
@@ -21,8 +22,12 @@ class EditProfileImageScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var imageProvider = ref.watch(_profileNotifierProvider);
+    var image = ref.watch(_profileNotifierProvider).file;
     var isLoading = ref.watch(_saveLoadingProvider);
+
+    ref.listen(_profileNotifierProvider.select((value) => value.file), (previous, next) {
+      _transformationController.value.setValues(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    });
 
     return Scaffold(
       appBar: AppBar(title: const Text("프로필 편집")),
@@ -36,8 +41,8 @@ class EditProfileImageScreen extends ConsumerWidget {
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.width,
-                  child: imageProvider.file != null
-                      ? InteractiveViewer(transformationController: _transformationController, child: Image.file(imageProvider.file!))
+                  child: image != null
+                      ? InteractiveViewer(maxScale: 4.0, transformationController: _transformationController, child: Image.file(image))
                       : null,
                 ),
               ),
@@ -65,17 +70,21 @@ class EditProfileImageScreen extends ConsumerWidget {
             ],
           ),
           const Spacer(),
-          ElevatedButton(
-            onPressed: () {
-              ref.read(_profileNotifierProvider).pickFile();
-            },
-            child: const Text('이미지 선택'),
+          Padding(
+            padding: AppSpacing.paddingHorizontal,
+            child: ExpandedOutlinedButton(
+              onPressed: ref.read(_profileNotifierProvider).pickFile,
+              text: '이미지 선택',
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
-          ExpandedOutlinedProgressButton(
-            onPressed: () => _onSaveButtonPressed(context, ref),
-            text: '저장',
-            isLoading: isLoading,
+          Padding(
+            padding: AppSpacing.paddingHorizontal,
+            child: ExpandedOutlinedProgressButton(
+              onPressed: () => _onSaveButtonPressed(context, ref),
+              text: '저장',
+              isLoading: isLoading,
+            ),
           ),
           const Spacer(),
         ],
