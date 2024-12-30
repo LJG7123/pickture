@@ -38,11 +38,18 @@ class PostCard extends ConsumerWidget {
   Widget _buildPostFooter(Post post) {
     return Padding(
       padding: EdgeInsets.only(left: 16.0, bottom: 16.0, top: isNew ? 16.0 : 0),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(post.creator!.userId),
-          const SizedBox(width: 20),
-          Text(post.title),
+          Row(
+            children: [
+              Text(post.creator!.userId),
+              const SizedBox(width: 20),
+              Text(post.title),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(post.createdAt.toString().substring(0, 16)),
         ],
       ),
     );
