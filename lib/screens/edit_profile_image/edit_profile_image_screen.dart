@@ -4,21 +4,25 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pickture/core/design_system/foundation/spacing.dart';
+import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/file_provider.dart';
-import 'package:pickture/providers/router_provider.dart';
+import 'package:pickture/screens/auth/widgets/expanded_outlined_progress_button.dart';
 
 class EditProfileImageScreen extends ConsumerWidget {
   final _profileNotifierProvider = ChangeNotifierProvider<FileNotifier>((ref) => FileNotifier(ref));
   final _backgroundImgKey = GlobalKey();
   final _circleViewKey = GlobalKey();
   final _transformationController = TransformationController();
+  final _saveLoadingProvider = StateProvider<bool>((ref) => false);
 
   EditProfileImageScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var imageProvider = ref.watch(_profileNotifierProvider);
+    var isLoading = ref.watch(_saveLoadingProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text("프로필 편집")),
@@ -68,23 +72,39 @@ class EditProfileImageScreen extends ConsumerWidget {
             child: const Text('이미지 선택'),
           ),
           const SizedBox(height: AppSpacing.md),
-          ElevatedButton(
-            onPressed: () async {
-              var profileImage = await _capturePng();
-              if (profileImage == null) return;
-              ref.read(_profileNotifierProvider).uploadProfileImage(profileImage).then((_) {
-                if (context.mounted) {
-                  ref.read(routerProvider).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('프로필이 성공적으로 업데이트되었습니다.')));
-                }
-              });
-            },
-            child: const Text('저장'),
+          ExpandedOutlinedProgressButton(
+            onPressed: () => _onSaveButtonPressed(context, ref),
+            text: '저장',
+            isLoading: isLoading,
           ),
           const Spacer(),
         ],
       ),
     );
+  }
+
+  void _onSaveButtonPressed(BuildContext context, WidgetRef ref) async {
+    if (ref.read(_profileNotifierProvider).file == null) {
+      // 이미지가 선택되지 않았을 때
+      await showDialog(context: context, builder: (context) => _imageUnpickedDialog(context, ref));
+      return;
+    }
+
+    ref.read(_saveLoadingProvider.notifier).state = true;
+
+    var profileImage = await _capturePng();
+    if (profileImage == null) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('오류가 발생했습니다. 다시 시도해 주세요.')));
+      return;
+    }
+    await ref.read(_profileNotifierProvider).uploadProfileImage(profileImage).then((_) {
+      if (context.mounted) {
+        context.go('/home');
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('프로필이 성공적으로 업데이트 되었습니다.')));
+      }
+    });
+
+    ref.read(_saveLoadingProvider.notifier).state = false;
   }
 
   Future<Uint8List?> _capturePng() async {
@@ -119,5 +139,25 @@ class EditProfileImageScreen extends ConsumerWidget {
     final Uint8List? pngBytes2 = byteData2?.buffer.asUint8List();
 
     return pngBytes2;
+  }
+
+  AlertDialog _imageUnpickedDialog(BuildContext context, WidgetRef ref) {
+    return AlertDialog(
+      title: const Text('알림'),
+      content: const Text('이미지가 선택되지 않았습니다. 프로필 사진을 초기화 하시겠습니까?'),
+      actions: [
+        TextButton(onPressed: context.pop, child: const Text('취소')),
+        TextButton(
+          onPressed: () async {
+            await ref.read(authProvider.notifier).updateProfileImage(null);
+            if (context.mounted) {
+              context.go('/home');
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('프로필이 성공적으로 업데이트 되었습니다.')));
+            }
+          },
+          child: const Text('확인'),
+        ),
+      ],
+    );
   }
 }

@@ -73,6 +73,6 @@ class FileNotifier extends ChangeNotifier {
     final taskSnapshot = await uploadTask;
 
     String url = await taskSnapshot.ref.getDownloadURL();
-    _ref.read(authProvider.notifier).updateProfileImage(url);
+    await _ref.read(authProvider.notifier).updateProfileImage(url);
   }
 }

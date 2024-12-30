@@ -85,7 +85,7 @@ class AuthService {
     return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
-  Future<void> updateProfileImage(String url) async {
+  Future<void> updateProfileImage(String? url) async {
     if (currentUser == null) return;
     await _firestore.collection('users').doc(currentUser!.uid).update({'profileImage': url});
   }

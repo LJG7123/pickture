@@ -65,7 +65,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     state = await AsyncValue.guard(() => authService.getCurrentUserData());
   }
 
-  Future<void> updateProfileImage(String url) async {
+  Future<void> updateProfileImage(String? url) async {
     try {
       await authService.updateProfileImage(url);
     } catch (e) {
