@@ -46,14 +46,14 @@ class _CommentButtomSheetState extends ConsumerState<CommentButtomSheet> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildCard(comment.user, comment),
+                    _buildCard(comment.user!, comment),
                     if (comment.comments.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(left: 16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: comment.comments.map((reply) {
-                            return _buildCard(reply.user, comment);
+                            return _buildCard(reply.user!, comment);
                           }).toList(),
                         ),
                       ),
@@ -63,19 +63,15 @@ class _CommentButtomSheetState extends ConsumerState<CommentButtomSheet> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
             child: TextField(
               controller: commentController,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.people_alt),
                 border: const OutlineInputBorder(),
-                hintText: replyComment == null
-                    ? "${widget.post.creator.userId}에게 댓글 추가"
-                    : "${replyComment!.user.userId}에게 답글 추가",
+                hintText: replyComment == null ? "${widget.post.creator!.userId}에게 댓글 추가" : "${replyComment!.user!.userId}에게 답글 추가",
                 suffixIcon: IconButton(
-                  onPressed: () => _updateComment(
-                      ref, commentController, replyComment, user),
+                  onPressed: () => _updateComment(ref, commentController, replyComment, user),
                   icon: const Icon(Icons.upload),
                 ),
               ),
@@ -98,8 +94,7 @@ class _CommentButtomSheetState extends ConsumerState<CommentButtomSheet> {
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(
-                  "${user.userId} ${comment.createdAt.toString().substring(0, 16)}"),
+              Text("${user.userId} ${comment.createdAt.toString().substring(0, 16)}"),
               Text(comment.comment),
               TextButton(
                 onPressed: () {
@@ -124,11 +119,12 @@ class _CommentButtomSheetState extends ConsumerState<CommentButtomSheet> {
   ) {
     if (commentController.text.isNotEmpty) {
       final comment = Comment(
-          userId: user.uid,
-          comment: commentController.text,
-          createdAt: DateTime.now(),
-          comments: [],
-          user: user);
+        userId: user.uid,
+        comment: commentController.text,
+        createdAt: DateTime.now(),
+        comments: [],
+        user: user,
+      );
 
       if (replyComment == null) {
         widget.post.comments.add(comment);
