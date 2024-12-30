@@ -4,10 +4,14 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pickture/providers/auth_provider.dart';
 
-final fileNotifierProvider = ChangeNotifierProvider<FileNotifier>((ref) => FileNotifier());
+final fileNotifierProvider = ChangeNotifierProvider<FileNotifier>((ref) => FileNotifier(ref));
 
 class FileNotifier extends ChangeNotifier {
+  FileNotifier(this._ref);
+
+  final Ref _ref;
   File? _file;
   double _uploadProgress = 0;
   String? _downloadUrl;
@@ -57,5 +61,18 @@ class FileNotifier extends ChangeNotifier {
 
     String url = await taskSnapshot.ref.getDownloadURL();
     setDownloadUrl(url);
+  }
+
+  Future<void> uploadProfileImage(Uint8List data) async {
+    var uid = _ref.read(authProvider).value?.uid;
+    if (uid == null) return;
+
+    final filePath = "ProfileImage/$uid";
+    final storageRef = FirebaseStorage.instance.ref().child(filePath);
+    final uploadTask = storageRef.putData(data);
+    final taskSnapshot = await uploadTask;
+
+    String url = await taskSnapshot.ref.getDownloadURL();
+    await _ref.read(authProvider.notifier).updateProfileImage(url);
   }
 }

@@ -85,6 +85,11 @@ class AuthService {
     return UserModel.fromJson(currentUser!.uid, snapshot.data()!);
   }
 
+  Future<void> updateProfileImage(String? url) async {
+    if (currentUser == null) return;
+    await _firestore.collection('users').doc(currentUser!.uid).update({'profileImage': url});
+  }
+
   Future<bool> isEmailAvailable(String email) async {
     var accounts = await _firestore.collection('users').where('email', isEqualTo: email).count().get();
     return accounts.count == 0;
@@ -99,6 +104,7 @@ class AuthService {
   }
 
   void _updateFcmToken() async {
+    if (currentUser == null) return;
     await _firestore.collection('users').doc(currentUser!.uid).update({'fcmToken': await _messaging.getToken()});
   }
 }

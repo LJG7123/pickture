@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pickture/core/design_system/foundation/colors.dart';
 import '../foundation/spacing.dart';
 
 class AppInputTheme {
@@ -28,6 +29,17 @@ class AppInputTheme {
         borderRadius: AppSpacing.radiusMedium,
         borderSide: BorderSide(
           color: colors.primary,
+          width: 2,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: AppSpacing.radiusMedium,
+        borderSide: const BorderSide(color: AppColors.error),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: AppSpacing.radiusMedium,
+        borderSide: const BorderSide(
+          color: AppColors.error,
           width: 2,
         ),
       ),

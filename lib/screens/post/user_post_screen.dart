@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pickture/core/design_system/foundation/spacing.dart';
 import 'package:pickture/models/user_model.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/post_provider.dart';
 import 'package:pickture/screens/post/widgets/post_card/post_card.dart';
 import 'package:pickture/services/user_service.dart';
+import 'package:pickture/widgets/button/expanded_outlined_button.dart';
 
 class UserPostScreen extends ConsumerWidget {
   const UserPostScreen({super.key, required this.user});
@@ -40,6 +42,7 @@ class UserPostScreen extends ConsumerWidget {
     final postsAsync = ref.watch(postProviderUserId(currentUser.uid));
 
     final isCurrentUser = user.uid == currentUser.uid;
+    final profileImage = user.profileImage;
 
     return Scaffold(
       appBar: isCurrentUser
@@ -60,12 +63,15 @@ class UserPostScreen extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const CircleAvatar(
-                            backgroundColor: Colors.grey,
-                            radius: 30,
-                            child: Icon(
-                              Icons.person,
-                              color: Colors.white,
+                          GestureDetector(
+                            onTap: () {
+                              context.push('/edit_profile_image');
+                            },
+                            child: CircleAvatar(
+                              radius: 40,
+                              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              foregroundImage: profileImage != null && profileImage.isNotEmpty ? NetworkImage(profileImage) : null,
+                              child: profileImage?.isEmpty ?? true ? const Icon(Icons.person, size: 50) : null,
                             ),
                           ),
                           TextButton(
@@ -112,7 +118,9 @@ class UserPostScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppSpacing.md),
+                      ExpandedOutlinedButton(onPressed: ref.read(authProvider.notifier).signOut, text: '로그아웃'),
+                      const SizedBox(height: AppSpacing.md),
                       if (!isCurrentUser)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

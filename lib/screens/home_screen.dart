@@ -31,7 +31,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authProvider).value!;
+    final user = ref.watch(authProvider).value;
+    if (user == null) return Container();
 
     return Scaffold(
       body: PageView(
