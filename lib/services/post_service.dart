@@ -16,40 +16,12 @@ class PostService {
 
     final postSnapshot = await _firestore.collection("posts").get();
 
-    if (postSnapshot.docs.isEmpty) return posts;
-
-    for (var doc in postSnapshot.docs) {
-      userIds.add(doc.id);
-      final userPost = await _firestore.collection("posts/${doc.id}/post").orderBy("createdAt", descending: true).get();
-
-      for (var postDoc in userPost.docs) {
-        final likes = postDoc.data()["likes"] as List<dynamic>? ?? [];
-        final comments = postDoc.data()["comments"] as List<dynamic>? ?? [];
-
-        userIds.addAll(likes.map((like) => like["userId"].toString()));
-        userIds.addAll(_extractUserIds(comments));
-      }
-    }
-
-    final userMap = await getUserMap(userIds);
-
     await Future.wait(postSnapshot.docs.map((doc) async {
-      final userPost = await _firestore.collection("posts/${doc.id}/post").orderBy("createdAt", descending: true).get();
-
-      for (var postDoc in userPost.docs) {
-        final likes = postDoc.data()["likes"] as List<dynamic>? ?? [];
-        final comments = _getComments(postDoc, userMap);
-        final post = Post.fromJson(
-          postDoc.id,
-          postDoc.data(),
-          likes.map((like) => Like.fromJson(like, userMap[like["userId"].toString()]!)).toList(),
-          comments,
-          userMap[doc.id]!,
-        );
-        posts.add(post);
-      }
+      userIds.add(doc.id);
+      _getUserPost(posts, doc.id, userIds);
     }));
 
+    _setPostUser(posts, userIds);
     return posts;
   }
 
@@ -57,63 +29,70 @@ class PostService {
     final posts = <Post>[];
     final userIds = <String>{userId};
 
-    final postSnapshot = await _firestore.collection("posts").get();
-
-    if (postSnapshot.docs.isEmpty) return posts;
-
-    final userPost = await _firestore.collection("posts/$userId/post").orderBy("createdAt", descending: true).get();
-
-    for (var postDoc in userPost.docs) {
-      final likes = postDoc.data()["likes"] as List<dynamic>? ?? [];
-      final comments = postDoc.data()["comments"] as List<dynamic>? ?? [];
-
-      userIds.addAll(likes.map((like) => like["userId"].toString()));
-      userIds.addAll(_extractUserIds(comments));
-    }
-
-    final userMap = await getUserMap(userIds);
-
-    for (var postDoc in userPost.docs) {
-      final likes = postDoc.data()["likes"] as List<dynamic>? ?? [];
-      final comments = _getComments(postDoc, userMap);
-      final post = Post.fromJson(
-        postDoc.id,
-        postDoc.data(),
-        likes.map((like) => Like.fromJson(like, userMap[like["userId"].toString()]!)).toList(),
-        comments,
-        userMap[userId]!,
-      );
-      posts.add(post);
-    }
-
+    _getUserPost(posts, userId, userIds);
+    _setPostUser(posts, userIds);
     return posts;
   }
 
-  List<Comment> _getComments(QueryDocumentSnapshot<Map<String, dynamic>> doc, Map<String, UserModel> userMap) {
+// #region Post 가져오는 부분
+
+  void _getUserPost(List<Post> posts, String userId, Set<String> userIds) async {
+    final userPost = await _firestore.collection("posts/$userId/post").orderBy("createdAt", descending: true).get();
+
+    for (var postDoc in userPost.docs) {
+      final likes = _getLikes(postDoc, userIds);
+      final comments = _getComments(postDoc, userIds);
+      final post = Post.fromJson(
+        postDoc.id,
+        postDoc.data(),
+        likes,
+        comments,
+      );
+      post.setUser(UserModel(uid: userId, name: "", email: "", dob: "", follow: [], following: []));
+      posts.add(post);
+    }
+  }
+
+  List<Like> _getLikes(QueryDocumentSnapshot<Map<String, dynamic>> doc, Set<String> userIds) {
+    final likes = doc.data()["likes"] as List<dynamic>? ?? [];
+
+    return likes.map((like) {
+      userIds.add(like["userId"].toString());
+      return Like.fromJson(like);
+    }).toList();
+  }
+
+  List<Comment> _getComments(QueryDocumentSnapshot<Map<String, dynamic>> doc, Set<String> userIds) {
     final comments = doc.data()["comments"] as List<dynamic>? ?? [];
-    return comments.map((comment) => getComment(comment, userMap)).toList();
+    return comments.map((comment) => _parseComment(comment, userIds)).toList();
   }
 
-  Comment getComment(Map<String, dynamic> commentJson, Map<String, UserModel> userMap) {
-    final user = userMap[commentJson["userId"] as String]!;
-    final nestedComments = (commentJson["comments"] as List<dynamic>? ?? []).map((nestedCommentJson) => getComment(nestedCommentJson, userMap)).toList();
+  Comment _parseComment(Map<String, dynamic> commentJson, Set<String> userIds) {
+    userIds.add(commentJson["userId"].toString());
 
-    return Comment.fromJson(commentJson, user, nestedComments);
+    final comments = (commentJson["comments"] as List<dynamic>? ?? []).map((comment) {
+      return _parseComment(comment, userIds);
+    }).toList();
+
+    return Comment.fromJson(commentJson, comments);
   }
 
-  Set<String> _extractUserIds(List<dynamic> comments) {
-    final userIds = <String>{};
+  void _setPostUser(List<Post> posts, Set<String> userIds) async {
+    final userMap = await _getUserMap(userIds);
 
-    for (var comment in comments) {
-      userIds.add(comment["userId"].toString());
-      if (comment["comments"] != null) {
-        userIds.addAll(_extractUserIds(comment["comments"] as List<dynamic>));
+    for (Post post in posts) {
+      post.setUser(userMap[post.creator!.uid]!);
+      for (Like like in post.likes) {
+        like.setUser(userMap[like.userId]!);
+      }
+
+      for (Comment comment in post.comments) {
+        _setCommentUser(comment, userMap);
       }
     }
-    return userIds;
   }
 
-  Future<Map<String, UserModel>> getUserMap(Set<String> userIds) async {
+  Future<Map<String, UserModel>> _getUserMap(Set<String> userIds) async {
     final userService = UserService();
     final userModels = await userService.getUsersByIds(userIds.toList());
 
@@ -125,21 +104,31 @@ class PostService {
     return userMap;
   }
 
+  void _setCommentUser(Comment comment, Map<String, UserModel> userMap) {
+    comment.setUser(userMap[comment.userId]!);
+
+    for (var nestedComment in comment.comments) {
+      _setCommentUser(nestedComment, userMap);
+    }
+  }
+
+// #endregion Post 가져오는 부분
+
   Future<Post> addPost(Post post) async {
-    await _firestore.collection("posts").doc(post.creator.uid).set({
+    await _firestore.collection("posts").doc(post.creator!.uid).set({
       "createdAt": FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
 
-    DocumentReference postRef = await _firestore.collection("posts/${post.creator.uid}/post").add(post.toJson());
+    DocumentReference postRef = await _firestore.collection("posts/${post.creator!.uid}/post").add(post.toJson());
 
     return post.copyWith(postId: postRef.id);
   }
 
   Future<void> updatePost(Post post) async {
-    await _firestore.collection("posts/${post.creator.uid}/post").doc(post.postId).update(post.toJson());
+    await _firestore.collection("posts/${post.creator!.uid}/post").doc(post.postId).update(post.toJson());
   }
 
   Future<void> deletePost(Post post) async {
-    await _firestore.collection("posts/${post.creator.uid}/post").doc(post.postId).delete();
+    await _firestore.collection("posts/${post.creator!.uid}/post").doc(post.postId).delete();
   }
 }

@@ -20,14 +20,13 @@ class LikeScreen extends ConsumerWidget {
           final like = likes[index];
 
           return ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             leading: const CircleAvatar(
               backgroundColor: Colors.grey,
               radius: 20,
               child: Icon(Icons.person, color: Colors.white),
             ),
-            title: Text(like.user.userId),
+            title: Text(like.user!.userId),
             trailing: const Icon(
               Icons.arrow_forward_ios,
               color: Colors.grey,

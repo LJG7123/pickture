@@ -40,7 +40,7 @@ class PostCard extends ConsumerWidget {
       padding: EdgeInsets.only(left: 16.0, bottom: 16.0, top: isNew ? 16.0 : 0),
       child: Row(
         children: [
-          Text(post.creator.userId),
+          Text(post.creator!.userId),
           const SizedBox(width: 20),
           Text(post.title),
         ],

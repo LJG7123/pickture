@@ -4,19 +4,18 @@ import 'package:pickture/models/user_model.dart';
 class Like {
   final String userId;
   final DateTime createdAt;
-  final UserModel user;
+  UserModel? user;
 
   Like({
     required this.userId,
     required this.createdAt,
-    required this.user,
+    this.user,
   });
 
-  factory Like.fromJson(Map<String, dynamic> json, UserModel user) {
+  factory Like.fromJson(Map<String, dynamic> json) {
     return Like(
       userId: json["userId"],
       createdAt: (json["createdAt"] as Timestamp).toDate(),
-      user: user,
     );
   }
 
@@ -25,5 +24,9 @@ class Like {
       "userId": userId,
       "createdAt": createdAt,
     };
+  }
+
+  void setUser(UserModel user) {
+    this.user = user;
   }
 }
