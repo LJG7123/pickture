@@ -9,17 +9,27 @@ class PostScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final posts = ref.watch(postProvider);
+    final postsAsync = ref.watch(postProvider);
 
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: ListView.builder(
-        itemCount: posts.length,
-        itemBuilder: (BuildContext context, int index) {
-          final post = posts[index];
-          return PostCard(post: post);
-        },
-      ),
+      body: postsAsync.when(
+          data: (posts) {
+            return ListView.builder(
+              itemCount: posts.length,
+              itemBuilder: (BuildContext context, int index) {
+                final post = posts[index];
+                return PostCard(post: post);
+              },
+            );
+          },
+          error: (error, stack) => Center(
+                child: Text(
+                  "피드 정보를 불러오는데 실패했습니다.",
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+          loading: () => const Center(child: CircularProgressIndicator())),
     );
   }
 

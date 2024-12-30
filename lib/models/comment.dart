@@ -7,28 +7,24 @@ class Comment {
   final List<Comment> comments;
   final DateTime createdAt;
   final DateTime? updatedAt;
-  final UserModel user;
+  UserModel? user;
 
   Comment({
     required this.userId,
     required this.comment,
     required this.comments,
     required this.createdAt,
-    required this.user,
     this.updatedAt,
+    this.user,
   });
 
-  factory Comment.fromJson(
-      Map<String, dynamic> json, UserModel user, List<Comment> comments) {
+  factory Comment.fromJson(Map<String, dynamic> json, List<Comment> comments) {
     return Comment(
       userId: json["userId"],
       comment: json["comment"],
       comments: comments,
       createdAt: (json["createdAt"] as Timestamp).toDate(),
-      updatedAt: json["updatedAt"] != null
-          ? (json["updatedAt"] as Timestamp).toDate()
-          : null,
-      user: user,
+      updatedAt: json["updatedAt"] != null ? (json["updatedAt"] as Timestamp).toDate() : null,
     );
   }
 
@@ -40,5 +36,9 @@ class Comment {
       "createdAt": createdAt,
       "updatedAt": updatedAt,
     };
+  }
+
+  void setUser(UserModel user) {
+    this.user = user;
   }
 }
