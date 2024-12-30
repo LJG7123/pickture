@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pickture/core/design_system/foundation/spacing.dart';
 
-class ExpandedElevatedProgressButton extends StatelessWidget {
-  const ExpandedElevatedProgressButton({
+class ExpandedOutlinedProgressButton extends StatelessWidget {
+  const ExpandedOutlinedProgressButton({
     super.key,
     required this.onPressed,
     required this.text,
@@ -23,6 +24,7 @@ class ExpandedElevatedProgressButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: OutlinedButton.styleFrom(
           foregroundColor: isDark ? Colors.white : Colors.black,
+          padding: const EdgeInsets.all(AppSpacing.sm),
           side: BorderSide(
             color: isDark ? Colors.white : Colors.grey.shade300,
             width: isDark ? 2 : 1,

@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pickture/core/design_system/foundation/spacing.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/screens/auth/widgets/auth_text_field.dart';
-import 'package:pickture/screens/auth/widgets/expanded_elevated_icon_button.dart';
-import 'package:pickture/screens/auth/widgets/expanded_elevated_progress_button.dart';
-import 'package:pickture/screens/auth/widgets/expanded_outlined_button.dart';
+import 'package:pickture/widgets/button/expanded_outlined_icon_button.dart';
+import 'package:pickture/widgets/button/expanded_outlined_button.dart';
+import 'package:pickture/widgets/button/expanded_outlined_progress_button.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
@@ -21,6 +22,7 @@ class _SignInScreenState extends ConsumerState {
   final _passwordController = TextEditingController();
   final _obscurePasswordProvider = StateProvider<bool>((ref) => true);
   final _signInLoadingProvider = StateProvider<bool>((ref) => false);
+  final _signInWithGoogleLoadingProvider = StateProvider<bool>((ref) => false);
 
   @override
   void dispose() {
@@ -33,32 +35,34 @@ class _SignInScreenState extends ConsumerState {
   Widget build(BuildContext context) {
     final obscurePassword = ref.watch(_obscurePasswordProvider);
     final isLoading = ref.watch(_signInLoadingProvider);
+    final isGoogleLoading = ref.watch(_signInWithGoogleLoadingProvider);
 
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: AppSpacing.paddingAll,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Spacer(),
             AuthTextField(controller: _emailController, hintText: 'E-mail'),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.md),
             AuthTextField(
               controller: _passwordController,
               hintText: 'Password',
               obscureText: obscurePassword,
               onSuffixIconPressed: () => _togglePasswordVisibility(),
             ),
-            const SizedBox(height: 20),
-            ExpandedElevatedProgressButton(
+            const SizedBox(height: AppSpacing.md),
+            ExpandedOutlinedProgressButton(
               onPressed: () => _onLoginButtonClicked(),
               text: '로그인',
               isLoading: isLoading,
             ),
-            const SizedBox(height: 20),
-            ExpandedElevatedIconButton(
+            const SizedBox(height: AppSpacing.md),
+            ExpandedOutlinedIconButton(
               onPressed: () => _onLoginWithGoogleButtonClicked(),
               text: 'Google 로 로그인',
+              isLoading: isGoogleLoading,
               iconAsset: _googleIcon,
             ),
             const Spacer(),
@@ -91,6 +95,8 @@ class _SignInScreenState extends ConsumerState {
   }
 
   void _onLoginWithGoogleButtonClicked() async {
+    ref.read(_signInWithGoogleLoadingProvider.notifier).state = true;
+
     var authNotifier = ref.read(authProvider.notifier);
     await authNotifier.signInWithGoogle();
 
@@ -122,5 +128,7 @@ class _SignInScreenState extends ConsumerState {
       // 로그인에 성공한 경우
       await authNotifier.fetchUserData();
     }
+
+    ref.read(_signInWithGoogleLoadingProvider.notifier).state = false;
   }
 }

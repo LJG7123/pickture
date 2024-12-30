@@ -62,7 +62,26 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
   }
 
   Future<void> fetchUserData() async {
+    state = const AsyncLoading();
     state = await AsyncValue.guard(() => authService.getCurrentUserData());
+  }
+
+  Future<void> updateProfileImage(String? url) async {
+    try {
+      await authService.updateProfileImage(url);
+    } catch (e) {
+      state = AsyncError(e, StackTrace.current);
+    }
+    var user = state.value!;
+    state = AsyncValue.data(UserModel(
+      uid: user.uid,
+      name: user.name,
+      email: user.email,
+      dob: user.dob,
+      profileImage: url,
+      follow: user.follow,
+      following: user.following,
+    ));
   }
 
   Future<UserModel?> getUserData() {
