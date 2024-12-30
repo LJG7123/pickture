@@ -4,12 +4,40 @@ import 'package:go_router/go_router.dart';
 import 'package:pickture/providers/post_provider.dart';
 import 'package:pickture/screens/post/widgets/post_card/post_card.dart';
 
-class PostScreen extends ConsumerWidget {
+class PostScreen extends ConsumerStatefulWidget {
   const PostScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PostScreen> createState() => _PostScreenState();
+}
+
+class _PostScreenState extends ConsumerState<PostScreen> {
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPost();
+  }
+
+  Future<void> _fetchPost() async {
+    await ref.read(postProvider.notifier).getPost();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final posts = ref.watch(postProvider);
+
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: _buildAppBar(context),

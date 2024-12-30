@@ -54,4 +54,23 @@ class UserRepository {
 
     return results.expand((users) => users).toList();
   }
+
+  Future<void> updateFollow(
+    Map<String, List<String>> currentUserFollowing,
+    Map<String, List<String>> followingUserFollow,
+  ) async {
+    final currentUserId = currentUserFollowing.keys.first;
+    final currentUserFollowingList = currentUserFollowing[currentUserId]!;
+
+    final followingUserId = followingUserFollow.keys.first;
+    final followingUserFolloList = followingUserFollow[followingUserId]!;
+
+    await _firestore.collection("users").doc(currentUserId).update({
+      "following": currentUserFollowingList,
+    });
+
+    await _firestore.collection("users").doc(followingUserId).update({
+      "follow": followingUserFolloList,
+    });
+  }
 }
