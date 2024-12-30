@@ -4,50 +4,32 @@ import 'package:go_router/go_router.dart';
 import 'package:pickture/providers/post_provider.dart';
 import 'package:pickture/screens/post/widgets/post_card/post_card.dart';
 
-class PostScreen extends ConsumerStatefulWidget {
+class PostScreen extends ConsumerWidget {
   const PostScreen({super.key});
 
   @override
-  ConsumerState<PostScreen> createState() => _PostScreenState();
-}
-
-class _PostScreenState extends ConsumerState<PostScreen> {
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchPost();
-  }
-
-  Future<void> _fetchPost() async {
-    await ref.read(postProvider.notifier).getPost();
-    setState(() {
-      isLoading = false;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final posts = ref.watch(postProvider);
-
-    if (isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final postsAsync = ref.watch(postProvider);
 
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: ListView.builder(
-        itemCount: posts.length,
-        itemBuilder: (BuildContext context, int index) {
-          final post = posts[index];
-          return PostCard(post: post);
-        },
-      ),
+      body: postsAsync.when(
+          data: (posts) {
+            return ListView.builder(
+              itemCount: posts.length,
+              itemBuilder: (BuildContext context, int index) {
+                final post = posts[index];
+                return PostCard(post: post);
+              },
+            );
+          },
+          error: (error, stack) => Center(
+                child: Text(
+                  "피드 정보를 불러오는데 실패했습니다.",
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+          loading: () => const Center(child: CircularProgressIndicator())),
     );
   }
 

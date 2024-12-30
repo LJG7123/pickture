@@ -7,29 +7,9 @@ import 'package:pickture/providers/post_provider.dart';
 import 'package:pickture/screens/post/widgets/post_card/post_card.dart';
 import 'package:pickture/services/user_service.dart';
 
-class UserPostScreen extends ConsumerStatefulWidget {
+class UserPostScreen extends ConsumerWidget {
   const UserPostScreen({super.key, required this.user});
   final UserModel user;
-
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _UserPostScreenState();
-}
-
-class _UserPostScreenState extends ConsumerState<UserPostScreen> {
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchPost();
-  }
-
-  Future<void> _fetchPost() async {
-    await ref.read(postProvider.notifier).getPostByUserId(widget.user.uid);
-    setState(() {
-      isLoading = false;
-    });
-  }
 
   bool _isFollowing(UserModel currentUser, UserModel followingUser) {
     return currentUser.following.contains(followingUser.uid);
@@ -52,127 +32,128 @@ class _UserPostScreenState extends ConsumerState<UserPostScreen> {
 
     final userService = UserService();
     userService.updateFollow(currentUserFollowing, followingUserFollow);
-    setState(() {});
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(authProvider).value!;
-    final posts = ref.watch(postProvider);
+    final postsAsync = ref.watch(postProviderUserId(currentUser.uid));
 
-    final isCurrentUser = widget.user.uid == currentUser.uid;
-
-    if (isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
+    final isCurrentUser = user.uid == currentUser.uid;
 
     return Scaffold(
       appBar: isCurrentUser
-          ? _buildAppBar(context, widget.user.userId)
+          ? _buildAppBar(context, user.userId)
           : AppBar(
-              title: Text(widget.user.userId),
+              title: Text(user.userId),
               centerTitle: true,
             ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            margin: const EdgeInsets.all(8.0),
-            child: Column(
+      body: postsAsync.when(
+          data: (posts) {
+            return Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      radius: 30,
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.white,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("${posts.length}"),
-                          const Text("게시물"),
-                        ],
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => context.push(
-                        "/follow",
-                        extra: {
-                          "userIds": widget.user.follow,
-                          "isFollow": true,
-                        },
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("${widget.user.follow.length}"),
-                          const Text("팔로워"),
-                        ],
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => context.push(
-                        "/follow",
-                        extra: {
-                          "userIds": widget.user.following,
-                          "isFollow": false,
-                        },
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("${widget.user.following.length}"),
-                          const Text("팔로잉"),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                if (!isCurrentUser)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  margin: const EdgeInsets.all(8.0),
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => _updateFollow(currentUser, widget.user),
-                          child: _isFollowing(currentUser, widget.user) ? const Text("팔로잉") : const Text("팔로우"),
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const CircleAvatar(
+                            backgroundColor: Colors.grey,
+                            radius: 30,
+                            child: Icon(
+                              Icons.person,
+                              color: Colors.white,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {},
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("${posts.length}"),
+                                const Text("게시물"),
+                              ],
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => context.push(
+                              "/follow",
+                              extra: {
+                                "userIds": user.follow,
+                                "isFollow": true,
+                              },
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("${user.follow.length}"),
+                                const Text("팔로워"),
+                              ],
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => context.push(
+                              "/follow",
+                              extra: {
+                                "userIds": user.following,
+                                "isFollow": false,
+                              },
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("${user.following.length}"),
+                                const Text("팔로잉"),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          child: const Text("메시지"),
-                        ),
-                      ),
+                      const SizedBox(height: 20),
+                      if (!isCurrentUser)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () => _updateFollow(currentUser, user),
+                                child: _isFollowing(currentUser, user) ? const Text("팔로잉") : const Text("팔로우"),
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {},
+                                child: const Text("메시지"),
+                              ),
+                            ),
+                          ],
+                        )
                     ],
-                  )
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: posts.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final post = posts[index];
+                      return PostCard(post: post);
+                    },
+                  ),
+                ),
               ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: posts.length,
-              itemBuilder: (BuildContext context, int index) {
-                final post = posts[index];
-                return PostCard(post: post);
-              },
-            ),
-          ),
-        ],
-      ),
+            );
+          },
+          error: (error, stack) => Center(
+                child: Text(
+                  "피드드 정보를 불러오는데 실패했습니다.",
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+          loading: () => const Center(child: CircularProgressIndicator())),
     );
   }
 
