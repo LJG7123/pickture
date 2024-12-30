@@ -8,19 +8,17 @@ final postProvider = StateNotifierProvider<PostNotifier, List<Post>>((ref) => Po
 class PostNotifier extends StateNotifier<List<Post>> {
   final PostService postService;
 
-  PostNotifier(this.postService) : super([]) {
-    getPost();
-  }
+  PostNotifier(this.postService) : super([]);
 
   Future<void> getPost() async {
     final posts = await postService.getPost();
     state = posts;
   }
 
-  // Future<void> getPostByUserId() async {
-  //   final posts = await postService.getPostByUserId();
-  //   state = posts;
-  // }
+  Future<void> getPostByUserId(String userId) async {
+    final posts = await postService.getPostByUserId(userId);
+    state = posts;
+  }
 
   Future<void> addPost(Post post) async {
     final addPost = await postService.addPost(post);
