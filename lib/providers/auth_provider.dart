@@ -79,6 +79,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
       email: user.email,
       dob: user.dob,
       profileImage: url,
+      follow: user.follow,
+      following: user.following,
     ));
   }
 
