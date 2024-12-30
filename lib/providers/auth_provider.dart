@@ -71,6 +71,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
       await authService.updateProfileImage(url);
     } catch (e) {
       state = AsyncError(e, StackTrace.current);
+      return;
     }
     var user = state.value!;
     state = AsyncValue.data(UserModel(
@@ -79,6 +80,25 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
       email: user.email,
       dob: user.dob,
       profileImage: url,
+      follow: user.follow,
+      following: user.following,
+    ));
+  }
+
+  Future<void> updateName(String name) async {
+    try {
+      await authService.updateName(name);
+    } catch (e) {
+      state = AsyncError(e, StackTrace.current);
+      return;
+    }
+    var user = state.value!;
+    state = AsyncValue.data(UserModel(
+      uid: user.uid,
+      name: name,
+      email: user.email,
+      dob: user.dob,
+      profileImage: user.profileImage,
       follow: user.follow,
       following: user.following,
     ));

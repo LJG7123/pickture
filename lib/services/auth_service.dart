@@ -90,6 +90,11 @@ class AuthService {
     await _firestore.collection('users').doc(currentUser!.uid).update({'profileImage': url});
   }
 
+  Future<void> updateName(String name) async {
+    if (currentUser == null) return;
+    await _firestore.collection('users').doc(currentUser!.uid).update({'name': name});
+  }
+
   Future<bool> isEmailAvailable(String email) async {
     var accounts = await _firestore.collection('users').where('email', isEqualTo: email).count().get();
     return accounts.count == 0;
