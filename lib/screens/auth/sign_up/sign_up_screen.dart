@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pickture/core/design_system/foundation/spacing.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/page_provider.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_pages/first_page.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_pages/second_page.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_pages/third_page.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_pages/fourth_page.dart';
-import 'package:pickture/screens/auth/widgets/expanded_outlined_progress_button.dart';
+import 'package:pickture/widgets/button/expanded_outlined_progress_button.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -58,7 +59,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: AppSpacing.paddingAll,
         child: Column(
           children: [
             Expanded(

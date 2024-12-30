@@ -8,8 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:pickture/core/design_system/foundation/spacing.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/providers/file_provider.dart';
-import 'package:pickture/screens/auth/widgets/expanded_outlined_button.dart';
-import 'package:pickture/screens/auth/widgets/expanded_outlined_progress_button.dart';
+import 'package:pickture/widgets/button/expanded_outlined_button.dart';
+import 'package:pickture/widgets/button/expanded_outlined_progress_button.dart';
 
 class EditProfileImageScreen extends ConsumerWidget {
   final _profileNotifierProvider = ChangeNotifierProvider<FileNotifier>((ref) => FileNotifier(ref));

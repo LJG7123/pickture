@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pickture/core/design_system/foundation/spacing.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/screens/auth/widgets/auth_text_field.dart';
-import 'package:pickture/screens/auth/widgets/expanded_outlined_icon_button.dart';
-import 'package:pickture/screens/auth/widgets/expanded_outlined_progress_button.dart';
-import 'package:pickture/screens/auth/widgets/expanded_outlined_button.dart';
+import 'package:pickture/widgets/button/expanded_outlined_icon_button.dart';
+import 'package:pickture/widgets/button/expanded_outlined_button.dart';
+import 'package:pickture/widgets/button/expanded_outlined_progress_button.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
@@ -38,26 +39,26 @@ class _SignInScreenState extends ConsumerState {
 
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: AppSpacing.paddingAll,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Spacer(),
             AuthTextField(controller: _emailController, hintText: 'E-mail'),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.md),
             AuthTextField(
               controller: _passwordController,
               hintText: 'Password',
               obscureText: obscurePassword,
               onSuffixIconPressed: () => _togglePasswordVisibility(),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.md),
             ExpandedOutlinedProgressButton(
               onPressed: () => _onLoginButtonClicked(),
               text: '로그인',
               isLoading: isLoading,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.md),
             ExpandedOutlinedIconButton(
               onPressed: () => _onLoginWithGoogleButtonClicked(),
               text: 'Google 로 로그인',
