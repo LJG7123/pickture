@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickture/models/like.dart';
 import 'package:pickture/models/post.dart';
+import 'package:pickture/models/user_model.dart';
 import 'package:pickture/providers/auth_provider.dart';
 import 'package:pickture/screens/auth/sign_in/sign_in_screen.dart';
 import 'package:pickture/screens/auth/sign_up/sign_up_screen.dart';
@@ -11,9 +12,11 @@ import 'package:pickture/screens/chat/chat_room_screen.dart';
 import 'package:pickture/screens/chat/new_chat_screen.dart';
 import 'package:pickture/screens/chat/new_group_chat_screen.dart';
 import 'package:pickture/screens/home_screen.dart';
+import 'package:pickture/screens/post/follow_screen.dart';
 import 'package:pickture/screens/post/like_screen.dart';
 import 'package:pickture/screens/post/post_screen.dart';
 import 'package:pickture/screens/post/save_screen.dart';
+import 'package:pickture/screens/post/user_post_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider).value;
@@ -60,10 +63,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const PostScreen(),
       ),
       GoRoute(
+        path: "/user_post",
+        builder: (context, state) {
+          final user = state.extra as UserModel;
+          return UserPostScreen(user: user);
+        },
+      ),
+      GoRoute(
         path: "/like",
         builder: (context, state) {
           final likes = state.extra as List<Like>;
           return LikeScreen(likes: likes);
+        },
+      ),
+      GoRoute(
+        path: "/follow",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          final userIds = List<String>.from(extra["userIds"]);
+          final isFollow = extra["isFollow"] as bool;
+          return FollowScreen(userIds: userIds, isFollow: isFollow);
         },
       ),
       GoRoute(

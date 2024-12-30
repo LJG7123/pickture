@@ -30,7 +30,7 @@ class PostHeader extends ConsumerWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(post.creator.userId),
+            Text(post.creator!.userId),
             if (isNew)
               Row(
                 children: [
@@ -62,7 +62,7 @@ class PostHeader extends ConsumerWidget {
                   )
                 ],
               )
-            else if (ref.watch(authProvider).value!.uid == post.creator.uid)
+            else if (ref.watch(authProvider).value!.uid == post.creator!.uid)
               Row(
                 children: [
                   IconButton(

@@ -9,7 +9,7 @@ class Post {
   final String content;
   final List<Like> likes;
   final List<Comment> comments;
-  final UserModel creator;
+  UserModel? creator;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -21,19 +21,18 @@ class Post {
     required this.content,
     required this.likes,
     required this.comments,
-    required this.creator,
+    this.creator,
     required this.createdAt,
     this.updatedAt,
   });
 
-  factory Post.fromJson(String postId, Map<String, dynamic> json, List<Like> likes, List<Comment> comments, UserModel creator) {
+  factory Post.fromJson(String postId, Map<String, dynamic> json, List<Like> likes, List<Comment> comments) {
     return Post(
       postId: postId,
       title: json["title"],
       content: json["content"],
       likes: likes,
       comments: comments,
-      creator: creator,
       createdAt: (json["createdAt"] as Timestamp).toDate(),
       updatedAt: json["updatedAt"] != null ? (json["updatedAt"] as Timestamp).toDate() : null,
     );
@@ -70,5 +69,9 @@ class Post {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
+  }
+
+  void setUser(UserModel creator) {
+    this.creator = creator;
   }
 }

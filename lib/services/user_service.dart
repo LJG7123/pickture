@@ -102,4 +102,11 @@ class UserService {
   void cleanExpiredCache() {
     _cache.removeExpired();
   }
+
+  void updateFollow(
+    Map<String, List<String>> currentUserFollowing,
+    Map<String, List<String>> followingUserFollow,
+  ) async {
+    await _repository.updateFollow(currentUserFollowing, followingUserFollow);
+  }
 }
