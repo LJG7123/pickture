@@ -62,7 +62,7 @@ class PostHeader extends ConsumerWidget {
                   )
                 ],
               )
-            else if (ref.watch(authProvider).value!.uid == post.creator.uid)
+            else if (ref.watch(authProvider).value?.uid == post.creator.uid)
               Row(
                 children: [
                   IconButton(

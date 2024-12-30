@@ -12,7 +12,11 @@ class LikeButtonWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authProvider).value!;
+    final user = ref.watch(authProvider).value;
+    if (user == null) {
+      return Container();
+    }
+
     final isLiked = post.likes.any((like) => like.userId == user.uid);
 
     return TextButton.icon(
