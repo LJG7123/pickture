@@ -18,10 +18,11 @@ class PostService {
 
     await Future.wait(postSnapshot.docs.map((doc) async {
       userIds.add(doc.id);
-      _getUserPost(posts, doc.id, userIds);
+      await _getUserPost(posts, doc.id, userIds);
     }));
 
-    _setPostUser(posts, userIds);
+    await _setPostUser(posts, userIds);
+    posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return posts;
   }
 
@@ -29,15 +30,16 @@ class PostService {
     final posts = <Post>[];
     final userIds = <String>{userId};
 
-    _getUserPost(posts, userId, userIds);
-    _setPostUser(posts, userIds);
+    await _getUserPost(posts, userId, userIds);
+    await _setPostUser(posts, userIds);
+    posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return posts;
   }
 
 // #region Post 가져오는 부분
 
-  void _getUserPost(List<Post> posts, String userId, Set<String> userIds) async {
-    final userPost = await _firestore.collection("posts/$userId/post").orderBy("createdAt", descending: true).get();
+  Future<void> _getUserPost(List<Post> posts, String userId, Set<String> userIds) async {
+    final userPost = await _firestore.collection("posts/$userId/post").get();
 
     for (var postDoc in userPost.docs) {
       final likes = _getLikes(postDoc, userIds);
@@ -77,7 +79,7 @@ class PostService {
     return Comment.fromJson(commentJson, comments);
   }
 
-  void _setPostUser(List<Post> posts, Set<String> userIds) async {
+  Future<void> _setPostUser(List<Post> posts, Set<String> userIds) async {
     final userMap = await _getUserMap(userIds);
 
     for (Post post in posts) {
